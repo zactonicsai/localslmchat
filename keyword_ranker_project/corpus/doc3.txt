@@ -1,0 +1,1 @@
+Cloud systems often use document indexing and model-based retrieval.

@@ -1,0 +1,3 @@
+This document explains how Python and machine learning can be used in NLP systems.
+The model uses TF-IDF ranking to score keyword relevance in a document.
+This ranking approach is useful in cloud-based search systems.
