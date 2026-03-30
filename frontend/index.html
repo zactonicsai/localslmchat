@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Context Query</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        surface: {
+                            50: '#f0f4f3', 100: '#dce5e2', 200: '#b8cbc5', 300: '#8aaba1',
+                            400: '#5f8a7d', 500: '#3d6b5e', 600: '#2d524a', 700: '#1e3a34',
+                            800: '#152a26', 900: '#0d1d19', 950: '#08120f',
+                        },
+                        accent: { DEFAULT: '#38bdf8', warm: '#f59e0b', danger: '#ef4444', success: '#22c55e' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: #08120f; color: #dce5e2; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2d524a; border-radius: 3px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .msg-animate { animation: slideIn 0.3s ease-out; }
+        @keyframes pulse-dot {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        .dot-pulse span:nth-child(1) { animation: pulse-dot 1.4s ease-in-out infinite; }
+        .dot-pulse span:nth-child(2) { animation: pulse-dot 1.4s ease-in-out 0.2s infinite; }
+        .dot-pulse span:nth-child(3) { animation: pulse-dot 1.4s ease-in-out 0.4s infinite; }
+        .upload-zone { border: 2px dashed #2d524a; transition: all 0.3s ease; }
+        .upload-zone:hover, .upload-zone.dragover { border-color: #38bdf8; background: rgba(56,189,248,0.05); }
+        .doc-check {
+            appearance: none; width: 18px; height: 18px; border: 2px solid #3d6b5e;
+            border-radius: 4px; cursor: pointer; transition: all 0.2s; position: relative;
+        }
+        .doc-check:checked { background: #38bdf8; border-color: #38bdf8; }
+        .doc-check:checked::after {
+            content: '✓'; position: absolute; top: -2px; left: 2px;
+            font-size: 13px; color: #08120f; font-weight: 700;
+        }
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238aaba1' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; appearance: none;
+        }
+        .msg-content p { margin-bottom: 0.5em; }
+        .msg-content strong { color: #38bdf8; font-weight: 600; }
+        .msg-content code {
+            background: rgba(56,189,248,0.1); padding: 2px 6px; border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85em;
+        }
+        .file-badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { animation: spin 1s linear infinite; }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden">
+    <!-- TOP BAR -->
+    <header class="flex-shrink-0 border-b border-surface-700/50 bg-surface-950/80 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-accent to-teal-400 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-surface-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-lg leading-tight tracking-tight text-surface-50">Local Context Query</h1>
+                    <p class="text-[11px] text-surface-400 font-mono tracking-wide">TEMPORAL + CHROMADB + OLLAMA</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <label class="text-xs text-surface-400 font-mono tracking-wide hidden sm:block">MODEL</label>
+                <select id="modelSelect"
+                    class="bg-surface-800 border border-surface-600 text-surface-100 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:border-accent min-w-[200px] font-mono text-xs cursor-pointer">
+                    <option value="phi4-mini:latest">phi4-mini:latest</option>
+                </select>
+                <button onclick="refreshModels()" title="Refresh models" class="p-2 rounded-lg hover:bg-surface-800 transition-colors text-surface-400 hover:text-accent">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+                <div id="ollamaStatus" class="w-2.5 h-2.5 rounded-full bg-surface-600" title="Checking..."></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1 flex overflow-hidden max-w-7xl w-full mx-auto">
+        <!-- CHAT -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <div id="chatMessages" class="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+                <div class="msg-animate flex gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-teal-400 flex items-center justify-center mt-1">
+                        <svg class="w-4 h-4 text-surface-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    </div>
+                    <div class="bg-surface-800/60 rounded-2xl rounded-tl-md px-5 py-4 max-w-2xl border border-surface-700/30">
+                        <p class="text-surface-200 text-sm leading-relaxed">
+                            Welcome to <strong class="text-accent font-semibold">Local Context Query</strong>.
+                            Upload documents using the panel on the right. Documents are processed via
+                            <strong class="text-accent font-semibold">Temporal</strong> workflows
+                            (extract → chunk → embed → store). Ask questions once processing completes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Input -->
+            <div class="flex-shrink-0 border-t border-surface-700/30 bg-surface-950/50 px-4 py-4">
+                <div class="flex gap-3 items-end max-w-3xl mx-auto">
+                    <textarea id="chatInput" rows="1"
+                        placeholder="Ask a question about your documents..."
+                        class="flex-1 bg-surface-800 border border-surface-600 rounded-xl px-4 py-3 text-sm text-surface-100 placeholder-surface-500 resize-none focus:outline-none focus:border-accent transition-colors font-display"
+                        style="max-height: 120px;"></textarea>
+                    <button id="sendBtn" onclick="sendMessage()"
+                        class="flex-shrink-0 w-11 h-11 rounded-xl bg-accent hover:bg-sky-300 transition-colors flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                        <svg class="w-5 h-5 text-surface-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19V5m-7 7l7-7 7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-[340px] flex-shrink-0 border-l border-surface-700/30 flex flex-col bg-surface-900/50 overflow-hidden hidden lg:flex">
+            <!-- Upload -->
+            <div class="p-4 border-b border-surface-700/30">
+                <h2 class="font-display font-semibold text-sm text-surface-200 mb-3 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    Upload Documents
+                </h2>
+                <div id="uploadZone" class="upload-zone rounded-xl p-6 text-center cursor-pointer" onclick="document.getElementById('fileInput').click()">
+                    <input type="file" id="fileInput" class="hidden" multiple accept=".pdf,.docx,.doc,.txt,.md,.csv,.json,.xml,.html,.xlsx,.xls,.log">
+                    <svg class="w-8 h-8 mx-auto text-surface-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <p class="text-xs text-surface-400">Drop files or click to browse</p>
+                    <p class="text-[10px] text-surface-500 mt-1 font-mono">PDF · DOCX · TXT · CSV · XLSX · JSON · MD · XML</p>
+                </div>
+                <div id="uploadProgress" class="hidden mt-3">
+                    <div class="flex items-center gap-2 text-xs text-surface-300">
+                        <svg class="w-4 h-4 spin text-accent" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                        <span id="uploadText">Uploading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Queue -->
+            <div id="processingSection" class="hidden border-b border-surface-700/30 p-4">
+                <h2 class="font-display font-semibold text-sm text-accent-warm mb-2 flex items-center gap-2">
+                    <svg class="w-4 h-4 spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    Processing
+                </h2>
+                <div id="processingList" class="space-y-1.5"></div>
+            </div>
+
+            <!-- Document List -->
+            <div class="flex-1 overflow-y-auto p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="font-display font-semibold text-sm text-surface-200 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                        Context Documents
+                        <span id="docCount" class="bg-surface-700 text-surface-300 text-[10px] font-mono px-1.5 py-0.5 rounded-full">0</span>
+                    </h2>
+                    <button onclick="toggleAllDocs()" class="text-[10px] font-mono text-accent hover:text-sky-300 transition-colors tracking-wide">TOGGLE ALL</button>
+                </div>
+                <div id="docList" class="space-y-2">
+                    <p class="text-xs text-surface-500 text-center py-6">No documents uploaded yet</p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Mobile toggle -->
+    <button onclick="toggleSidebar()" class="lg:hidden fixed bottom-24 right-4 z-50 w-12 h-12 rounded-full bg-accent text-surface-950 flex items-center justify-center shadow-lg shadow-accent/20">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    </button>
+
+<script>
+// ── State ──
+let documents = [];
+let allDocsEnabled = true;
+let isQuerying = false;
+let processingQueue = [];  // {doc_id, filename, status}
+const API = '/api';
+
+// ── Safe fetch ──
+async function safeFetch(url, opts = {}) {
+    let resp;
+    try { resp = await fetch(url, opts); } catch (e) { throw new Error(`Network error: ${e.message}`); }
+    const text = await resp.text();
+    let data;
+    try { data = JSON.parse(text); } catch {
+        if (!resp.ok) throw new Error(`Server error (${resp.status}): ${text.slice(0, 200)}`);
+        throw new Error(`Unexpected response: ${text.slice(0, 200)}`);
+    }
+    if (!resp.ok) throw new Error(data.detail || `Error ${resp.status}`);
+    return data;
+}
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+    refreshModels();
+    loadDocuments();
+    setupInputHandlers();
+    setupDragDrop();
+});
+
+// ── Models ──
+async function refreshModels() {
+    const sel = document.getElementById('modelSelect');
+    const status = document.getElementById('ollamaStatus');
+    try {
+        const data = await safeFetch(`${API}/models`);
+        const current = sel.value;
+        sel.innerHTML = '';
+        data.models.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.name; opt.textContent = m.name;
+            sel.appendChild(opt);
+        });
+        if ([...sel.options].some(o => o.value === current)) sel.value = current;
+        else if ([...sel.options].some(o => o.value.includes('phi4-mini')))
+            sel.value = [...sel.options].find(o => o.value.includes('phi4-mini')).value;
+        status.className = 'w-2.5 h-2.5 rounded-full bg-green-400';
+        status.title = `Connected · ${data.models.length} models`;
+    } catch (e) {
+        status.className = 'w-2.5 h-2.5 rounded-full bg-red-400';
+        status.title = `Error: ${e.message}`;
+    }
+}
+
+// ── Documents ──
+async function loadDocuments() {
+    try {
+        const data = await safeFetch(`${API}/documents`);
+        documents = data.documents.map(d => ({ ...d, enabled: true }));
+        renderDocList();
+    } catch (e) { console.error('Load docs:', e); }
+}
+
+function renderDocList() {
+    const list = document.getElementById('docList');
+    document.getElementById('docCount').textContent = documents.length;
+    if (documents.length === 0) {
+        list.innerHTML = '<p class="text-xs text-surface-500 text-center py-6">No documents uploaded yet</p>';
+        return;
+    }
+    const colors = {
+        PDF:'bg-red-500/20 text-red-300', DOCX:'bg-blue-500/20 text-blue-300', DOC:'bg-blue-500/20 text-blue-300',
+        TXT:'bg-surface-600/50 text-surface-300', CSV:'bg-green-500/20 text-green-300',
+        XLSX:'bg-emerald-500/20 text-emerald-300', XLS:'bg-emerald-500/20 text-emerald-300',
+        JSON:'bg-amber-500/20 text-amber-300', MD:'bg-purple-500/20 text-purple-300', XML:'bg-cyan-500/20 text-cyan-300',
+    };
+    list.innerHTML = documents.map(doc => {
+        const ext = doc.filename.split('.').pop().toUpperCase();
+        const badge = colors[ext] || 'bg-surface-600/50 text-surface-300';
+        const name = doc.filename.length > 28 ? doc.filename.slice(0,25)+'…' : doc.filename;
+        return `
+        <div class="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-surface-800/40 border border-surface-700/20 hover:border-surface-600/40 transition-all">
+            <input type="checkbox" class="doc-check flex-shrink-0" ${doc.enabled?'checked':''}
+                onchange="toggleDoc('${doc.doc_id}')" title="Include in queries">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                    <span class="file-badge px-1.5 py-0.5 rounded ${badge}">${ext}</span>
+                    <span class="text-xs text-surface-200 truncate" title="${doc.filename}">${name}</span>
+                </div>
+                <p class="text-[10px] text-surface-500 font-mono mt-0.5">${doc.total_chunks} chunks</p>
+            </div>
+            <button onclick="deleteDoc('${doc.doc_id}','${doc.filename.replace(/'/g,"\\'")}')"
+                class="flex-shrink-0 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/20 text-surface-500 hover:text-red-400 transition-all"
+                title="Delete document">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+        </div>`;
+    }).join('');
+}
+
+function toggleDoc(id) { const d = documents.find(x => x.doc_id === id); if (d) d.enabled = !d.enabled; }
+function toggleAllDocs() { allDocsEnabled = !allDocsEnabled; documents.forEach(d => d.enabled = allDocsEnabled); renderDocList(); }
+async function deleteDoc(id, name) {
+    if (!confirm(`Delete "${name}" from context?`)) return;
+    try { await safeFetch(`${API}/documents/${id}`, {method:'DELETE'}); documents = documents.filter(d => d.doc_id !== id); renderDocList(); addSystemMessage(`Deleted "${name}".`); }
+    catch (e) { addSystemMessage(`Delete failed: ${e.message}`); }
+}
+
+// ── Processing Queue UI ──
+function renderProcessingQueue() {
+    const section = document.getElementById('processingSection');
+    const list = document.getElementById('processingList');
+    if (processingQueue.length === 0) { section.classList.add('hidden'); return; }
+    section.classList.remove('hidden');
+    list.innerHTML = processingQueue.map(p => `
+        <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/20">
+            <svg class="w-3.5 h-3.5 spin text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            <span class="text-xs text-surface-200 truncate flex-1">${esc(p.filename)}</span>
+            <span class="text-[10px] font-mono text-amber-400">${p.status}</span>
+        </div>
+    `).join('');
+}
+
+// ── Upload with Temporal polling ──
+function setupDragDrop() {
+    const zone = document.getElementById('uploadZone');
+    const input = document.getElementById('fileInput');
+    ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('dragover'); }));
+    ['dragleave','drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('dragover'); }));
+    zone.addEventListener('drop', e => { if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files); });
+    input.addEventListener('change', e => { if (e.target.files.length) uploadFiles(e.target.files); e.target.value = ''; });
+}
+
+async function uploadFiles(fileList) {
+    const progress = document.getElementById('uploadProgress');
+    const progressText = document.getElementById('uploadText');
+    progress.classList.remove('hidden');
+
+    for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        progressText.textContent = `Uploading ${file.name} (${i+1}/${fileList.length})…`;
+        const form = new FormData();
+        form.append('file', file);
+        try {
+            const data = await safeFetch(`${API}/upload`, { method: 'POST', body: form });
+            // Workflow started — add to processing queue and poll
+            const entry = { doc_id: data.doc_id, filename: data.filename, status: 'processing' };
+            processingQueue.push(entry);
+            renderProcessingQueue();
+            addSystemMessage(`"${data.filename}" uploaded — processing via Temporal workflow…`);
+            pollUploadStatus(entry);
+        } catch (e) {
+            addSystemMessage(`Upload failed "${file.name}": ${e.message}`);
+        }
+    }
+    progress.classList.add('hidden');
+}
+
+async function pollUploadStatus(entry) {
+    const POLL_INTERVAL = 2000;
+    const MAX_POLLS = 300; // 10 min max
+    let polls = 0;
+
+    const poll = async () => {
+        polls++;
+        if (polls > MAX_POLLS) {
+            entry.status = 'timeout';
+            processingQueue = processingQueue.filter(p => p.doc_id !== entry.doc_id);
+            renderProcessingQueue();
+            addSystemMessage(`"${entry.filename}" processing timed out.`);
+            return;
+        }
+        try {
+            const data = await safeFetch(`${API}/upload/${entry.doc_id}/status`);
+
+            if (data.status === 'completed') {
+                processingQueue = processingQueue.filter(p => p.doc_id !== entry.doc_id);
+                renderProcessingQueue();
+                addSystemMessage(`"${entry.filename}" ready — ${data.chunks} chunks indexed.`);
+                // Refresh document list from ChromaDB
+                await loadDocuments();
+                return;
+            } else if (data.status === 'failed') {
+                processingQueue = processingQueue.filter(p => p.doc_id !== entry.doc_id);
+                renderProcessingQueue();
+                addSystemMessage(`"${entry.filename}" failed: ${data.error || 'Unknown error'}`);
+                return;
+            } else {
+                entry.status = data.status || 'processing';
+                renderProcessingQueue();
+                setTimeout(poll, POLL_INTERVAL);
+            }
+        } catch (e) {
+            // Transient error, keep polling
+            setTimeout(poll, POLL_INTERVAL);
+        }
+    };
+
+    setTimeout(poll, POLL_INTERVAL);
+}
+
+// ── Chat ──
+function setupInputHandlers() {
+    const input = document.getElementById('chatInput');
+    const btn = document.getElementById('sendBtn');
+    input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        btn.disabled = !input.value.trim() || isQuerying;
+    });
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (input.value.trim() && !isQuerying) sendMessage(); }
+    });
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const query = input.value.trim();
+    if (!query || isQuerying) return;
+    isQuerying = true;
+    document.getElementById('sendBtn').disabled = true;
+    input.value = ''; input.style.height = 'auto';
+    addUserMessage(query);
+    const loadingId = addLoadingMessage();
+    const enabledIds = documents.filter(d => d.enabled).map(d => d.doc_id);
+    try {
+        const data = await safeFetch(`${API}/query`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({query, model: document.getElementById('modelSelect').value, enabled_doc_ids: enabledIds}),
+        });
+        removeMessage(loadingId);
+        addAssistantMessage(data.answer, data.sources || []);
+    } catch (e) {
+        removeMessage(loadingId);
+        addAssistantMessage(`Error: ${e.message}`, []);
+    }
+    isQuerying = false;
+    document.getElementById('sendBtn').disabled = !document.getElementById('chatInput').value.trim();
+}
+
+// ── Message rendering ──
+function addUserMessage(text) {
+    const c = document.getElementById('chatMessages'), d = document.createElement('div');
+    d.className = 'msg-animate flex gap-3 justify-end';
+    d.innerHTML = `<div class="bg-accent/10 border border-accent/20 rounded-2xl rounded-tr-md px-5 py-3 max-w-2xl"><p class="text-sm text-surface-100">${esc(text)}</p></div>
+        <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-surface-700 flex items-center justify-center mt-1"><svg class="w-4 h-4 text-surface-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>`;
+    c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function addAssistantMessage(text, sources) {
+    const c = document.getElementById('chatMessages'), d = document.createElement('div');
+    d.className = 'msg-animate flex gap-3';
+    let srcHtml = '';
+    if (sources && sources.length) {
+        const uniq = [...new Map(sources.map(s=>[s.filename,s])).values()];
+        srcHtml = `<div class="mt-3 pt-3 border-t border-surface-700/30"><p class="text-[10px] font-mono text-surface-500 mb-1.5 tracking-wide">SOURCES</p><div class="flex flex-wrap gap-1.5">${uniq.map(s=>`<span class="text-[10px] bg-surface-700/50 text-surface-300 px-2 py-1 rounded-md font-mono">${esc(s.filename)}</span>`).join('')}</div></div>`;
+    }
+    d.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-teal-400 flex items-center justify-center mt-1"><svg class="w-4 h-4 text-surface-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+        <div class="bg-surface-800/60 rounded-2xl rounded-tl-md px-5 py-4 max-w-2xl border border-surface-700/30"><div class="msg-content text-sm text-surface-200 leading-relaxed">${renderMd(text)}</div>${srcHtml}</div>`;
+    c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function addSystemMessage(text) {
+    const c = document.getElementById('chatMessages'), d = document.createElement('div');
+    d.className = 'msg-animate flex justify-center';
+    d.innerHTML = `<div class="bg-surface-800/40 rounded-full px-4 py-1.5 border border-surface-700/20"><p class="text-[11px] text-surface-400 font-mono">${esc(text)}</p></div>`;
+    c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function addLoadingMessage() {
+    const c = document.getElementById('chatMessages'), id = 'load-'+Date.now(), d = document.createElement('div');
+    d.id = id; d.className = 'msg-animate flex gap-3';
+    d.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-teal-400 flex items-center justify-center mt-1"><svg class="w-4 h-4 text-surface-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+        <div class="bg-surface-800/60 rounded-2xl rounded-tl-md px-5 py-4 border border-surface-700/30"><div class="dot-pulse flex gap-1.5"><span class="w-2 h-2 rounded-full bg-accent inline-block"></span><span class="w-2 h-2 rounded-full bg-accent inline-block"></span><span class="w-2 h-2 rounded-full bg-accent inline-block"></span></div></div>`;
+    c.appendChild(d); c.scrollTop = c.scrollHeight; return id;
+}
+function removeMessage(id) { document.getElementById(id)?.remove(); }
+function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function renderMd(t) {
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>')
+        .replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>').replace(/^/,'<p>').replace(/$/,'</p>');
+}
+function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    s.classList.toggle('hidden'); s.classList.toggle('fixed'); s.classList.toggle('inset-0');
+    s.classList.toggle('z-40'); s.classList.toggle('w-full'); s.classList.toggle('lg:flex');
+}
+</script>
+</body>
+</html>
