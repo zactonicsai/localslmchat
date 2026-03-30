@@ -1,5 +1,39 @@
 services:
-  # ── Postgres 17 for Temporal persistence ──
+  # ── Ollama (LLM inference inside Docker) ──
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ${HOME}/.ollama/models:/root/.ollama/models
+    healthcheck:
+      test: ["CMD", "echo"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    
+
+  # ── LocalStack (S3) ──
+  localstack:
+    image: localstack/localstack:4.0
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEFAULT_REGION=us-east-1
+      - EAGER_SERVICE_LOADING=1
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - ./localstack-init:/etc/localstack/init/ready.d
+    healthcheck:
+      test: ["CMD", "echo"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # ── Postgres 17 (Temporal persistence) ──
   temporal-db:
     image: postgres:17-alpine
     ports:
@@ -16,7 +50,7 @@ services:
       timeout: 3s
       retries: 10
 
-  # ── Temporal Server (auto-setup with Postgres) ──
+  # ── Temporal Server ──
   temporal:
     image: temporalio/auto-setup:1.25.2
     ports:
@@ -49,12 +83,12 @@ services:
       - "8080:8080"
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CORS_ORIGINS=http://localhost:8080
+      - TEMPORAL_CORS_ORIGINS=http://host.docker.internal:8080
     depends_on:
       temporal:
         condition: service_healthy
 
-  # ── ChromaDB vector store ──
+  # ── ChromaDB ──
   chromadb:
     image: chromadb/chroma:0.6.3
     ports:
@@ -65,13 +99,13 @@ services:
       - ANONYMIZED_TELEMETRY=FALSE
       - ALLOW_RESET=TRUE
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      test: ["CMD", "curl", "-f", "http://host.docker.internal:8000/api/v1/heartbeat"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
 
-  # ── Temporal Worker (runs upload/embed activities) ──
+  # ── Worker (Temporal activities) ──
   worker:
     build:
       context: .
@@ -81,19 +115,24 @@ services:
         condition: service_healthy
       chromadb:
         condition: service_healthy
+      localstack:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
-      - UPLOAD_DIR=/app/uploads
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - upload_data:/app/uploads
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - EMBED_MODEL=nomic-embed-text
+      - S3_ENDPOINT=http://localstack:4566
+      - S3_BUCKET=lcq-documents
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
     restart: unless-stopped
 
-  # ── FastAPI Backend ──
+  # ── Backend (FastAPI) ──
   backend:
     build:
       context: .
@@ -105,24 +144,29 @@ services:
         condition: service_healthy
       chromadb:
         condition: service_healthy
+      localstack:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
-      - UPLOAD_DIR=/app/uploads
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - upload_data:/app/uploads
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - EMBED_MODEL=nomic-embed-text
+      - S3_ENDPOINT=http://localstack:4566
+      - S3_BUCKET=lcq-documents
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8200/api/health"]
+      test: ["CMD", "curl", "-f", "http://host.docker.internal:8200/api/health"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 15s
 
-  # ── Nginx Frontend ──
+  # ── Frontend (Nginx) ──
   frontend:
     image: nginx:1.27-alpine
     ports:
@@ -135,6 +179,6 @@ services:
         condition: service_healthy
 
 volumes:
+  localstack_data:
   temporal_pgdata:
   chroma_data:
-  upload_data:

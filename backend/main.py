@@ -1,15 +1,16 @@
 """
 Local Context Query — FastAPI Backend
 
-Upload triggers a Temporal workflow (extract → chunk → embed → store).
-Query reads from ChromaDB and calls Ollama for generation.
+Upload → S3 → Temporal workflow (extract → chunk → embed → store in ChromaDB).
+Query → embed with same model → ChromaDB search → Ollama generate.
 """
 import os
+import sys
 import uuid
 import textwrap
 import traceback
-from datetime import datetime, timezone
 
+import boto3
 import httpx
 import chromadb
 from temporalio.client import Client as TemporalClient
@@ -18,55 +19,50 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-# Add shared module to path
-import sys
 sys.path.insert(0, "/app")
+from shared.models import TASK_QUEUE, WORKFLOW_ID_PREFIX, S3_RAW_PREFIX, UploadInput
 
-from shared.models import TASK_QUEUE, WORKFLOW_ID_PREFIX, UploadInput, UploadResult
-
-# ── Config ─────────────────────────────────────────────────────────────
+# ── Config ──
 TEMPORAL_ADDRESS = os.getenv("TEMPORAL_ADDRESS", "localhost:7233")
 CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8000"))
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")
-COLLECTION_NAME = "local_context"
+EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
+S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://localhost:4566")
+S3_BUCKET = os.getenv("S3_BUCKET", "lcq-documents")
 
 app = FastAPI(title="Local Context Query API")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
-# ── Global exception handler ────────────────────────────────────────────
 @app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
+async def global_exc(request: Request, exc: Exception):
     if isinstance(exc, HTTPException):
         return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
-    tb = traceback.format_exc()
-    print(f"[ERROR] {request.method} {request.url.path}: {exc}\n{tb}")
-    return JSONResponse(status_code=500, content={"detail": f"Server error: {str(exc)}"})
+    traceback.print_exc()
+    return JSONResponse(status_code=500, content={"detail": f"Server error: {exc}"})
 
 
-# ── Temporal client (lazy) ──────────────────────────────────────────────
-_temporal_client = None
-
-
-async def get_temporal_client():
-    global _temporal_client
-    if _temporal_client is None:
-        _temporal_client = await TemporalClient.connect(TEMPORAL_ADDRESS)
-        print(f"[INFO] Temporal connected at {TEMPORAL_ADDRESS}")
-    return _temporal_client
-
-
-# ── ChromaDB (lazy, reconnect on failure) ───────────────────────────────
+# ── Clients (lazy) ──
+_temporal = None
 _chroma_client = None
 _collection = None
+
+
+def _s3():
+    return boto3.client(
+        "s3", endpoint_url=S3_ENDPOINT,
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID", "test"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY", "test"),
+        region_name=os.getenv("AWS_DEFAULT_REGION", "us-east-1"),
+    )
+
+
+async def get_temporal():
+    global _temporal
+    if _temporal is None:
+        _temporal = await TemporalClient.connect(TEMPORAL_ADDRESS)
+    return _temporal
 
 
 def get_collection():
@@ -75,12 +71,9 @@ def get_collection():
         if _chroma_client is None:
             _chroma_client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
             _chroma_client.heartbeat()
-            print(f"[INFO] ChromaDB connected at {CHROMA_HOST}:{CHROMA_PORT}")
         if _collection is None:
             _collection = _chroma_client.get_or_create_collection(
-                name=COLLECTION_NAME,
-                metadata={"hnsw:space": "cosine"},
-            )
+                name="local_context", metadata={"hnsw:space": "cosine"})
         return _collection
     except Exception as e:
         _chroma_client = None
@@ -88,7 +81,7 @@ def get_collection():
         raise HTTPException(status_code=503, detail=f"ChromaDB unavailable: {e}")
 
 
-# ── Ollama helpers ──────────────────────────────────────────────────────
+# ── Ollama ──
 async def ollama_get(path, timeout=10.0):
     async with httpx.AsyncClient(timeout=timeout) as c:
         r = await c.get(f"{OLLAMA_BASE_URL}{path}")
@@ -103,6 +96,28 @@ async def ollama_post(path, payload, timeout=120.0):
         return r.json()
 
 
+async def ollama_embed(text):
+    """Embed with the SAME model the worker uses. Supports both old and new Ollama API."""
+    # Try new API first (/api/embed with "input"), fall back to old (/api/embeddings with "prompt")
+    async with httpx.AsyncClient(timeout=60.0) as c:
+        # New endpoint (Ollama >= 0.4)
+        resp = await c.post(f"{OLLAMA_BASE_URL}/api/embed", json={"model": EMBED_MODEL, "input": text})
+        if resp.status_code == 404:
+            # Old endpoint (Ollama < 0.4)
+            resp = await c.post(f"{OLLAMA_BASE_URL}/api/embed", json={"model": EMBED_MODEL, "prompt": text})
+        resp.raise_for_status()
+        data = resp.json()
+
+    # New API returns {"embeddings": [[...]]}; old returns {"embedding": [...]}
+    embs = data.get("embeddings")
+    if embs and len(embs) > 0:
+        return embs[0]
+    emb = data.get("embedding")
+    if emb and len(emb) > 0:
+        return emb
+    raise ValueError(f"Empty embeddings from {EMBED_MODEL}")
+
+
 async def ollama_generate(model, prompt, system=""):
     data = await ollama_post("/api/generate", {
         "model": model, "prompt": prompt, "system": system,
@@ -111,41 +126,9 @@ async def ollama_generate(model, prompt, system=""):
     return data.get("response", "")
 
 
-_embed_model = None
-
-
-async def _resolve_embed_model():
-    global _embed_model
-    if _embed_model is not None:
-        return _embed_model
-    preferred = ["nomic-embed-text", "all-minilm", "mxbai-embed-large"]
-    try:
-        tags = await ollama_get("/api/tags")
-        available = [m["name"].split(":")[0] for m in tags.get("models", [])]
-    except Exception:
-        available = []
-    for m in preferred:
-        if m in available:
-            _embed_model = m
-            return m
-    if available:
-        _embed_model = available[0]
-        return _embed_model
-    raise HTTPException(status_code=503, detail="No models in Ollama. Run: ollama pull nomic-embed-text")
-
-
-async def ollama_embed(text):
-    model = await _resolve_embed_model()
-    data = await ollama_post("/api/embed", {"model": model, "input": text}, timeout=60.0)
-    embs = data.get("embeddings", [])
-    if embs and len(embs) > 0:
-        return embs[0]
-    raise ValueError(f"Empty embeddings from {model}")
-
-
-# ═══════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
 # ROUTES
-# ═══════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
 
 @app.get("/api/health")
 async def health():
@@ -159,151 +142,152 @@ async def health():
     except Exception as e:
         errors["ollama"] = str(e)
     try:
-        await get_temporal_client()
+        await get_temporal()
     except Exception as e:
         errors["temporal"] = str(e)
-    if errors:
-        return {"status": "degraded", "errors": errors}
-    return {"status": "ok"}
+    try:
+        _s3().head_bucket(Bucket=S3_BUCKET)
+    except Exception as e:
+        errors["s3"] = str(e)
+    return {"status": "degraded" if errors else "ok", "errors": errors} if errors else {"status": "ok"}
 
 
 @app.get("/api/models")
 async def list_models():
     try:
         data = await ollama_get("/api/tags")
-        return {
-            "models": [
-                {"name": m["name"], "size": m.get("size", 0), "modified": m.get("modified_at", "")}
-                for m in data.get("models", [])
-            ]
-        }
+        return {"models": [
+            {"name": m["name"], "size": m.get("size", 0), "modified": m.get("modified_at", "")}
+            for m in data.get("models", [])
+        ]}
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Cannot reach Ollama at {OLLAMA_BASE_URL}: {e}")
+        raise HTTPException(status_code=502, detail=f"Cannot reach Ollama: {e}")
 
 
-# ── Upload: save file locally, start Temporal workflow ──
+# ── Upload: save to S3, start Temporal workflow ──
 @app.post("/api/upload")
 async def upload_document(file: UploadFile = File(...)):
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
 
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    doc_id = uuid.uuid4().hex[:12]
-    safe_name = file.filename.replace("/", "_").replace("\\", "_")
-    filepath = os.path.join(UPLOAD_DIR, f"{doc_id}_{safe_name}")
-
     content = await file.read()
     if not content:
         raise HTTPException(status_code=400, detail="Empty file")
 
-    with open(filepath, "wb") as f:
-        f.write(content)
+    doc_id = uuid.uuid4().hex[:12]
+    safe_name = file.filename.replace("/", "_").replace("\\", "_")
+    s3_raw_key = f"{S3_RAW_PREFIX}{doc_id}/{safe_name}"
+
+    # Upload to S3
+    try:
+        _s3().put_object(Bucket=S3_BUCKET, Key=s3_raw_key, Body=content)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"S3 upload failed: {e}")
 
     # Start Temporal workflow
     try:
-        temporal = await get_temporal_client()
+        temporal = await get_temporal()
         workflow_id = f"{WORKFLOW_ID_PREFIX}-{doc_id}"
-
         await temporal.start_workflow(
             "DocumentUploadWorkflow",
-            UploadInput(doc_id=doc_id, filename=safe_name, filepath=filepath),
-            id=workflow_id,
-            task_queue=TASK_QUEUE,
+            UploadInput(doc_id=doc_id, filename=safe_name, s3_raw_key=s3_raw_key),
+            id=workflow_id, task_queue=TASK_QUEUE,
         )
-
-        return {
-            "doc_id": doc_id,
-            "filename": safe_name,
-            "workflow_id": workflow_id,
-            "status": "processing",
-        }
+        return {"doc_id": doc_id, "filename": safe_name, "workflow_id": workflow_id, "status": "processing"}
     except Exception as e:
-        # Clean up file on failure
-        if os.path.exists(filepath):
-            os.remove(filepath)
         raise HTTPException(status_code=502, detail=f"Failed to start workflow: {e}")
 
 
-# ── Upload status: poll Temporal for workflow result ──
+# ── Upload status polling ──
 @app.get("/api/upload/{doc_id}/status")
 async def upload_status(doc_id: str):
     try:
-        temporal = await get_temporal_client()
-        workflow_id = f"{WORKFLOW_ID_PREFIX}-{doc_id}"
-        handle = temporal.get_workflow_handle(workflow_id)
+        temporal = await get_temporal()
+        handle = temporal.get_workflow_handle(f"{WORKFLOW_ID_PREFIX}-{doc_id}")
         desc = await handle.describe()
 
-        status = str(desc.status)
-
-        # If completed, get the result
-        if "COMPLETED" in status:
-            result = await handle.result()
-            return {
-                "doc_id": doc_id,
-                "status": result.status,
-                "filename": result.filename,
-                "chunks": result.chunks,
-                "characters": result.characters,
-                "error": result.error,
-            }
-        elif "FAILED" in status:
-            return {
-                "doc_id": doc_id,
-                "status": "failed",
-                "error": "Workflow failed. Check Temporal UI at http://localhost:8080",
-            }
-        elif "RUNNING" in status:
-            return {"doc_id": doc_id, "status": "processing"}
+        # desc.status is WorkflowExecutionStatus enum — get name safely
+        status_val = desc.status
+        if hasattr(status_val, 'name'):
+            status_name = status_val.name
+        elif hasattr(status_val, 'value'):
+            status_name = str(status_val.value)
         else:
-            return {"doc_id": doc_id, "status": status.lower()}
+            status_name = str(status_val)
+
+        if status_name == "COMPLETED" or status_name == "2":
+            try:
+                result = await handle.result()
+                # Result could be dict or dataclass depending on SDK serialization
+                if isinstance(result, dict):
+                    return {
+                        "doc_id": doc_id,
+                        "status": result.get("status", "completed"),
+                        "filename": result.get("filename", ""),
+                        "chunks": result.get("chunks", 0),
+                        "characters": result.get("characters", 0),
+                        "error": result.get("error"),
+                    }
+                return {
+                    "doc_id": doc_id,
+                    "status": getattr(result, "status", "completed"),
+                    "filename": getattr(result, "filename", ""),
+                    "chunks": getattr(result, "chunks", 0),
+                    "characters": getattr(result, "characters", 0),
+                    "error": getattr(result, "error", None),
+                }
+            except Exception as e:
+                return {"doc_id": doc_id, "status": "completed", "chunks": 0, "error": str(e)}
+
+        elif status_name in ("FAILED", "3"):
+            return {"doc_id": doc_id, "status": "failed",
+                    "error": "Workflow failed. Check Temporal UI at http://localhost:8080"}
+        elif status_name in ("CANCELED", "TERMINATED", "TIMED_OUT", "5", "6", "7"):
+            return {"doc_id": doc_id, "status": "failed", "error": f"Workflow {status_name}"}
+        else:
+            return {"doc_id": doc_id, "status": "processing"}
 
     except Exception as e:
-        error_str = str(e)
-        if "not found" in error_str.lower():
+        if "not found" in str(e).lower():
             raise HTTPException(status_code=404, detail=f"Workflow not found for doc {doc_id}")
         raise HTTPException(status_code=500, detail=f"Status check failed: {e}")
 
 
-# ── Document listing from ChromaDB ──
+# ── Documents ──
 @app.get("/api/documents")
 async def list_documents():
     coll = get_collection()
     result = coll.get(include=["metadatas"])
-
     docs = {}
     for meta in result["metadatas"]:
         did = meta["doc_id"]
         if did not in docs:
             docs[did] = {
-                "doc_id": did,
-                "filename": meta["filename"],
+                "doc_id": did, "filename": meta["filename"],
                 "total_chunks": meta["total_chunks"],
                 "uploaded_at": meta.get("uploaded_at", ""),
             }
     return {"documents": list(docs.values())}
 
 
-# ── Delete document ──
 @app.delete("/api/documents/{doc_id}")
 async def delete_document(doc_id: str):
     coll = get_collection()
     result = coll.get(include=["metadatas"])
-
-    ids_to_delete = [
-        result["ids"][i]
-        for i, meta in enumerate(result["metadatas"])
-        if meta.get("doc_id") == doc_id
-    ]
+    ids_to_delete = [result["ids"][i] for i, m in enumerate(result["metadatas"]) if m.get("doc_id") == doc_id]
     if not ids_to_delete:
         raise HTTPException(status_code=404, detail="Document not found")
-
     coll.delete(ids=ids_to_delete)
 
-    if os.path.isdir(UPLOAD_DIR):
-        for f in os.listdir(UPLOAD_DIR):
-            if f.startswith(doc_id):
-                os.remove(os.path.join(UPLOAD_DIR, f))
-                break
+    # Also clean S3 files
+    try:
+        s3 = _s3()
+        for prefix in [f"raw/{doc_id}/", f"extracted/{doc_id}"]:
+            resp = s3.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix)
+            for obj in resp.get("Contents", []):
+                s3.delete_object(Bucket=S3_BUCKET, Key=obj["Key"])
+    except Exception:
+        pass  # Best-effort S3 cleanup
 
     return {"deleted": len(ids_to_delete), "doc_id": doc_id}
 
@@ -322,7 +306,7 @@ async def query_documents(req: QueryRequest):
     if coll.count() == 0:
         return {
             "answer": "I do not know. There are no documents in the context database. "
-                      "Please upload documents first to provide context for your questions.",
+                      "Please upload documents first.",
             "sources": [],
         }
 
@@ -332,58 +316,39 @@ async def query_documents(req: QueryRequest):
         raise HTTPException(status_code=502, detail=f"Embedding error: {e}")
 
     n = min(8, coll.count())
-    results = coll.query(
-        query_embeddings=[query_emb], n_results=n,
-        include=["documents", "metadatas", "distances"],
-    )
+    results = coll.query(query_embeddings=[query_emb], n_results=n,
+                         include=["documents", "metadatas", "distances"])
 
     filtered_docs, filtered_sources = [], []
     if results["documents"] and results["documents"][0]:
         for i, doc in enumerate(results["documents"][0]):
             meta = results["metadatas"][0][i]
             dist = results["distances"][0][i]
+            # Empty list = all docs; non-empty = filter
             if req.enabled_doc_ids and meta["doc_id"] not in req.enabled_doc_ids:
                 continue
             filtered_docs.append(doc)
             filtered_sources.append({
-                "filename": meta["filename"],
-                "doc_id": meta["doc_id"],
-                "chunk_index": meta["chunk_index"],
-                "distance": round(dist, 4),
+                "filename": meta["filename"], "doc_id": meta["doc_id"],
+                "chunk_index": meta["chunk_index"], "distance": round(dist, 4),
             })
 
     if not filtered_docs:
         return {
-            "answer": "I do not know. The enabled documents in the context database "
-                      "do not contain information relevant to your question.",
+            "answer": "I do not know. The enabled documents do not contain relevant information.",
             "sources": [],
         }
 
-    context_text = "\n\n---\n\n".join(filtered_docs)
-
-    system_prompt = textwrap.dedent("""\
-        You are Local Context Query, a helpful assistant that answers questions
-        ONLY based on the provided context documents.
-
-        STRICT RULES:
-        1. ONLY use information from the provided context to answer.
-        2. If the context does not contain enough information, respond with:
-           "I do not know. The context documents do not contain information to answer this question."
-        3. Do NOT make up information or use general knowledge.
-        4. Cite which document the information comes from.
-        5. Be concise and accurate.
-    """)
-
-    user_prompt = (
-        f"CONTEXT DOCUMENTS:\n{context_text}\n\n"
-        f"USER QUESTION:\n{req.query}\n\n"
-        f"Answer using ONLY the context above. If the context doesn't help, say \"I do not know.\":"
-    )
+    context = "\n\n---\n\n".join(filtered_docs)
+    system = textwrap.dedent("""\
+        You are Local Context Query, answering ONLY from provided context.
+        RULES:
+        1. ONLY use context information. 2. If context lacks info, say "I do not know."
+        3. Do NOT use general knowledge. 4. Cite document names. 5. Be concise.""")
+    prompt = f"CONTEXT:\n{context}\n\nQUESTION:\n{req.query}\n\nAnswer from context only:"
 
     try:
-        answer = await ollama_generate(req.model, user_prompt, system_prompt)
-    except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=502, detail=f"Ollama error: {e.response.status_code}")
+        answer = await ollama_generate(req.model, prompt, system)
     except httpx.ConnectError:
         raise HTTPException(status_code=502, detail=f"Cannot connect to Ollama at {OLLAMA_BASE_URL}")
     except Exception as e:

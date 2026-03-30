@@ -1,7 +1,3 @@
-# This file is required by Temporal's auto-setup image.
-# It configures development-mode dynamic settings for SQL visibility.
-# In production, tune these values to match your workload.
-
 limit.maxIDLength:
   - value: 255
     constraints: {}

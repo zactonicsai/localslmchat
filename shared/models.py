@@ -1,46 +1,42 @@
-"""Shared constants and data classes for Local Context Query."""
+"""Shared constants and data classes."""
 from dataclasses import dataclass, field
-from typing import Optional
-
+from typing import Optional, List
 
 TASK_QUEUE = "document-processing"
 WORKFLOW_ID_PREFIX = "doc-upload"
+S3_RAW_PREFIX = "raw/"
+S3_TEXT_PREFIX = "extracted/"
 
 
 @dataclass
 class UploadInput:
-    """Input for the document upload workflow."""
     doc_id: str
     filename: str
-    filepath: str
+    s3_raw_key: str
 
 
 @dataclass
 class UploadResult:
-    """Result returned by the document upload workflow."""
     doc_id: str
     filename: str
     chunks: int
     characters: int
-    status: str  # "completed", "failed"
+    status: str
     error: Optional[str] = None
 
 
 @dataclass
 class ExtractResult:
-    """Result of text extraction activity."""
-    text: str
+    s3_text_key: str
     characters: int
 
 
 @dataclass
 class ChunkResult:
-    """Result of chunking activity."""
-    chunks: list
-    count: int
+    chunks: List[str] = field(default_factory=list)
+    count: int = 0
 
 
 @dataclass
 class EmbedStoreResult:
-    """Result of embed + store activity."""
-    chunks_stored: int
+    chunks_stored: int = 0
