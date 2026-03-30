@@ -7,4 +7,4 @@ chromadb==0.6.3
 uvicorn==0.34.0
 python-multipart==0.0.20
 boto3==1.36.0
-moto==5.0.0
+websockets==14.1

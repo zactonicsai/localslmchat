@@ -1,358 +1,89 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Local Context Query</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        /* ── Theme variables ── */
-        :root, [data-theme="dark"] {
-            --bg: #08120f; --bg2: #0d1d19; --card: rgba(21,42,38,0.6); --input: #152a26;
-            --hover: #1e3a34; --border: rgba(45,82,74,0.4); --border2: rgba(61,107,94,0.5);
-            --t1: #dce5e2; --t2: #8aaba1; --t3: #5f8a7d;
-            --accent: #38bdf8; --accent2: #7dd3fc; --aglow: rgba(56,189,248,0.08);
-            --ubg: rgba(56,189,248,0.07); --ubrd: rgba(56,189,248,0.14);
-            --ok: #22c55e; --err: #ef4444; --warn: #f59e0b;
-            --scroll: #2d524a; --over: rgba(0,0,0,0.5); --badge: #08120f;
-            color-scheme: dark;
-        }
-        [data-theme="light"] {
-            --bg: #f5f9f8; --bg2: #eaf1ef; --card: rgba(255,255,255,0.9); --input: #ffffff;
-            --hover: #dbe8e4; --border: rgba(170,195,188,0.5); --border2: rgba(130,165,155,0.5);
-            --t1: #1a2e28; --t2: #4a6b62; --t3: #7a9b91;
-            --accent: #0284c7; --accent2: #0369a1; --aglow: rgba(2,132,199,0.07);
-            --ubg: rgba(2,132,199,0.05); --ubrd: rgba(2,132,199,0.12);
-            --ok: #16a34a; --err: #dc2626; --warn: #d97706;
-            --scroll: #aec3bc; --over: rgba(0,0,0,0.25); --badge: #fff;
-            color-scheme: light;
-        }
-        *{box-sizing:border-box;margin:0;padding:0}
-        html,body{height:100%;overflow:hidden}
-        body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);transition:background .3s,color .3s}
-        ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:3px}
-
-        /* ── Animations ── */
-        @keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes pulseDot{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .msg-in{animation:slideUp .3s ease-out}
-        .dot-pulse span:nth-child(1){animation:pulseDot 1.4s infinite}
-        .dot-pulse span:nth-child(2){animation:pulseDot 1.4s .2s infinite}
-        .dot-pulse span:nth-child(3){animation:pulseDot 1.4s .4s infinite}
-        .spin{animation:spin 1s linear infinite}
-
-        /* ── Components ── */
-        .upload-zone{border:2px dashed var(--border);transition:all .25s;border-radius:12px}
-        .upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:var(--aglow)}
-        .doc-check{appearance:none;width:20px;height:20px;min-width:20px;border:2px solid var(--t3);border-radius:5px;cursor:pointer;transition:.2s;position:relative;background:transparent}
-        .doc-check:checked{background:var(--accent);border-color:var(--accent)}
-        .doc-check:checked::after{content:'✓';position:absolute;top:-1px;left:3px;font-size:13px;color:var(--badge);font-weight:700}
-        select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238aaba1' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;appearance:none}
-        .msg-content p{margin-bottom:.4em}.msg-content strong{color:var(--accent);font-weight:600}
-        .msg-content code{background:var(--aglow);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:.85em}
-        .badge{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.5px;text-transform:uppercase;font-weight:500}
-
-        /* ── Sidebar ── */
-        .sidebar-overlay{position:fixed;inset:0;background:var(--over);z-index:40;opacity:0;pointer-events:none;transition:opacity .3s}
-        .sidebar-overlay.open{opacity:1;pointer-events:auto}
-        @media(max-width:1023px){
-            #sidebar{position:fixed;top:0;right:0;bottom:0;width:min(340px,85vw);z-index:50;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
-            #sidebar.open{transform:translateX(0)}
-        }
-
-        /* ── Theme toggle ── */
-        .theme-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--t2)}
-        .theme-btn:hover{background:var(--hover);color:var(--accent)}
-        .theme-btn .sun{display:none}
-        [data-theme="light"] .theme-btn .moon{display:none}
-        [data-theme="light"] .theme-btn .sun{display:block}
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"><title>Local Context Query</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="dark"]{--bg:#08120f;--bg2:#0d1d19;--card:rgba(21,42,38,0.6);--input:#152a26;--hover:#1e3a34;--border:rgba(45,82,74,0.4);--t1:#dce5e2;--t2:#8aaba1;--t3:#5f8a7d;--accent:#38bdf8;--aglow:rgba(56,189,248,0.08);--ubg:rgba(56,189,248,0.07);--ubrd:rgba(56,189,248,0.14);--ok:#22c55e;--err:#ef4444;--warn:#f59e0b;--scroll:#2d524a;--over:rgba(0,0,0,0.5);--badge:#08120f;color-scheme:dark}
+[data-theme="light"]{--bg:#f5f9f8;--bg2:#eaf1ef;--card:rgba(255,255,255,0.9);--input:#fff;--hover:#dbe8e4;--border:rgba(170,195,188,0.5);--t1:#1a2e28;--t2:#4a6b62;--t3:#7a9b91;--accent:#0284c7;--aglow:rgba(2,132,199,0.07);--ubg:rgba(2,132,199,0.05);--ubrd:rgba(2,132,199,0.12);--ok:#16a34a;--err:#dc2626;--warn:#d97706;--scroll:#aec3bc;--over:rgba(0,0,0,0.25);--badge:#fff;color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;overflow:hidden}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);transition:background .3s,color .3s}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:3px}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}@keyframes pulseDot{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}.spin{animation:spin 1s linear infinite}.msg-in{animation:slideUp .3s ease-out}.dot-pulse span:nth-child(1){animation:pulseDot 1.4s infinite}.dot-pulse span:nth-child(2){animation:pulseDot 1.4s .2s infinite}.dot-pulse span:nth-child(3){animation:pulseDot 1.4s .4s infinite}
+.upload-zone{border:2px dashed var(--border);transition:all .25s;border-radius:12px}.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:var(--aglow)}
+.doc-check{appearance:none;width:20px;height:20px;min-width:20px;border:2px solid var(--t3);border-radius:5px;cursor:pointer;transition:.2s;position:relative;background:transparent}.doc-check:checked{background:var(--accent);border-color:var(--accent)}.doc-check:checked::after{content:'\2713';position:absolute;top:-1px;left:3px;font-size:13px;color:var(--badge);font-weight:700}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238aaba1' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;appearance:none}
+.msg-content p{margin-bottom:.4em}.msg-content strong{color:var(--accent);font-weight:600}.msg-content code{background:var(--aglow);padding:1px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:.85em}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.5px;text-transform:uppercase;font-weight:500}
+.sidebar-overlay{position:fixed;inset:0;background:var(--over);z-index:40;opacity:0;pointer-events:none;transition:opacity .3s}.sidebar-overlay.open{opacity:1;pointer-events:auto}
+@media(max-width:1023px){#sidebar{position:fixed;top:0;right:0;bottom:0;width:min(340px,85vw);z-index:50;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}#sidebar.open{transform:translateX(0)}}
+.tbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--t2)}.tbtn:hover{background:var(--hover);color:var(--accent)}.tbtn .sun{display:none}[data-theme="light"] .tbtn .moon{display:none}[data-theme="light"] .tbtn .sun{display:block}
+.ws-dot{width:8px;height:8px;border-radius:50%;transition:background .3s}
+</style>
 </head>
 <body class="h-full flex flex-col">
-    <!-- ═══ HEADER ═══ -->
-    <header class="flex-shrink-0 px-3 sm:px-5 py-2 sm:py-3" style="border-bottom:1px solid var(--border);background:var(--bg2)">
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-teal-400 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4" style="color:var(--bg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                </div>
-                <div class="min-w-0 hidden xs:block sm:block">
-                    <h1 class="font-bold text-sm sm:text-base leading-tight truncate">Local Context Query</h1>
-                </div>
-            </div>
-            <div class="flex items-center gap-1.5 sm:gap-2">
-                <!-- Model selector -->
-                <select id="modelSelect" class="text-xs rounded-lg px-2 py-1.5 sm:py-2 pr-7 focus:outline-none max-w-[120px] sm:max-w-[200px] cursor-pointer" style="background:var(--input);border:1px solid var(--border);color:var(--t1);font-family:'IBM Plex Mono',monospace;font-size:11px">
-                    <option value="phi4-mini:latest">phi4-mini:latest</option>
-                </select>
-                <button onclick="refreshModels()" title="Refresh models" class="theme-btn" style="width:32px;height:32px;border-radius:8px">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                </button>
-                <div id="ollamaStatus" class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:var(--t3)" title="Checking…"></div>
-                <!-- Theme toggle -->
-                <button onclick="toggleTheme()" class="theme-btn" title="Toggle light/dark">
-                    <svg class="w-4 h-4 moon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-                    <svg class="w-4 h-4 sun" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                </button>
-                <!-- Mobile sidebar toggle -->
-                <button onclick="toggleSidebar()" class="lg:hidden theme-btn" title="Documents">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- ═══ MAIN ═══ -->
-    <main class="flex-1 flex overflow-hidden max-w-7xl w-full mx-auto">
-        <!-- Chat -->
-        <div class="flex-1 flex flex-col min-w-0">
-            <div id="chatMessages" class="flex-1 overflow-y-auto px-3 sm:px-5 py-4 sm:py-6 space-y-3 sm:space-y-4">
-                <div class="msg-in flex gap-2.5 sm:gap-3">
-                    <div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-sky-400 to-teal-400 flex items-center justify-center mt-0.5">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color:var(--bg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                    </div>
-                    <div class="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] sm:max-w-2xl" style="background:var(--card);border:1px solid var(--border)">
-                        <p class="text-sm leading-relaxed" style="color:var(--t2)">Welcome to <strong>Local Context Query</strong>. Upload documents using the <strong>documents panel</strong>, then ask questions. I only answer from your uploaded context.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Input -->
-            <div class="flex-shrink-0 px-3 sm:px-5 py-3 sm:py-4" style="border-top:1px solid var(--border);background:var(--bg2)">
-                <div class="flex gap-2 sm:gap-3 items-end max-w-3xl mx-auto">
-                    <textarea id="chatInput" rows="1" placeholder="Ask about your documents…"
-                        class="flex-1 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm resize-none focus:outline-none" style="background:var(--input);border:1px solid var(--border);color:var(--t1);max-height:120px;font-family:'DM Sans',sans-serif;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-                    <button id="sendBtn" onclick="sendMessage()" class="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center disabled:opacity-30 transition-opacity" style="background:var(--accent);color:var(--bg)" disabled>
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19V5m-7 7l7-7 7 7"/></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar overlay (mobile) -->
-        <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-        <!-- Sidebar -->
-        <aside id="sidebar" class="w-[340px] flex-shrink-0 flex-col overflow-hidden hidden lg:flex" style="border-left:1px solid var(--border);background:var(--bg2)">
-            <!-- Close btn (mobile only) -->
-            <div class="lg:hidden flex justify-between items-center px-4 py-3" style="border-bottom:1px solid var(--border)">
-                <span class="font-semibold text-sm">Documents</span>
-                <button onclick="toggleSidebar()" class="theme-btn" style="width:32px;height:32px"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
-            <!-- Upload -->
-            <div class="p-4" style="border-bottom:1px solid var(--border)">
-                <h2 class="font-semibold text-sm mb-3 flex items-center gap-2" style="color:var(--t2)">
-                    <svg class="w-4 h-4" style="color:var(--accent)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                    Upload Documents
-                </h2>
-                <div id="uploadZone" class="upload-zone p-5 text-center cursor-pointer" onclick="document.getElementById('fileInput').click()">
-                    <input type="file" id="fileInput" class="hidden" multiple accept=".pdf,.docx,.doc,.txt,.md,.csv,.json,.xml,.html,.xlsx,.xls,.log">
-                    <svg class="w-7 h-7 mx-auto mb-2" style="color:var(--t3)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    <p class="text-xs" style="color:var(--t3)">Tap or drop files here</p>
-                    <p class="text-[10px] mt-1" style="color:var(--t3);font-family:'IBM Plex Mono',monospace">PDF · DOCX · TXT · CSV · XLSX · JSON</p>
-                </div>
-                <div id="uploadProgress" class="hidden mt-3">
-                    <div class="flex items-center gap-2 text-xs" style="color:var(--t2)">
-                        <svg class="w-4 h-4 spin" style="color:var(--accent)" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                        <span id="uploadText">Uploading…</span>
-                    </div>
-                </div>
-            </div>
-            <!-- Processing -->
-            <div id="processingSection" class="hidden p-4" style="border-bottom:1px solid var(--border)">
-                <h2 class="font-semibold text-sm mb-2 flex items-center gap-2" style="color:var(--warn)">
-                    <svg class="w-4 h-4 spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    Processing
-                </h2>
-                <div id="processingList" class="space-y-1.5"></div>
-            </div>
-            <!-- Doc list -->
-            <div class="flex-1 overflow-y-auto p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="font-semibold text-sm flex items-center gap-2" style="color:var(--t2)">
-                        <svg class="w-4 h-4" style="color:var(--accent)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
-                        Context
-                        <span id="docCount" class="text-[10px] px-1.5 py-0.5 rounded-full" style="background:var(--hover);color:var(--t3);font-family:'IBM Plex Mono',monospace">0</span>
-                    </h2>
-                    <button onclick="toggleAllDocs()" class="text-[10px] font-medium" style="color:var(--accent);font-family:'IBM Plex Mono',monospace">TOGGLE ALL</button>
-                </div>
-                <div id="docList" class="space-y-2">
-                    <p class="text-xs text-center py-6" style="color:var(--t3)">No documents yet</p>
-                </div>
-            </div>
-        </aside>
-    </main>
-
+<header class="flex-shrink-0 px-3 sm:px-5 py-2 sm:py-3" style="border-bottom:1px solid var(--border);background:var(--bg2)"><div class="max-w-7xl mx-auto flex items-center justify-between gap-2"><div class="flex items-center gap-2 min-w-0"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-400 to-teal-400 flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4" style="color:var(--bg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div><h1 class="font-bold text-sm sm:text-base truncate hidden sm:block">Local Context Query</h1></div><div class="flex items-center gap-1.5 sm:gap-2"><select id="modelSelect" class="text-xs rounded-lg px-2 py-1.5 pr-7 focus:outline-none max-w-[120px] sm:max-w-[200px]" style="background:var(--input);border:1px solid var(--border);color:var(--t1);font-family:'IBM Plex Mono',monospace;font-size:11px"><option>phi4-mini:latest</option></select><button onclick="refreshModels()" title="Refresh" class="tbtn" style="width:32px;height:32px;border-radius:8px"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></button><div id="wsStatus" class="ws-dot" style="background:var(--t3)" title="Connecting…"></div><button onclick="toggleTheme()" class="tbtn" title="Theme"><svg class="w-4 h-4 moon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg><svg class="w-4 h-4 sun" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg></button><button onclick="toggleSidebar()" class="lg:hidden tbtn" title="Docs"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></button></div></div></header>
+<main class="flex-1 flex overflow-hidden max-w-7xl w-full mx-auto">
+<div class="flex-1 flex flex-col min-w-0">
+<div id="chatMessages" class="flex-1 overflow-y-auto px-3 sm:px-5 py-4 sm:py-6 space-y-3 sm:space-y-4"><div class="msg-in flex gap-2.5"><div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-sky-400 to-teal-400 flex items-center justify-center mt-0.5"><svg class="w-3.5 h-3.5" style="color:var(--bg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div><div class="rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] sm:max-w-2xl" style="background:var(--card);border:1px solid var(--border)"><p class="text-sm leading-relaxed" style="color:var(--t2)">Welcome to <strong>Local Context Query</strong>. Upload documents, ask questions. Answers arrive via <strong>WebSocket</strong> in real-time, or use the <strong>Check Answer</strong> button.</p></div></div></div>
+<div class="flex-shrink-0 px-3 sm:px-5 py-3 sm:py-4" style="border-top:1px solid var(--border);background:var(--bg2)"><div class="flex gap-2 sm:gap-3 items-end max-w-3xl mx-auto"><textarea id="chatInput" rows="1" placeholder="Ask about your documents…" class="flex-1 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm resize-none focus:outline-none" style="background:var(--input);border:1px solid var(--border);color:var(--t1);max-height:120px;font-family:'DM Sans',sans-serif" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea><button id="sendBtn" onclick="sendMessage()" class="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center disabled:opacity-30" style="background:var(--accent);color:var(--bg)" disabled><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19V5m-7 7l7-7 7 7"/></svg></button></div></div>
+</div>
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<aside id="sidebar" class="w-[340px] flex-shrink-0 flex-col overflow-hidden hidden lg:flex" style="border-left:1px solid var(--border);background:var(--bg2)">
+<div class="lg:hidden flex justify-between items-center px-4 py-3" style="border-bottom:1px solid var(--border)"><span class="font-semibold text-sm">Documents</span><button onclick="toggleSidebar()" class="tbtn" style="width:32px;height:32px"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+<div class="p-4" style="border-bottom:1px solid var(--border)"><h2 class="font-semibold text-sm mb-3 flex items-center gap-2" style="color:var(--t2)"><svg class="w-4 h-4" style="color:var(--accent)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>Upload</h2><div id="uploadZone" class="upload-zone p-5 text-center cursor-pointer" onclick="document.getElementById('fileInput').click()"><input type="file" id="fileInput" class="hidden" multiple accept=".pdf,.docx,.doc,.txt,.md,.csv,.json,.xml,.html,.xlsx,.xls,.log"><svg class="w-7 h-7 mx-auto mb-2" style="color:var(--t3)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p class="text-xs" style="color:var(--t3)">Tap or drop files</p></div><div id="uploadProgress" class="hidden mt-3"><div class="flex items-center gap-2 text-xs" style="color:var(--t2)"><svg class="w-4 h-4 spin" style="color:var(--accent)" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><span id="uploadText">Uploading…</span></div></div></div>
+<div id="processingSection" class="hidden p-4" style="border-bottom:1px solid var(--border)"><h2 class="font-semibold text-sm mb-2 flex items-center gap-2" style="color:var(--warn)"><svg class="w-4 h-4 spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Processing</h2><div id="processingList" class="space-y-1.5"></div></div>
+<div class="flex-1 overflow-y-auto p-4"><div class="flex items-center justify-between mb-3"><h2 class="font-semibold text-sm flex items-center gap-2" style="color:var(--t2)">Context<span id="docCount" class="text-[10px] px-1.5 py-0.5 rounded-full" style="background:var(--hover);color:var(--t3);font-family:'IBM Plex Mono',monospace">0</span></h2><button onclick="toggleAllDocs()" class="text-[10px] font-medium" style="color:var(--accent);font-family:'IBM Plex Mono',monospace">TOGGLE ALL</button></div><div id="docList" class="space-y-2"><p class="text-xs text-center py-6" style="color:var(--t3)">No documents yet</p></div></div>
+</aside></main>
 <script>
-let documents=[],allDocsEnabled=true,isQuerying=false,processingQueue=[];
-const API='/api';
+let documents=[],allDocsEnabled=true,processingQueue=[],pendingQueries={};const API='/api';
+function toggleTheme(){const h=document.documentElement,n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('lcq-theme',n)}
+(()=>{document.documentElement.setAttribute('data-theme',localStorage.getItem('lcq-theme')||(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'))})();
+function toggleSidebar(){const s=document.getElementById('sidebar'),o=document.getElementById('sidebarOverlay');if(s.classList.contains('open')){s.classList.remove('open');o.classList.remove('open')}else{s.classList.add('open');s.classList.remove('hidden');o.classList.add('open')}}
+async function safeFetch(url,opts={}){let r;try{r=await fetch(url,opts)}catch(e){throw new Error('Network: '+e.message)}const t=await r.text();let d;try{d=JSON.parse(t)}catch{throw new Error('Error '+r.status+': '+t.slice(0,200))}if(!r.ok)throw new Error(d.detail||'Error '+r.status);return d}
 
-// ── Theme ──
-function toggleTheme(){
-    const h=document.documentElement,cur=h.getAttribute('data-theme');
-    const next=cur==='dark'?'light':'dark';
-    h.setAttribute('data-theme',next);
-    localStorage.setItem('lcq-theme',next);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content',next==='dark'?'#08120f':'#f5f9f8');
-}
-(function(){
-    const saved=localStorage.getItem('lcq-theme')||
-        (window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark');
-    document.documentElement.setAttribute('data-theme',saved);
-})();
+// WebSocket
+let ws=null,wsRetry=0;
+function connectWS(){const proto=location.protocol==='https:'?'wss:':'ws:';ws=new WebSocket(proto+'//'+location.host+'/ws');const dot=document.getElementById('wsStatus');
+ws.onopen=()=>{dot.style.background='var(--ok)';dot.title='WebSocket connected';wsRetry=0;ws._ping=setInterval(()=>{try{ws.send('ping')}catch{}},30000)};
+ws.onclose=()=>{dot.style.background='var(--err)';dot.title='Disconnected';clearInterval(ws._ping);setTimeout(connectWS,Math.min(1000*Math.pow(2,wsRetry++),30000))};
+ws.onerror=()=>{ws.close()};
+ws.onmessage=ev=>{try{const msg=JSON.parse(ev.data);
+if(msg.type==='query_answer'&&pendingQueries[msg.query_id]){const pq=pendingQueries[msg.query_id];rmMsg(pq.loadingId);rmMsg('check-'+msg.query_id);addBot(msg.answer,msg.sources||[]);delete pendingQueries[msg.query_id];updateSendBtn()}
+if(msg.type==='upload_complete'){loadDocuments();addSys('"'+msg.filename+'" ready - '+msg.chunks+' chunks');processingQueue=processingQueue.filter(p=>p.doc_id!==msg.doc_id);renderProcessing()}
+}catch{}}}
 
-// ── Sidebar (mobile) ──
-function toggleSidebar(){
-    const s=document.getElementById('sidebar'),o=document.getElementById('sidebarOverlay');
-    const isOpen=s.classList.contains('open');
-    if(isOpen){s.classList.remove('open');o.classList.remove('open')}
-    else{s.classList.add('open');s.classList.remove('hidden');o.classList.add('open')}
-}
-
-// ── Safe fetch ──
-async function safeFetch(url,opts={}){
-    let r;try{r=await fetch(url,opts)}catch(e){throw new Error(`Network: ${e.message}`)}
-    const t=await r.text();let d;
-    try{d=JSON.parse(t)}catch{throw new Error(r.ok?`Bad response`:`Error ${r.status}: ${t.slice(0,200)}`)}
-    if(!r.ok)throw new Error(d.detail||`Error ${r.status}`);
-    return d;
-}
-
-// ── Init ──
-document.addEventListener('DOMContentLoaded',()=>{refreshModels();loadDocuments();setupInput();setupDrag()});
-
-// ── Models ──
-async function refreshModels(){
-    const s=document.getElementById('modelSelect'),st=document.getElementById('ollamaStatus');
-    try{
-        const d=await safeFetch(`${API}/models`),cur=s.value;
-        s.innerHTML='';d.models.forEach(m=>{const o=document.createElement('option');o.value=m.name;o.textContent=m.name;s.appendChild(o)});
-        if([...s.options].some(o=>o.value===cur))s.value=cur;
-        else{const p=[...s.options].find(o=>o.value.includes('phi4-mini'));if(p)s.value=p.value}
-        st.style.background='var(--ok)';st.title=`Connected · ${d.models.length} models`;
-    }catch(e){st.style.background='var(--err)';st.title=e.message}
-}
-
-// ── Documents ──
-async function loadDocuments(){
-    try{const d=await safeFetch(`${API}/documents`);documents=d.documents.map(x=>({...x,enabled:true}));renderDocList()}catch(e){console.error(e)}
-}
-function renderDocList(){
-    const list=document.getElementById('docList');
-    document.getElementById('docCount').textContent=documents.length;
-    if(!documents.length){list.innerHTML=`<p class="text-xs text-center py-6" style="color:var(--t3)">No documents yet</p>`;return}
-    const clr={PDF:'#ef4444',DOCX:'#3b82f6',DOC:'#3b82f6',TXT:'#6b7280',CSV:'#22c55e',XLSX:'#10b981',JSON:'#f59e0b',MD:'#a855f7',XML:'#06b6d4'};
-    list.innerHTML=documents.map(doc=>{
-        const ext=doc.filename.split('.').pop().toUpperCase();
-        const c=clr[ext]||'#6b7280';
-        const nm=doc.filename.length>24?doc.filename.slice(0,21)+'…':doc.filename;
-        return `<div class="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all" style="background:var(--card);border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
-            <input type="checkbox" class="doc-check flex-shrink-0" ${doc.enabled?'checked':''} onchange="toggleDoc('${doc.doc_id}')">
-            <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2"><span class="badge px-1.5 py-0.5 rounded" style="background:${c}20;color:${c}">${ext}</span><span class="text-xs truncate" title="${doc.filename}">${nm}</span></div>
-                <p class="text-[10px] mt-0.5" style="color:var(--t3);font-family:'IBM Plex Mono',monospace">${doc.total_chunks} chunks</p>
-            </div>
-            <button onclick="deleteDoc('${doc.doc_id}','${doc.filename.replace(/'/g,"\\'")}')" class="flex-shrink-0 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" style="color:var(--t3)" onmouseover="this.style.color='var(--err)'" onmouseout="this.style.color='var(--t3)'" title="Delete">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            </button></div>`;
-    }).join('');
-}
+document.addEventListener('DOMContentLoaded',()=>{connectWS();refreshModels();loadDocuments();setupInput();setupDrag()});
+async function refreshModels(){const s=document.getElementById('modelSelect');try{const d=await safeFetch(API+'/models'),cur=s.value;s.innerHTML='';d.models.forEach(m=>{const o=document.createElement('option');o.value=m.name;o.textContent=m.name;s.appendChild(o)});if([...s.options].some(o=>o.value===cur))s.value=cur;else{const p=[...s.options].find(o=>o.value.includes('phi4-mini'));if(p)s.value=p.value}}catch{}}
+async function loadDocuments(){try{const d=await safeFetch(API+'/documents');documents=d.documents.map(x=>({...x,enabled:true}));renderDocList()}catch{}}
+function renderDocList(){const list=document.getElementById('docList');document.getElementById('docCount').textContent=documents.length;if(!documents.length){list.innerHTML='<p class="text-xs text-center py-6" style="color:var(--t3)">No documents yet</p>';return}const clr={PDF:'#ef4444',DOCX:'#3b82f6',TXT:'#6b7280',CSV:'#22c55e',XLSX:'#10b981',JSON:'#f59e0b',MD:'#a855f7'};list.innerHTML=documents.map(doc=>{const ext=doc.filename.split('.').pop().toUpperCase(),c=clr[ext]||'#6b7280',nm=doc.filename.length>24?doc.filename.slice(0,21)+'…':doc.filename;return'<div class="group flex items-center gap-2.5 px-3 py-2.5 rounded-xl" style="background:var(--card);border:1px solid var(--border)"><input type="checkbox" class="doc-check flex-shrink-0" '+(doc.enabled?'checked ':'')+' onchange="toggleDoc(\''+doc.doc_id+'\')"><div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="badge px-1.5 py-0.5 rounded" style="background:'+c+'20;color:'+c+'">'+ext+'</span><span class="text-xs truncate">'+nm+'</span></div><p class="text-[10px] mt-0.5" style="color:var(--t3);font-family:IBM Plex Mono,monospace">'+doc.total_chunks+' chunks</p></div><button onclick="deleteDoc(\''+doc.doc_id+"','"+doc.filename.replace(/'/g,"\\'")+'\')" class="flex-shrink-0 p-1.5 rounded-lg opacity-0 group-hover:opacity-100" style="color:var(--t3)" title="Delete"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></div>'}).join('')}
 function toggleDoc(id){const d=documents.find(x=>x.doc_id===id);if(d)d.enabled=!d.enabled}
 function toggleAllDocs(){allDocsEnabled=!allDocsEnabled;documents.forEach(d=>d.enabled=allDocsEnabled);renderDocList()}
-async function deleteDoc(id,nm){if(!confirm(`Delete "${nm}"?`))return;try{await safeFetch(`${API}/documents/${id}`,{method:'DELETE'});documents=documents.filter(d=>d.doc_id!==id);renderDocList();addSys(`Deleted "${nm}"`)}catch(e){addSys(`Delete failed: ${e.message}`)}}
+async function deleteDoc(id,nm){if(!confirm('Delete "'+nm+'"?'))return;try{await safeFetch(API+'/documents/'+id,{method:'DELETE'});documents=documents.filter(d=>d.doc_id!==id);renderDocList();addSys('Deleted "'+nm+'"')}catch(e){addSys('Delete failed: '+e.message)}}
+function renderProcessing(){const sec=document.getElementById('processingSection'),list=document.getElementById('processingList');if(!processingQueue.length){sec.classList.add('hidden');return}sec.classList.remove('hidden');list.innerHTML=processingQueue.map(p=>'<div class="flex items-center gap-2 px-3 py-2 rounded-lg" style="border:1px solid var(--border)"><svg class="w-3.5 h-3.5 spin flex-shrink-0" style="color:var(--warn)" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><span class="text-xs truncate flex-1">'+esc(p.filename)+'</span></div>').join('')}
+function setupDrag(){const z=document.getElementById('uploadZone'),inp=document.getElementById('fileInput');['dragenter','dragover'].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.add('dragover')}));['dragleave','drop'].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.remove('dragover')}));z.addEventListener('drop',e=>{if(e.dataTransfer.files.length)uploadFiles(e.dataTransfer.files)});inp.addEventListener('change',e=>{if(e.target.files.length)uploadFiles(e.target.files);e.target.value=''})}
+async function uploadFiles(files){const prog=document.getElementById('uploadProgress'),txt=document.getElementById('uploadText');prog.classList.remove('hidden');for(let i=0;i<files.length;i++){txt.textContent='Uploading '+files[i].name+' ('+(i+1)+'/'+files.length+')…';const form=new FormData();form.append('file',files[i]);try{const d=await safeFetch(API+'/upload',{method:'POST',body:form});processingQueue.push({doc_id:d.doc_id,filename:d.filename});renderProcessing();addSys('"'+d.filename+'" uploaded, processing…');pollUpload(d.doc_id,d.filename)}catch(e){addSys('Upload failed: '+e.message)}}prog.classList.add('hidden')}
+async function pollUpload(doc_id,filename){let n=0;const go=async()=>{if(++n>300)return;try{const d=await safeFetch(API+'/upload/'+doc_id+'/status');if(d.status==='completed'||d.status==='failed'){processingQueue=processingQueue.filter(p=>p.doc_id!==doc_id);renderProcessing();if(d.status==='completed'){addSys('"'+filename+'" ready - '+d.chunks+' chunks');loadDocuments()}else addSys('"'+filename+'" failed');return}}catch{}setTimeout(go,2500)};setTimeout(go,2000)}
 
-// ── Processing queue ──
-function renderProcessing(){
-    const sec=document.getElementById('processingSection'),list=document.getElementById('processingList');
-    if(!processingQueue.length){sec.classList.add('hidden');return}
-    sec.classList.remove('hidden');
-    list.innerHTML=processingQueue.map(p=>`<div class="flex items-center gap-2 px-3 py-2 rounded-lg" style="background:${p.status==='processing'?'var(--aglow)':'transparent'};border:1px solid var(--border)">
-        <svg class="w-3.5 h-3.5 spin flex-shrink-0" style="color:var(--warn)" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-        <span class="text-xs truncate flex-1">${esc(p.filename)}</span>
-        <span class="text-[10px]" style="color:var(--warn);font-family:'IBM Plex Mono',monospace">${p.status}</span></div>`).join('');
-}
+// Chat
+function setupInput(){const inp=document.getElementById('chatInput'),btn=document.getElementById('sendBtn');inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,120)+'px';updateSendBtn()});inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!document.getElementById('sendBtn').disabled)sendMessage()}})}
+function updateSendBtn(){document.getElementById('sendBtn').disabled=!document.getElementById('chatInput').value.trim()||Object.keys(pendingQueries).length>0}
+async function sendMessage(){const inp=document.getElementById('chatInput'),q=inp.value.trim();if(!q||Object.keys(pendingQueries).length>0)return;inp.value='';inp.style.height='auto';addUser(q);const lid=addLoading();updateSendBtn();
+const ids=documents.filter(d=>d.enabled).map(d=>d.doc_id);const allOn=documents.length>0&&documents.every(d=>d.enabled);
+try{const d=await safeFetch(API+'/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q,model:document.getElementById('modelSelect').value,enabled_doc_ids:allOn?[]:ids})});
+pendingQueries[d.query_id]={loadingId:lid};updateSendBtn();addCheckBtn(d.query_id);pollAnswer(d.query_id,lid);
+}catch(e){rmMsg(lid);addBot('Error: '+e.message,[]);updateSendBtn()}}
 
-// ── Upload ──
-function setupDrag(){
-    const z=document.getElementById('uploadZone'),inp=document.getElementById('fileInput');
-    ['dragenter','dragover'].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.add('dragover')}));
-    ['dragleave','drop'].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.remove('dragover')}));
-    z.addEventListener('drop',e=>{if(e.dataTransfer.files.length)uploadFiles(e.dataTransfer.files)});
-    inp.addEventListener('change',e=>{if(e.target.files.length)uploadFiles(e.target.files);e.target.value=''});
-}
-async function uploadFiles(files){
-    const prog=document.getElementById('uploadProgress'),txt=document.getElementById('uploadText');
-    prog.classList.remove('hidden');
-    for(let i=0;i<files.length;i++){
-        txt.textContent=`Uploading ${files[i].name} (${i+1}/${files.length})…`;
-        const form=new FormData();form.append('file',files[i]);
-        try{
-            const d=await safeFetch(`${API}/upload`,{method:'POST',body:form});
-            processingQueue.push({doc_id:d.doc_id,filename:d.filename,status:'processing'});
-            renderProcessing();addSys(`"${d.filename}" → S3 ✓ processing…`);
-            pollStatus({doc_id:d.doc_id,filename:d.filename});
-        }catch(e){addSys(`Upload failed: ${e.message}`)}
-    }
-    prog.classList.add('hidden');
-}
-async function pollStatus(entry){
-    let n=0;const go=async()=>{
-        if(++n>300){finish(entry);addSys(`"${entry.filename}" timed out`);return}
-        try{
-            const d=await safeFetch(`${API}/upload/${entry.doc_id}/status`);
-            if(d.status==='completed'){finish(entry);addSys(`"${entry.filename}" ready — ${d.chunks} chunks`);await loadDocuments();return}
-            if(d.status==='failed'){finish(entry);addSys(`"${entry.filename}" failed: ${d.error||'Unknown'}`);return}
-        }catch(e){}
-        setTimeout(go,2000);
-    };setTimeout(go,1500);
-}
-function finish(e){processingQueue=processingQueue.filter(p=>p.doc_id!==e.doc_id);renderProcessing()}
+function addCheckBtn(qid){const c=document.getElementById('chatMessages'),d=document.createElement('div');d.id='check-'+qid;d.className='msg-in flex justify-center';d.innerHTML='<button onclick="manualCheck(\''+qid+'\')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:var(--aglow);border:1px solid var(--border);color:var(--accent);font-family:IBM Plex Mono,monospace;cursor:pointer">\u27F3 Check for answer</button>';c.appendChild(d);c.scrollTop=c.scrollHeight}
+async function manualCheck(qid){try{const d=await safeFetch(API+'/query/'+qid+'/answer');if(d.status==='completed'){const pq=pendingQueries[qid];if(pq)rmMsg(pq.loadingId);rmMsg('check-'+qid);delete pendingQueries[qid];addBot(d.answer,d.sources||[]);updateSendBtn()}else addSys('Still processing…')}catch(e){addSys('Check failed: '+e.message)}}
+async function pollAnswer(qid,lid){let n=0;const go=async()=>{if(!pendingQueries[qid])return;if(++n>120){rmMsg(lid);rmMsg('check-'+qid);addBot('Query timed out.',[]);delete pendingQueries[qid];updateSendBtn();return}try{const d=await safeFetch(API+'/query/'+qid+'/answer');if(d.status==='completed'&&pendingQueries[qid]){rmMsg(lid);rmMsg('check-'+qid);addBot(d.answer,d.sources||[]);delete pendingQueries[qid];updateSendBtn();return}}catch{}setTimeout(go,3000)};setTimeout(go,5000)}
 
-// ── Chat ──
-function setupInput(){
-    const inp=document.getElementById('chatInput'),btn=document.getElementById('sendBtn');
-    inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,120)+'px';btn.disabled=!inp.value.trim()||isQuerying});
-    inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(inp.value.trim()&&!isQuerying)sendMessage()}});
-}
-async function sendMessage(){
-    const inp=document.getElementById('chatInput'),q=inp.value.trim();
-    if(!q||isQuerying)return;
-    isQuerying=true;document.getElementById('sendBtn').disabled=true;
-    inp.value='';inp.style.height='auto';
-    addUser(q);const lid=addLoading();
-    const ids=documents.filter(d=>d.enabled).map(d=>d.doc_id);
-    const allOn=documents.length>0&&documents.every(d=>d.enabled);
-    try{
-        const d=await safeFetch(`${API}/query`,{method:'POST',headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({query:q,model:document.getElementById('modelSelect').value,enabled_doc_ids:allOn?[]:ids})});
-        rmMsg(lid);addBot(d.answer,d.sources||[]);
-    }catch(e){rmMsg(lid);addBot(`Error: ${e.message}`,[]);}
-    isQuerying=false;document.getElementById('sendBtn').disabled=!document.getElementById('chatInput').value.trim();
-}
-
-// ── Messages ──
-function addUser(t){const c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg-in flex gap-2.5 sm:gap-3 justify-end';
-    d.innerHTML=`<div class="rounded-2xl rounded-tr-md px-3.5 sm:px-4 py-2.5 sm:py-3 max-w-[85%] sm:max-w-2xl" style="background:var(--ubg);border:1px solid var(--ubrd)"><p class="text-sm">${esc(t)}</p></div>
-    <div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center mt-0.5" style="background:var(--hover)"><svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color:var(--t2)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>`;
-    c.appendChild(d);c.scrollTop=c.scrollHeight}
-function addBot(t,src){const c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg-in flex gap-2.5 sm:gap-3';
-    let s='';if(src&&src.length){const u=[...new Map(src.map(x=>[x.filename,x])).values()];
-    s=`<div class="mt-2.5 pt-2.5" style="border-top:1px solid var(--border)"><p class="text-[10px] mb-1" style="color:var(--t3);font-family:'IBM Plex Mono',monospace">SOURCES</p><div class="flex flex-wrap gap-1">${u.map(x=>`<span class="text-[10px] px-2 py-0.5 rounded" style="background:var(--hover);color:var(--t2);font-family:'IBM Plex Mono',monospace">${esc(x.filename)}</span>`).join('')}</div></div>`}
-    d.innerHTML=`<div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-sky-400 to-teal-400 flex items-center justify-center mt-0.5"><svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color:var(--bg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
-    <div class="rounded-2xl rounded-tl-md px-3.5 sm:px-4 py-2.5 sm:py-3 max-w-[85%] sm:max-w-2xl" style="background:var(--card);border:1px solid var(--border)"><div class="msg-content text-sm leading-relaxed" style="color:var(--t2)">${renderMd(t)}</div>${s}</div>`;
-    c.appendChild(d);c.scrollTop=c.scrollHeight}
-function addSys(t){const c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg-in flex justify-center';
-    d.innerHTML=`<div class="rounded-full px-3 sm:px-4 py-1 sm:py-1.5" style="background:var(--card);border:1px solid var(--border)"><p class="text-[10px] sm:text-[11px]" style="color:var(--t3);font-family:'IBM Plex Mono',monospace">${esc(t)}</p></div>`;
-    c.appendChild(d);c.scrollTop=c.scrollHeight}
-function addLoading(){const c=document.getElementById('chatMessages'),id='l'+Date.now(),d=document.createElement('div');d.id=id;d.className='msg-in flex gap-2.5 sm:gap-3';
-    d.innerHTML=`<div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-sky-400 to-teal-400 flex items-center justify-center mt-0.5"><svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" style="color:var(--bg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
-    <div class="rounded-2xl rounded-tl-md px-4 py-3" style="background:var(--card);border:1px solid var(--border)"><div class="dot-pulse flex gap-1.5"><span class="w-2 h-2 rounded-full inline-block" style="background:var(--accent)"></span><span class="w-2 h-2 rounded-full inline-block" style="background:var(--accent)"></span><span class="w-2 h-2 rounded-full inline-block" style="background:var(--accent)"></span></div></div>`;
-    c.appendChild(d);c.scrollTop=c.scrollHeight;return id}
+function addUser(t){const c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg-in flex gap-2.5 justify-end';d.innerHTML='<div class="rounded-2xl rounded-tr-md px-3.5 sm:px-4 py-2.5 sm:py-3 max-w-[85%] sm:max-w-2xl" style="background:var(--ubg);border:1px solid var(--ubrd)"><p class="text-sm">'+esc(t)+'</p></div><div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center mt-0.5" style="background:var(--hover)"><svg class="w-3.5 h-3.5" style="color:var(--t2)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>';c.appendChild(d);c.scrollTop=c.scrollHeight}
+function addBot(t,src){const c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg-in flex gap-2.5';let s='';if(src&&src.length){const u=[...new Map(src.map(x=>[x.filename,x])).values()];s='<div class="mt-2.5 pt-2.5" style="border-top:1px solid var(--border)"><p class="text-[10px] mb-1" style="color:var(--t3);font-family:IBM Plex Mono,monospace">SOURCES</p><div class="flex flex-wrap gap-1">'+u.map(x=>'<span class="text-[10px] px-2 py-0.5 rounded" style="background:var(--hover);color:var(--t2);font-family:IBM Plex Mono,monospace">'+esc(x.filename)+'</span>').join('')+'</div></div>'}d.innerHTML='<div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-sky-400 to-teal-400 flex items-center justify-center mt-0.5"><svg class="w-3.5 h-3.5" style="color:var(--bg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div><div class="rounded-2xl rounded-tl-md px-3.5 sm:px-4 py-2.5 sm:py-3 max-w-[85%] sm:max-w-2xl" style="background:var(--card);border:1px solid var(--border)"><div class="msg-content text-sm leading-relaxed" style="color:var(--t2)">'+renderMd(t)+'</div>'+s+'</div>';c.appendChild(d);c.scrollTop=c.scrollHeight}
+function addSys(t){const c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg-in flex justify-center';d.innerHTML='<div class="rounded-full px-3 py-1" style="background:var(--card);border:1px solid var(--border)"><p class="text-[10px]" style="color:var(--t3);font-family:IBM Plex Mono,monospace">'+esc(t)+'</p></div>';c.appendChild(d);c.scrollTop=c.scrollHeight}
+function addLoading(){const c=document.getElementById('chatMessages'),id='l'+Date.now(),d=document.createElement('div');d.id=id;d.className='msg-in flex gap-2.5';d.innerHTML='<div class="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-sky-400 to-teal-400 flex items-center justify-center mt-0.5"><svg class="w-3.5 h-3.5" style="color:var(--bg)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div><div class="rounded-2xl rounded-tl-md px-4 py-3" style="background:var(--card);border:1px solid var(--border)"><div class="dot-pulse flex gap-1.5"><span class="w-2 h-2 rounded-full inline-block" style="background:var(--accent)"></span><span class="w-2 h-2 rounded-full inline-block" style="background:var(--accent)"></span><span class="w-2 h-2 rounded-full inline-block" style="background:var(--accent)"></span></div></div>';c.appendChild(d);c.scrollTop=c.scrollHeight;return id}
 function rmMsg(id){document.getElementById(id)?.remove()}
 function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
 function renderMd(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>').replace(/^/,'<p>').replace(/$/,'</p>')}
 </script>
-</body>
-</html>
+</body></html>

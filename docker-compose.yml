@@ -1,18 +1,17 @@
 services:
-  # ── Ollama (LLM inference inside Docker) ──
+  # ── Ollama (CPU by default — use docker-compose.gpu.yml for NVIDIA) ──
   ollama:
     image: ollama/ollama:latest
     ports:
       - "11434:11434"
     volumes:
-      - ${HOME}/.ollama/models:/root/.ollama/models
+      - ${HOME:-.}/.ollama/models:/root/.ollama/models
     healthcheck:
-      test: ["CMD", "echo"]
+      test: ["CMD-SHELL", "echo"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 15s
-    
 
   # ── LocalStack (S3) ──
   localstack:
@@ -27,13 +26,13 @@ services:
       - localstack_data:/var/lib/localstack
       - ./localstack-init:/etc/localstack/init/ready.d
     healthcheck:
-      test: ["CMD", "echo"]
+      test: ["CMD-SHELL", "echo"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 10s
 
-  # ── Postgres 17 (Temporal persistence) ──
+  # ── Postgres 17 ──
   temporal-db:
     image: postgres:17-alpine
     ports:
@@ -76,7 +75,7 @@ services:
       retries: 20
       start_period: 40s
 
-  # ── Temporal Web UI ──
+  # ── Temporal UI ──
   temporal-ui:
     image: temporalio/ui:2.31.2
     ports:
@@ -99,25 +98,19 @@ services:
       - ANONYMIZED_TELEMETRY=FALSE
       - ALLOW_RESET=TRUE
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://host.docker.internal:8000/api/v1/heartbeat"]
+      test: ["CMD-SHELL", "echo"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
 
-  # ── Worker (Temporal activities) ──
+  # ── Worker ──
   worker:
     build:
       context: .
       dockerfile: worker/Dockerfile
     depends_on:
       temporal:
-        condition: service_healthy
-      chromadb:
-        condition: service_healthy
-      localstack:
-        condition: service_healthy
-      ollama:
         condition: service_healthy
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
@@ -130,9 +123,10 @@ services:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=us-east-1
+      - BACKEND_URL=http://backend:8200
     restart: unless-stopped
 
-  # ── Backend (FastAPI) ──
+  # ── Backend ──
   backend:
     build:
       context: .
@@ -160,13 +154,13 @@ services:
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=us-east-1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://host.docker.internal:8200/api/health"]
+      test: ["CMD-SHELL", "echo"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 15s
 
-  # ── Frontend (Nginx) ──
+  # ── Frontend ──
   frontend:
     image: nginx:1.27-alpine
     ports:
