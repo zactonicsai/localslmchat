@@ -126,3 +126,4 @@ docker compose down -v     # Stop + delete all data
 | Linux: Ollama unreachable | `OLLAMA_HOST=0.0.0.0 ollama serve` |
 | Workflow stuck | Check Temporal UI at http://localhost:8080 |
 # localslmchat
+# localslmchat
