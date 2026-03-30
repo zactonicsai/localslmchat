@@ -127,3 +127,4 @@ docker compose down -v     # Stop + delete all data
 | Workflow stuck | Check Temporal UI at http://localhost:8080 |
 # localslmchat
 # localslmchat
+# localslmchat
