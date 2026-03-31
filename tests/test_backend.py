@@ -39,7 +39,7 @@ fake_collection=FakeCollection()
 
 FAKE_EMBED=[.1]*768
 async def mock_ollama_get(path,timeout=10.0):
-    if"/api/tags"in path:return{"models":[{"name":"phi4-mini:latest","size":2e9},{"name":"nomic-embed-text:latest","size":5e8}]}
+    if"/api/tags"in path:return{"models":[{"name":"qwen3.5:9b","size":2e9},{"name":"nomic-embed-text:latest","size":5e8}]}
     return{}
 
 _wf={}
@@ -92,7 +92,7 @@ async def test_health(client):
 
 @pytest.mark.asyncio
 async def test_models(client):
-    r=await client.get("/api/models");assert "phi4-mini:latest" in [m["name"] for m in r.json()["models"]]
+    r=await client.get("/api/models");assert "qwen3.5:9b" in [m["name"] for m in r.json()["models"]]
 
 @pytest.mark.asyncio
 async def test_upload_to_s3(client):
@@ -123,7 +123,7 @@ async def test_list_documents(client):
 @pytest.mark.asyncio
 async def test_query_returns_immediately(client):
     """POST /api/query returns query_id + queued status immediately."""
-    r=await client.post("/api/query",json={"query":"What is 42?","model":"phi4-mini:latest"})
+    r=await client.post("/api/query",json={"query":"What is 42?","model":"qwen3.5:9b"})
     assert r.status_code==200;d=r.json();assert d["status"]=="queued";assert d["query_id"]
     # Question saved to S3
     assert f"lcq-documents/queries/{d['query_id']}.json" in fake_s3._o
@@ -131,14 +131,14 @@ async def test_query_returns_immediately(client):
 @pytest.mark.asyncio
 async def test_query_answer_not_ready(client):
     """GET /api/query/{id}/answer returns processing when answer not on S3 yet."""
-    r=await client.post("/api/query",json={"query":"Test","model":"phi4-mini:latest"})
+    r=await client.post("/api/query",json={"query":"Test","model":"qwen3.5:9b"})
     qid=r.json()["query_id"]
     a=await client.get(f"/api/query/{qid}/answer");assert a.json()["status"]=="processing"
 
 @pytest.mark.asyncio
 async def test_query_answer_ready(client):
     """GET /api/query/{id}/answer returns answer when S3 has it."""
-    r=await client.post("/api/query",json={"query":"Test","model":"phi4-mini:latest"})
+    r=await client.post("/api/query",json={"query":"Test","model":"qwen3.5:9b"})
     qid=r.json()["query_id"]
     _sim_query_answer(qid)
     a=await client.get(f"/api/query/{qid}/answer")
@@ -159,7 +159,7 @@ async def test_delete(client):
 @pytest.mark.asyncio
 async def test_full_flow(client):
     # Empty → query question saved but no answer yet
-    r1=await client.post("/api/query",json={"query":"Hi?","model":"phi4-mini:latest"})
+    r1=await client.post("/api/query",json={"query":"Hi?","model":"qwen3.5:9b"})
     qid=r1.json()["query_id"]
     a1=await client.get(f"/api/query/{qid}/answer");assert a1.json()["status"]=="processing"
     # Upload + simulate complete
@@ -168,7 +168,7 @@ async def test_full_flow(client):
     # Docs visible
     docs=(await client.get("/api/documents")).json()["documents"];assert len(docs)==1
     # New query → simulate worker answer
-    r2=await client.post("/api/query",json={"query":"What is Python?","model":"phi4-mini:latest"})
+    r2=await client.post("/api/query",json={"query":"What is Python?","model":"qwen3.5:9b"})
     qid2=r2.json()["query_id"];_sim_query_answer(qid2)
     a2=await client.get(f"/api/query/{qid2}/answer");assert a2.json()["status"]=="completed"
     # Delete

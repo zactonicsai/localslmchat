@@ -11,7 +11,7 @@ S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://localhost:4566")
 S3_BUCKET = os.getenv("S3_BUCKET", "lcq-documents")
 CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8000"))
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
 BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8200")
 CHUNK_SIZE, CHUNK_OVERLAP = 800, 150
@@ -30,7 +30,7 @@ async def _embed(text):
     async with httpx.AsyncClient(timeout=60.0) as c:
         r = await c.post(f"{OLLAMA_BASE_URL}/api/embed", json={"model": EMBED_MODEL, "input": text})
         if r.status_code == 404:
-            r = await c.post(f"{OLLAMA_BASE_URL}/api/embeddings", json={"model": EMBED_MODEL, "prompt": text})
+            r = await c.post(f"{OLLAMA_BASE_URL}/api/embed", json={"model": EMBED_MODEL, "prompt": text})
         r.raise_for_status(); d = r.json()
     e = d.get("embeddings")
     if e and len(e) > 0: return e[0]
@@ -109,13 +109,21 @@ async def execute_query_activity(inp: QueryInput) -> QueryResult:
         else:
             activity.heartbeat("Generating answer")
             ctx = "\n\n---\n\n".join(fdocs)
+            # Cap context to ~12k chars to keep prompt + response within safe limits
+            if len(ctx) > 12_000:
+                ctx = ctx[:12_000] + "\n\n[Context truncated]"
             sys_p = "You are Local Context Query. Answer ONLY from provided context. If context lacks info say 'I do not know.' Cite document names. Be concise."
             prompt = f"CONTEXT:\n{ctx}\n\nQUESTION:\n{query_text}\n\nAnswer from context only:"
             async with httpx.AsyncClient(timeout=180.0) as c:
                 r = await c.post(f"{OLLAMA_BASE_URL}/api/generate",
-                    json={"model": inp.model, "prompt": prompt, "system": sys_p, "stream": False, "options": {"temperature": 0.3, "num_ctx": 4096}})
+                    json={"model": inp.model, "prompt": prompt, "system": sys_p, "stream": False,
+                          "options": {"temperature": 0.3, "num_ctx": 4096}})
                 r.raise_for_status()
-                answer_obj = {"query_id": inp.query_id, "answer": r.json().get("response", ""), "sources": fsrc}
+                answer_text = r.json().get("response", "")
+                # Truncate to avoid exceeding Temporal's 2MB payload limit
+                if len(answer_text) > 50_000:
+                    answer_text = answer_text[:50_000] + "\n\n[Answer truncated due to length]"
+                answer_obj = {"query_id": inp.query_id, "answer": answer_text, "sources": fsrc}
 
     s3_answer_key = f"{S3_ANSWER_PREFIX}{inp.query_id}.json"
     s3.put_object(Bucket=S3_BUCKET, Key=s3_answer_key, Body=json.dumps(answer_obj).encode())
