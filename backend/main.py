@@ -265,7 +265,7 @@ async def delete_document(doc_id: str):
 # ── Query: save to S3 → start workflow → return immediately ──
 class QueryRequest(BaseModel):
     query: str
-    model: str = "qwen3.5:9b"
+    model: str = "qwen3:8b"
     enabled_doc_ids: list = []
 
 
