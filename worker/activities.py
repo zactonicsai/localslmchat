@@ -115,11 +115,20 @@ async def execute_query_activity(inp: QueryInput) -> QueryResult:
             sys_p = "You are Local Context Query. Answer ONLY from provided context. If context lacks info say 'I do not know.' Cite document names. Be concise."
             prompt = f"CONTEXT:\n{ctx}\n\nQUESTION:\n{query_text}\n\nAnswer from context only:"
             async with httpx.AsyncClient(timeout=180.0) as c:
-                r = await c.post(f"{OLLAMA_BASE_URL}/api/generate",
-                    json={"model": inp.model, "prompt": prompt, "system": sys_p, "stream": False,
-                          "options": {"temperature": 0.3, "num_ctx": 4096}})
-                r.raise_for_status()
+                # Use /no_think to disable qwen3's verbose thinking mode
+                full_prompt = "/no_think\n" + prompt
+                payload = {"model": inp.model, "prompt": full_prompt, "system": sys_p, "stream": False,
+                           "options": {"temperature": 0.3, "num_ctx": 4096}}
+                activity.logger.info(f"Ollama request model={inp.model}, prompt_len={len(full_prompt)}")
+                r = await c.post(f"{OLLAMA_BASE_URL}/api/generate", json=payload)
+                if r.status_code != 200:
+                    err_body = r.text[:300]
+                    activity.logger.error(f"Ollama returned {r.status_code}: {err_body}")
+                    raise ValueError(f"Ollama error {r.status_code}: {err_body[:200]}")
                 answer_text = r.json().get("response", "")
+                # Strip any <think>...</think> blocks from qwen3 reasoning models
+                import re
+                answer_text = re.sub(r"<think>.*?</think>", "", answer_text, flags=re.DOTALL).strip()
                 # Truncate to avoid exceeding Temporal's 2MB payload limit
                 if len(answer_text) > 50_000:
                     answer_text = answer_text[:50_000] + "\n\n[Answer truncated due to length]"
