@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Context Query — Developer Tutorial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            ink: '#0f172a',
+            slategreen: '#0f766e',
+            mist: '#ecfeff'
+          },
+          boxShadow: {
+            soft: '0 12px 40px rgba(15, 23, 42, 0.10)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .prose-like p { margin-bottom: 0.9rem; }
+    .prose-like ul { list-style: disc; margin-left: 1.25rem; margin-bottom: 1rem; }
+    .prose-like li { margin-bottom: 0.45rem; }
+    .prose-like code { background: rgba(15, 23, 42, 0.06); padding: 0.1rem 0.35rem; border-radius: 0.35rem; }
+    .code-block { white-space: pre-wrap; word-break: break-word; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+  <header class="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-teal-700 font-semibold">Developer Training Guide</p>
+        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900">How the Local Context Query HTML App Works</h1>
+      </div>
+      <button id="themeBtn" class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-slate-100 transition">Toggle theme</button>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-8">
+    <aside class="lg:sticky lg:top-24 h-fit rounded-3xl border border-slate-200 bg-white p-5 shadow-soft">
+      <h2 class="text-sm font-bold uppercase tracking-wide text-slate-500 mb-4">Contents</h2>
+      <nav class="space-y-2 text-sm">
+        <a class="block hover:text-teal-700" href="#overview">1. Overview</a>
+        <a class="block hover:text-teal-700" href="#layout">2. Page Layout</a>
+        <a class="block hover:text-teal-700" href="#tailwind">3. Tailwind + CSS</a>
+        <a class="block hover:text-teal-700" href="#state">4. JavaScript State</a>
+        <a class="block hover:text-teal-700" href="#api">5. API Flow</a>
+        <a class="block hover:text-teal-700" href="#websocket">6. WebSockets</a>
+        <a class="block hover:text-teal-700" href="#uploads">7. Upload Flow</a>
+        <a class="block hover:text-teal-700" href="#chat">8. Chat Flow</a>
+        <a class="block hover:text-teal-700" href="#rendering">9. DOM Rendering</a>
+        <a class="block hover:text-teal-700" href="#responsive">10. Responsive Design</a>
+        <a class="block hover:text-teal-700" href="#security">11. Security</a>
+        <a class="block hover:text-teal-700" href="#improvements">12. Improvements</a>
+      </nav>
+    </aside>
+
+    <main class="space-y-8">
+      <section id="overview" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">1. Overview</h2>
+        <div class="prose-like text-slate-700 leading-7">
+          <p>This application is a single-page document Q&amp;A client. The browser lets users upload files, select which documents are active, ask questions, and receive answers from a backend service.</p>
+          <p>The page combines three layers:</p>
+          <ul>
+            <li><strong>HTML</strong> for structure: header, chat area, upload panel, document list, and buttons.</li>
+            <li><strong>Tailwind CSS + custom CSS variables</strong> for layout, spacing, colors, animations, and responsive behavior.</li>
+            <li><strong>JavaScript</strong> for state management, fetching data, opening a WebSocket, uploading files, polling answers, and updating the DOM.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="layout" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">2. Page Layout</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+            <h3 class="font-bold mb-3">Major regions</h3>
+            <ul class="text-sm leading-7 text-slate-700 list-disc ml-5">
+              <li><strong>Header:</strong> model select, refresh, WebSocket status, theme toggle, docs toggle.</li>
+              <li><strong>Main chat panel:</strong> messages area and input composer.</li>
+              <li><strong>Sidebar:</strong> upload zone, processing queue, document selection list.</li>
+            </ul>
+          </div>
+          <div class="rounded-2xl bg-slate-900 text-slate-100 p-4 font-mono text-sm">
+            <div class="code-block">body
+├─ header
+└─ main
+   ├─ chat column
+   │  ├─ #chatMessages
+   │  └─ input bar
+   ├─ #sidebarOverlay
+   └─ aside#sidebar
+      ├─ upload section
+      ├─ processing section
+      └─ document context list</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tailwind" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">3. Tailwind + Custom CSS</h2>
+        <div class="prose-like text-slate-700 leading-7">
+          <p>The original page mixes Tailwind utility classes with a custom design-token layer built from CSS variables. That is a strong pattern when you want Tailwind for layout but still need runtime theme switching.</p>
+          <p><strong>Tailwind handles:</strong> flexbox, spacing, width, typography sizing, breakpoints, rounded corners, visibility rules like <code>lg:hidden</code> and <code>hidden lg:flex</code>.</p>
+          <p><strong>Custom CSS handles:</strong> theme variables, upload hover effects, custom checkboxes, scrollbar styling, animations, and icon state changes.</p>
+          <p>Key idea: set colors with CSS variables such as <code>--bg</code>, <code>--card</code>, and <code>--accent</code>; then let JavaScript switch the <code>data-theme</code> attribute on the root element.</p>
+        </div>
+      </section>
+
+      <section id="state" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">4. JavaScript State Model</h2>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50">
+            <h3 class="font-bold mb-3">Core variables</h3>
+            <ul class="text-sm leading-7 text-slate-700 list-disc ml-5">
+              <li><code>documents</code>: the current document list from the API.</li>
+              <li><code>allDocsEnabled</code>: global toggle state.</li>
+              <li><code>processingQueue</code>: uploads still being processed.</li>
+              <li><code>pendingQueries</code>: queries waiting for completion.</li>
+              <li><code>API</code>: base API path, set to <code>/api</code>.</li>
+            </ul>
+          </div>
+          <div class="rounded-2xl bg-slate-900 text-slate-100 p-4 font-mono text-sm">
+            <div class="code-block">let documents = [];
+let allDocsEnabled = true;
+let processingQueue = [];
+let pendingQueries = {};
+const API = '/api';</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="api" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">5. REST API Flow</h2>
+        <div class="prose-like text-slate-700 leading-7">
+          <p>The page talks to a backend with <code>fetch</code> through a helper called <code>safeFetch()</code>. That function wraps network calls, reads the response as text first, attempts JSON parsing, and throws a clean error when parsing or HTTP status fails.</p>
+          <p>That design gives the UI one standard way to call the server.</p>
+        </div>
+        <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4 mt-4 text-sm">
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50"><strong>GET /api/models</strong><br>Loads model names into the select menu.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50"><strong>GET /api/documents</strong><br>Loads indexed documents into the sidebar.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50"><strong>POST /api/upload</strong><br>Uploads one file with <code>FormData</code>.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50"><strong>GET /api/upload/:id/status</strong><br>Polls processing state.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50"><strong>POST /api/query</strong><br>Starts a query job.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50"><strong>GET /api/query/:id/answer</strong><br>Polls answer completion.</div>
+        </div>
+      </section>
+
+      <section id="websocket" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">6. WebSocket Design</h2>
+        <div class="prose-like text-slate-700 leading-7">
+          <p>The page creates a WebSocket with either <code>ws:</code> or <code>wss:</code> depending on the current page protocol. That is important because secure pages should use secure sockets.</p>
+          <p>When the socket opens, the app changes the status dot to green, resets retry counters, and sends a lightweight ping every 30 seconds to keep the connection alive.</p>
+          <p>When the socket closes, the page uses exponential backoff to reconnect. That makes the app more resilient if the backend restarts.</p>
+        </div>
+        <div class="rounded-2xl bg-slate-900 text-slate-100 p-4 font-mono text-sm mt-4">
+          <div class="code-block">function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(proto + '//' + location.host + '/ws');
+
+  ws.onopen = () =&gt; {
+    // mark connected
+    // start ping interval
+  };
+
+  ws.onclose = () =&gt; {
+    // mark disconnected
+    // reconnect with backoff
+  };
+
+  ws.onmessage = (event) =&gt; {
+    // parse message
+    // update UI for query_answer or upload_complete
+  };
+}</div>
+        </div>
+      </section>
+
+      <section id="uploads" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">7. Upload Flow</h2>
+        <div class="prose-like text-slate-700 leading-7">
+          <p>The upload area supports both clicking and drag-and-drop. The hidden file input is triggered when the upload panel is clicked. Drag events add and remove a visual <code>dragover</code> class.</p>
+          <p>Each file is uploaded in sequence. After upload, the returned document id is added to the processing queue. The UI then polls for status until the backend marks the document completed or failed.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4 mt-4">
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50 text-sm">
+            <strong>Why this is good</strong>
+            <ul class="list-disc ml-5 mt-2 leading-7 text-slate-700">
+              <li>Simple flow for beginners to follow.</li>
+              <li>Visual feedback during long processing.</li>
+              <li>Works even if WebSocket completion is missed, because polling is a backup.</li>
+            </ul>
+          </div>
+          <div class="rounded-2xl border border-amber-200 p-4 bg-amber-50 text-sm">
+            <strong>Tradeoff</strong>
+            <ul class="list-disc ml-5 mt-2 leading-7 text-slate-700">
+              <li>Repeated polling creates extra requests.</li>
+              <li>Sequential uploads are simpler, but slower for many files.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="chat" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">8. Chat Flow</h2>
+        <div class="prose-like text-slate-700 leading-7">
+          <p>The chat composer grows automatically as the user types, up to a max height. Pressing Enter sends the message; Shift+Enter creates a new line.</p>
+          <p>When the user sends a query, the UI:</p>
+          <ul>
+            <li>adds the user bubble,</li>
+            <li>adds a loading bubble,</li>
+            <li>collects enabled document ids,</li>
+            <li>sends the query to the backend,</li>
+            <li>stores the query id in <code>pendingQueries</code>,</li>
+            <li>starts polling and also waits for a WebSocket response.</li>
+          </ul>
+          <p>That means the app supports two answer paths: push via WebSocket and pull via polling.</p>
+        </div>
+      </section>
+
+      <section id="rendering" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">9. DOM Rendering Patterns</h2>
+        <div class="prose-like text-slate-700 leading-7">
+          <p>The page uses JavaScript functions like <code>addUser()</code>, <code>addBot()</code>, <code>addSys()</code>, and <code>renderDocList()</code> to create HTML strings and inject them into the DOM.</p>
+          <p>The helper <code>esc()</code> safely escapes user text before rendering. That is a good start. The helper <code>renderMd()</code> adds simple markdown-like formatting for bold text and inline code.</p>
+          <p>Important teaching point: rendering HTML with string concatenation is fast to write, but it becomes harder to maintain as the UI grows. A future refactor could use template functions, web components, or a framework.</p>
+        </div>
+      </section>
+
+      <section id="responsive" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">10. Responsive Design</h2>
+        <div class="prose-like text-slate-700 leading-7">
+          <p>The original page is mobile-aware. The sidebar becomes an off-canvas drawer below the large breakpoint. An overlay darkens the main content while the sidebar is open.</p>
+          <p>Tailwind classes such as <code>sm:px-5</code>, <code>max-w-7xl</code>, <code>lg:hidden</code>, and <code>hidden lg:flex</code> control what changes at different widths.</p>
+          <p>This is a practical example for new developers because it shows a real-world responsive pattern without using a framework.</p>
+        </div>
+      </section>
+
+      <section id="security" class="rounded-3xl border border-red-200 bg-red-50 p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">11. Security Issues to Address</h2>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="prose-like text-slate-700 leading-7">
+            <p><strong>1. CDN script risk.</strong> The page loads Tailwind from a CDN. In production, pin versions, use Subresource Integrity where possible, or bundle locally.</p>
+            <p><strong>2. Missing CSRF strategy.</strong> The upload, delete, and query endpoints are state-changing operations. If cookie auth is used, protect them with CSRF tokens or same-site cookie policy plus server-side validation.</p>
+            <p><strong>3. File upload validation.</strong> The browser limits file types with <code>accept</code>, but that is not security. The server must validate MIME type, extension, file size, malware, archive bombs, and parsing limits.</p>
+            <p><strong>4. WebSocket auth.</strong> The backend should authenticate the socket and authorize document access per user. Do not trust document ids from the client alone.</p>
+            <p><strong>5. XSS concerns.</strong> The page escapes plain text, but any rich answer formatting from the backend must stay sanitized. Never inject raw model output as trusted HTML.</p>
+          </div>
+          <div class="prose-like text-slate-700 leading-7">
+            <p><strong>6. Access control.</strong> The client lets users choose <code>enabled_doc_ids</code>. The server must verify the user owns those documents.</p>
+            <p><strong>7. CORS and origin checks.</strong> Limit allowed origins for both REST and WebSocket endpoints. Avoid open CORS policies.</p>
+            <p><strong>8. Transport security.</strong> Use HTTPS and WSS in production. Without TLS, uploads and chat content can be intercepted.</p>
+            <p><strong>9. Rate limiting.</strong> Add rate limits for uploads, query creation, delete actions, and WebSocket messages.</p>
+            <p><strong>10. Logging hygiene.</strong> Do not log raw file content, secrets, tokens, or sensitive prompts. Use structured logs with redaction.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="improvements" class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">12. Suggested Improvements for a New Developer to Build Next</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-700">
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50">Move inline <code>onclick</code> handlers to <code>addEventListener()</code> for better separation of structure and behavior.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50">Extract the chat bubble HTML into reusable template functions.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50">Add a real markdown parser with sanitization for richer answer formatting.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50">Add cancel-upload and cancel-query support.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50">Use optimistic UI carefully for document toggles and deletes.</div>
+          <div class="rounded-2xl border border-slate-200 p-4 bg-slate-50">Split the code into modules: <code>api.js</code>, <code>ws.js</code>, <code>ui.js</code>, and <code>state.js</code>.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const btn = document.getElementById('themeBtn');
+    btn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      document.body.classList.toggle('bg-slate-950');
+      document.body.classList.toggle('text-slate-100');
+    });
+  </script>
+</body>
+</html>

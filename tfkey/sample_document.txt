@@ -1,0 +1,104 @@
+Introduction to Superheterodyne Receiver Design
+
+The superheterodyne receiver remains one of the most important architectures in
+radio frequency engineering. First developed in the early twentieth century, the
+superheterodyne principle converts an incoming signal to a fixed intermediate
+frequency using a mixer and a local oscillator.  This approach dramatically
+improves both selectivity and sensitivity compared to simpler designs like the
+regenerative or crystal receiver.
+
+RF Front-End and Antenna Considerations
+
+A well-designed antenna is critical for capturing the desired signal from the
+electromagnetic spectrum.  For VHF and UHF bands, a Yagi antenna offers excellent
+gain and directivity.  The antenna connects to the receiver through a feedline,
+typically a coaxial cable with controlled impedance — usually 50 ohm or 75 ohm.
+Impedance matching is essential; a poor match results in a high SWR (standing
+wave ratio), which increases attenuation in the feedline and can damage the
+transmitter.  A balun may be used at the junction between a balanced antenna
+element (such as a dipole) and the unbalanced coaxial feedline.
+
+Signal Path and Filtering
+
+After the antenna, the signal enters a bandpass filter designed to reject
+out-of-band noise and interference.  The filter's bandwidth determines how much
+of the spectrum is allowed through.  A narrow bandwidth improves selectivity but
+may attenuate the desired signal if the filter is not centred on the correct
+frequency.  Modern receivers often use crystal filters or ceramic resonators for
+sharp selectivity.
+
+The filtered signal is then amplified by a low-noise amplifier (LNA).  The
+amplifier must provide enough gain to raise the signal above the noise floor
+without introducing excessive distortion.  Gain is measured in decibels (dB),
+and a typical LNA might provide 15 to 20 dB of gain with a noise figure below
+1 dB.
+
+Mixing and Frequency Conversion
+
+The heart of the superheterodyne is the mixer.  The mixer multiplies the
+incoming RF signal by the output of a local oscillator, producing sum and
+difference frequencies.  The difference frequency — the intermediate frequency
+or IF — is selected by another bandpass filter.  This conversion process is
+sometimes called demodulation in casual usage, although true demodulation occurs
+later in the signal chain.
+
+The local oscillator in a modern transceiver is usually controlled by a
+phase-locked loop (PLL) synthesiser, which locks the oscillator frequency to a
+stable crystal reference.  PLL design involves careful choice of loop bandwidth,
+charge pump current, and voltage-controlled oscillator (VCO) characteristics.
+
+Demodulation and Baseband Processing
+
+Once at the IF, the signal is demodulated to extract the original information.
+For AM signals, a simple diode detector or envelope detector suffices.  FM
+demodulation typically uses a discriminator or a PLL-based detector.  SSB
+(single-sideband) signals require a product detector that re-inserts the
+suppressed carrier.
+
+In modern SDR (software-defined radio) receivers, the IF or even the RF signal
+is digitised by a high-speed ADC (analog-to-digital converter) and all
+subsequent processing — filtering, demodulation, AGC (automatic gain control)
+— is performed in DSP (digital signal processing) firmware or software.  This
+approach allows the same hardware to receive AM, FM, SSB, CW, FSK, PSK, QAM,
+and OFDM signals simply by changing software.
+
+Power Supply and Grounding
+
+A clean, well-regulated power supply is essential for low-noise receiver
+operation.  Voltage regulation is typically achieved with a linear regulator or
+a switching regulator followed by additional filtering.  Decoupling capacitors
+— usually a combination of bulk electrolytic and small ceramic bypass capacitors
+— are placed close to every active device (transistor, integrated circuit,
+MOSFET) to suppress high-frequency noise on the power rails.
+
+Proper grounding and shielding techniques reduce EMI (electromagnetic
+interference) and RFI (radio-frequency interference) pickup.  A solid ground
+plane on the PCB provides a low-impedance return path for RF currents and helps
+contain stray fields.  Sensitive analogue circuits should be separated from
+digital clock and microcontroller sections to minimise coupling.
+
+Test Equipment
+
+Verifying receiver performance requires instruments such as an oscilloscope for
+viewing waveform shapes in the time domain, a spectrum analyser for examining
+frequency content, and a multimeter for measuring voltage, current, and
+resistance.  A signal generator capable of producing calibrated RF output across
+the desired frequency range is also indispensable.
+
+Component-Level Notes
+
+At the component level, a resistor sets bias points and limits current, a
+capacitor blocks DC while passing AC, and an inductor stores energy in a
+magnetic field.  Semiconductor devices — diodes, transistors, MOSFETs, JFETs —
+form the active core of every amplifier and oscillator stage.  Varactor diodes
+provide voltage-tunable capacitance for frequency agile circuits, and ferrite
+cores are used in transformers and inductors for impedance matching and EMI
+suppression.
+
+Conclusion
+
+Understanding the interplay between antenna, filter, amplifier, mixer,
+oscillator, and detector stages is fundamental to radio-frequency engineering.
+Whether building a simple shortwave receiver or a complex multi-band
+transceiver with DSP-based demodulation, the principles of impedance matching,
+gain management, noise reduction, and proper grounding apply universally.
