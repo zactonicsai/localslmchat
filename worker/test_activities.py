@@ -79,7 +79,7 @@ def _make_query_activities(s3=None, chroma=None, ollama=None):
         s3=s3 or MockS3Client(),
         chroma=chroma or MockChromaStore(),
         ollama=ollama or MockOllamaClient(),
-        backend_url="http://fake:8200",
+        backend_url="http://fake:6976",
     )
 
 
@@ -179,7 +179,7 @@ class TestOllamaEmbed:
     @pytest.mark.asyncio
     async def test_modern_api_success(self):
         """Verify /api/embed with string input works."""
-        client = OllamaClient(base_url="http://fake:11434")
+        client = OllamaClient(base_url="http://fake:6970")
 
         mock_resp = MagicMock()
         mock_resp.status_code = 200
@@ -192,7 +192,7 @@ class TestOllamaEmbed:
     @pytest.mark.asyncio
     async def test_fallback_to_legacy_on_400(self):
         """If /api/embed returns 400, should fall back to /api/embeddings."""
-        client = OllamaClient(base_url="http://fake:11434")
+        client = OllamaClient(base_url="http://fake:6970")
         call_count = 0
 
         async def mock_post(url, **kwargs):
@@ -217,7 +217,7 @@ class TestOllamaEmbed:
         """404 = model not found, should fail immediately."""
         from temporalio.exceptions import ApplicationError
 
-        client = OllamaClient(base_url="http://fake:11434")
+        client = OllamaClient(base_url="http://fake:6970")
         mock_resp = MagicMock()
         mock_resp.status_code = 404
 

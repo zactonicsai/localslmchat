@@ -33,13 +33,13 @@ from shared.models import (
 # ---------------------------------------------------------------------------
 # Configuration – injected at runtime via env vars
 # ---------------------------------------------------------------------------
-S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://localhost:4566")
+S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://host.docker.internal:6971")
 S3_BUCKET = os.getenv("S3_BUCKET", "lcq-documents")
-CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
-CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8000"))
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434")
+CHROMA_HOST = os.getenv("CHROMA_HOST", "host.docker.internal")
+CHROMA_PORT = int(os.getenv("CHROMA_PORT", "6975"))
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:6970")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
-BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:8200")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://host.docker.internal:6976")
 # Chunk size in words. nomic-embed-text defaults to 2048 tokens in Ollama.
 # ~1.3 tokens/word means 500 words ≈ 650 tokens — safely under the limit.
 # The old default of 800 words (~1100 tokens) caused "input length exceeds

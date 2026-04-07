@@ -5,5 +5,5 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY shared/ /app/shared/
 COPY backend/ /app/
-EXPOSE 8200
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8200", "--log-level", "info"]
+EXPOSE 6976
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "6976", "--log-level", "info"]
