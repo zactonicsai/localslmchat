@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Service Down</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.75); }
+    }
+    .pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center px-6">
+  <div class="text-center max-w-md w-full">
+
+    <!-- Icon -->
+    <div class="mx-auto mb-8 w-20 h-20 rounded-full bg-red-50 border border-red-100 flex items-center justify-center">
+      <svg class="w-10 h-10 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3" />
+        <line x1="19" y1="5" x2="14" y2="10" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
+        <line x1="14" y1="5" x2="19" y2="10" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- Status badge -->
+    <p class="text-xs font-semibold tracking-widest text-red-500 uppercase mb-3">Service Unavailable</p>
+
+    <!-- Heading -->
+    <h1 class="text-3xl font-medium text-gray-900 mb-4 leading-snug">
+      Local LLM service is down
+    </h1>
+
+    <!-- Subtext -->
+    <p class="text-base text-gray-500 leading-relaxed mb-8">
+      We're working on getting things back up and running.<br />
+      Please check back shortly.
+    </p>
+
+    <!-- Pulse status -->
+    <div class="flex items-center justify-center gap-2 mb-8">
+      <span class="pulse-dot inline-block w-2.5 h-2.5 rounded-full bg-red-400"></span>
+      <span class="text-sm text-gray-400">Be back soon</span>
+    </div>
+
+    <!-- Return button -->
+    <a href="https://zactonics.ai"
+      class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-800 text-sm font-medium hover:bg-gray-50 transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 8H3M6 5L3 8l3 3"/>
+      </svg>
+      Return to Zactonics.ai
+    </a>
+
+  </div>
+</body>
+</html>
