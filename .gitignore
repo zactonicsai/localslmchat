@@ -1,1 +1,3 @@
 .ollama/models/
+offline/target/
+offline/Cargo.lock
