@@ -19,7 +19,7 @@ docker compose exec ollama ollama pull phi4-mini
 docker compose exec ollama ollama pull nomic-embed-text
 
 # Open:
-open http://localhost:8300
+open http://localhost:6977
 ```
 
 Wait ~60s for Temporal + Postgres to initialize.
@@ -27,14 +27,14 @@ Wait ~60s for Temporal + Postgres to initialize.
 ## Architecture
 
 ```
-Browser :8300 → Nginx → FastAPI :8200
+Browser :6977 → Nginx → FastAPI :6976
                             │
               ┌─────────────┼──────────────────┐
               ▼             ▼                  ▼
-        LocalStack S3    Temporal :7233     ChromaDB :8100
-        :4566            (Postgres 17)
+        LocalStack S3    Temporal :6973     ChromaDB :6975
+        :6971            (Postgres 17)
               │             │
-              └───── Worker ────▸ Ollama :11434
+              └───── Worker ────▸ Ollama :6970
 ```
 
 Models are loaded from `~/.ollama/models` on your host (shared with local Ollama install).
@@ -43,14 +43,14 @@ Models are loaded from `~/.ollama/models` on your host (shared with local Ollama
 
 | Service      | Port  | Image                         |
 |-------------|-------|-------------------------------|
-| Ollama      | 11434 | ollama/ollama:latest          |
-| Frontend    | 8300  | nginx:1.27-alpine             |
-| Backend     | 8200  | python:3.12-slim + FastAPI    |
-| LocalStack  | 4566  | localstack/localstack:4.0     |
-| Temporal    | 7233  | temporalio/auto-setup:1.25.2  |
-| Temporal UI | 8080  | temporalio/ui:2.31.2          |
-| Postgres 17 | 5432  | postgres:17-alpine            |
-| ChromaDB    | 8100  | chromadb/chroma:0.6.3         |
+| Ollama      | 6970  | ollama/ollama:latest          |
+| LocalStack  | 6971  | localstack/localstack:4.0     |
+| Postgres 17 | 6972  | postgres:17-alpine            |
+| Temporal    | 6973  | temporalio/auto-setup:1.25.2  |
+| Temporal UI | 6974  | temporalio/ui:2.31.2          |
+| ChromaDB    | 6975  | chromadb/chroma:0.6.3         |
+| Backend     | 6976  | python:3.12-slim + FastAPI    |
+| Frontend    | 6977  | nginx:1.27-alpine             |
 
 ## Features
 

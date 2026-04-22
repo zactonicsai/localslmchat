@@ -34,7 +34,7 @@ logger = logging.getLogger("temporal-worker")
 
 async def main():
     """Start both upload and query workers."""
-    temporal_address = os.getenv("TEMPORAL_ADDRESS", "localhost:7233")
+    temporal_address = os.getenv("TEMPORAL_ADDRESS", "host.docker.internal:6973")
     namespace = os.getenv("TEMPORAL_NAMESPACE", "default")
 
     logger.info(f"Connecting to Temporal at {temporal_address} (namespace={namespace})")

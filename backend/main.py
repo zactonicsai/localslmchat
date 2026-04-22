@@ -17,12 +17,12 @@ from shared.models import (TASK_QUEUE, QUERY_TASK_QUEUE, WORKFLOW_ID_PREFIX, QUE
                            S3_RAW_PREFIX, S3_QUERY_PREFIX, S3_ANSWER_PREFIX,
                            UploadInput, QueryInput)
 
-TEMPORAL_ADDRESS = os.getenv("TEMPORAL_ADDRESS", "localhost:7233")
-CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
-CHROMA_PORT = int(os.getenv("CHROMA_PORT", "8000"))
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
+TEMPORAL_ADDRESS = os.getenv("TEMPORAL_ADDRESS", "host.docker.internal:6973")
+CHROMA_HOST = os.getenv("CHROMA_HOST", "host.docker.internal")
+CHROMA_PORT = int(os.getenv("CHROMA_PORT", "6975"))
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:6970")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "nomic-embed-text")
-S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://localhost:4566")
+S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://host.docker.internal:6971")
 S3_BUCKET = os.getenv("S3_BUCKET", "lcq-documents")
 
 app = FastAPI(title="Local Context Query API")

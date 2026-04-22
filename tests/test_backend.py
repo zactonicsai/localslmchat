@@ -9,8 +9,8 @@ from httpx import ASGITransport, AsyncClient
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, os.path.join(PROJECT_ROOT, "backend"))
 sys.path.insert(0, PROJECT_ROOT)
-os.environ.update({"CHROMA_HOST":"localhost","CHROMA_PORT":"8000","OLLAMA_BASE_URL":"http://localhost:11434",
-    "TEMPORAL_ADDRESS":"localhost:7233","EMBED_MODEL":"nomic-embed-text","S3_ENDPOINT":"http://localhost:4566",
+os.environ.update({"CHROMA_HOST":"host.docker.internal","CHROMA_PORT":"6975","OLLAMA_BASE_URL":"http://host.docker.internal:6970",
+    "TEMPORAL_ADDRESS":"host.docker.internal:6973","EMBED_MODEL":"nomic-embed-text","S3_ENDPOINT":"http://host.docker.internal:6971",
     "S3_BUCKET":"lcq-documents","AWS_ACCESS_KEY_ID":"test","AWS_SECRET_ACCESS_KEY":"test","AWS_DEFAULT_REGION":"us-east-1"})
 
 class FakeS3:
