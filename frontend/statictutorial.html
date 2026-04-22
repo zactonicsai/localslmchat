@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Context Query — Developer Training Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       DESIGN TOKENS — LIGHT THEME
+       ═══════════════════════════════════════════════════════════════ */
+    :root,
+    [data-theme="light"] {
+      --bg: #f8f7f4;
+      --bg-raised: #ffffff;
+      --bg-inset: #f0efeb;
+      --bg-code: #1c1917;
+      --text: #1c1917;
+      --text-secondary: #57534e;
+      --text-tertiary: #a8a29e;
+      --text-code: #e7e5e4;
+      --text-on-accent: #ffffff;
+      --accent: #b45309;
+      --accent-hover: #92400e;
+      --accent-subtle: #fef3c7;
+      --accent-subtle-border: #fde68a;
+      --border: #e7e5e4;
+      --border-strong: #d6d3d1;
+      --shadow-sm: 0 1px 2px rgba(28,25,23,0.04);
+      --shadow-md: 0 4px 16px rgba(28,25,23,0.06);
+      --shadow-lg: 0 12px 48px rgba(28,25,23,0.08);
+      --tag-bg: #fef3c7;
+      --tag-text: #92400e;
+      --warn-bg: #fef2f2;
+      --warn-border: #fecaca;
+      --warn-text: #991b1b;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --green-text: #166534;
+      --sidebar-active: #b45309;
+      --nav-hover: rgba(180,83,9,0.06);
+      --scrollbar-track: #e7e5e4;
+      --scrollbar-thumb: #d6d3d1;
+      --toggle-bg: #e7e5e4;
+      --toggle-dot: #ffffff;
+      --code-comment: #78716c;
+      --code-keyword: #c084fc;
+      --code-string: #86efac;
+      --code-function: #7dd3fc;
+      --code-number: #fbbf24;
+      --code-tag: #f87171;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       DESIGN TOKENS — DARK THEME
+       ═══════════════════════════════════════════════════════════════ */
+    [data-theme="dark"] {
+      --bg: #0c0a09;
+      --bg-raised: #1c1917;
+      --bg-inset: #292524;
+      --bg-code: #0c0a09;
+      --text: #e7e5e4;
+      --text-secondary: #a8a29e;
+      --text-tertiary: #78716c;
+      --text-code: #d6d3d1;
+      --text-on-accent: #ffffff;
+      --accent: #f59e0b;
+      --accent-hover: #fbbf24;
+      --accent-subtle: rgba(245,158,11,0.1);
+      --accent-subtle-border: rgba(245,158,11,0.25);
+      --border: #292524;
+      --border-strong: #44403c;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.3);
+      --shadow-lg: 0 12px 48px rgba(0,0,0,0.4);
+      --tag-bg: rgba(245,158,11,0.12);
+      --tag-text: #fbbf24;
+      --warn-bg: rgba(239,68,68,0.08);
+      --warn-border: rgba(239,68,68,0.25);
+      --warn-text: #fca5a5;
+      --info-bg: rgba(59,130,246,0.08);
+      --info-border: rgba(59,130,246,0.25);
+      --info-text: #93c5fd;
+      --green-bg: rgba(34,197,94,0.08);
+      --green-border: rgba(34,197,94,0.25);
+      --green-text: #86efac;
+      --sidebar-active: #f59e0b;
+      --nav-hover: rgba(245,158,11,0.08);
+      --scrollbar-track: #292524;
+      --scrollbar-thumb: #44403c;
+      --toggle-bg: #44403c;
+      --toggle-dot: #f59e0b;
+      --code-comment: #78716c;
+      --code-keyword: #c084fc;
+      --code-string: #86efac;
+      --code-function: #7dd3fc;
+      --code-number: #fbbf24;
+      --code-tag: #f87171;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 5.5rem;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SCROLLBAR
+       ═══════════════════════════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HEADER
+       ═══════════════════════════════════════════════════════════════ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .header-inner {
+      max-width: 82rem;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .header-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .header-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    @media(min-width:640px) { .header-title { font-size: 1.5rem; } }
+
+    /* ─── Theme Toggle ─── */
+    .theme-toggle {
+      position: relative;
+      width: 52px; height: 28px;
+      background: var(--toggle-bg);
+      border-radius: 14px;
+      cursor: pointer;
+      border: none;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 22px; height: 22px;
+      background: var(--toggle-dot);
+      border-radius: 50%;
+      transition: transform 0.3s ease, background 0.3s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    [data-theme="dark"] .theme-toggle::after { transform: translateX(24px); }
+    .theme-toggle-icon {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      font-size: 14px; line-height: 1; z-index: 1;
+    }
+    .theme-toggle-icon.sun { left: 7px; }
+    .theme-toggle-icon.moon { right: 7px; }
+    [data-theme="light"] .theme-toggle-icon.sun { opacity: 0.4; }
+    [data-theme="light"] .theme-toggle-icon.moon { opacity: 1; }
+    [data-theme="dark"] .theme-toggle-icon.sun { opacity: 1; }
+    [data-theme="dark"] .theme-toggle-icon.moon { opacity: 0.4; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LAYOUT: SIDEBAR + MAIN
+       ═══════════════════════════════════════════════════════════════ */
+    .page-grid {
+      max-width: 82rem;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: grid;
+      gap: 2.5rem;
+    }
+    @media(min-width:1024px) {
+      .page-grid { grid-template-columns: 260px minmax(0, 1fr); }
+    }
+
+    /* ─── Sidebar nav ─── */
+    .sidebar {
+      display: none;
+    }
+    @media(min-width:1024px) {
+      .sidebar {
+        display: block;
+        position: sticky;
+        top: 5.5rem;
+        height: fit-content;
+        max-height: calc(100vh - 7rem);
+        overflow-y: auto;
+        background: var(--bg-raised);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        box-shadow: var(--shadow-md);
+        transition: background 0.3s, border-color 0.3s;
+      }
+    }
+    .sidebar-title {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 0.75rem;
+    }
+    .nav-section {
+      margin-bottom: 0.75rem;
+    }
+    .nav-section-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      padding: 0.35rem 0.5rem;
+    }
+    .nav-link {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+      line-height: 1.5;
+    }
+    .nav-link:hover {
+      color: var(--accent);
+      background: var(--nav-hover);
+    }
+    .nav-link.active {
+      color: var(--sidebar-active);
+      font-weight: 600;
+      background: var(--nav-hover);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════════════════════════════════ */
+    .main-content { display: flex; flex-direction: column; gap: 2rem; }
+
+    /* ─── Section Cards ─── */
+    .card {
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .card:hover { box-shadow: var(--shadow-md); }
+    .card-warn {
+      background: var(--warn-bg);
+      border-color: var(--warn-border);
+    }
+    .card-info {
+      background: var(--info-bg);
+      border-color: var(--info-border);
+    }
+    .card-green {
+      background: var(--green-bg);
+      border-color: var(--green-border);
+    }
+
+    /* ─── Typography ─── */
+    .section-number {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    .subsection-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    .subsection-title:first-child { margin-top: 0; }
+
+    .prose { color: var(--text-secondary); }
+    .prose p { margin-bottom: 0.85rem; }
+    .prose strong { color: var(--text); font-weight: 600; }
+    .prose ul { list-style: disc; margin-left: 1.25rem; margin-bottom: 0.85rem; }
+    .prose ol { list-style: decimal; margin-left: 1.25rem; margin-bottom: 0.85rem; }
+    .prose li { margin-bottom: 0.35rem; }
+    .prose a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+    }
+    .prose a:hover { color: var(--accent-hover); }
+
+    /* ─── Inline Code ─── */
+    .prose code, code.inline {
+      font-family: 'DM Mono', 'Menlo', monospace;
+      font-size: 0.82em;
+      background: var(--bg-inset);
+      color: var(--text);
+      padding: 0.12em 0.4em;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+    }
+
+    /* ─── Code Blocks ─── */
+    .code-block {
+      background: var(--bg-code);
+      color: var(--text-code);
+      font-family: 'DM Mono', 'Menlo', monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      overflow-x: auto;
+      white-space: pre;
+      margin: 1rem 0;
+      border: 1px solid var(--border);
+    }
+    .code-block .cm { color: var(--code-comment); font-style: italic; }
+    .code-block .kw { color: var(--code-keyword); }
+    .code-block .st { color: var(--code-string); }
+    .code-block .fn { color: var(--code-function); }
+    .code-block .nu { color: var(--code-number); }
+    .code-block .tg { color: var(--code-tag); }
+
+    .code-label {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 0.25rem;
+    }
+
+    /* ─── Tags ─── */
+    .tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.2em 0.6em;
+      border-radius: 5px;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+    }
+
+    /* ─── Grid layouts ─── */
+    .grid-2 { display: grid; gap: 1rem; }
+    @media(min-width:768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .grid-3 { display: grid; gap: 1rem; }
+    @media(min-width:768px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media(min-width:1024px) { .grid-3 { grid-template-columns: 1fr 1fr 1fr; } }
+
+    /* ─── Mini cards ─── */
+    .mini-card {
+      background: var(--bg-inset);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .mini-card strong { display: block; color: var(--text); margin-bottom: 0.25rem; }
+    .mini-card p, .mini-card { font-size: 0.88rem; color: var(--text-secondary); }
+
+    /* ─── Diagram box ─── */
+    .diagram {
+      background: var(--bg-code);
+      color: var(--text-code);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      line-height: 1.8;
+      padding: 1.5rem;
+      border-radius: 12px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* ─── Doc link box ─── */
+    .doc-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-inset);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-size: 0.85rem;
+    }
+    .doc-link:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+    .doc-link .doc-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .doc-link .doc-title { font-weight: 600; }
+    .doc-link .doc-desc { font-size: 0.78rem; color: var(--text-tertiary); }
+
+    /* ─── Callout ─── */
+    .callout {
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      background: var(--accent-subtle);
+      border-radius: 0 8px 8px 0;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin: 1rem 0;
+    }
+    .callout strong { color: var(--text); }
+
+    /* ─── Divider ─── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    /* ─── Badge row ─── */
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+
+    /* ─── Footer ─── */
+    .site-footer {
+      max-width: 82rem;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-tertiary);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    /* ─── Step indicator ─── */
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem; height: 1.5rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--text-on-accent);
+      font-weight: 700;
+      font-size: 0.72rem;
+      flex-shrink: 0;
+      margin-right: 0.5rem;
+    }
+
+    /* ─── Illustration placeholder ─── */
+    .illust {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-inset);
+      border: 1px dashed var(--border-strong);
+      border-radius: 12px;
+      padding: 2rem;
+      color: var(--text-tertiary);
+      font-size: 0.82rem;
+      text-align: center;
+      min-height: 140px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div>
+      <p class="header-label">Developer Training Guide</p>
+      <h1 class="header-title">Local Context Query — Full-Stack Tutorial</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <button class="theme-toggle" id="themeBtn" aria-label="Toggle theme">
+        <span class="theme-toggle-icon sun">☀️</span>
+        <span class="theme-toggle-icon moon">🌙</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="page-grid">
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <p class="sidebar-title">Contents</p>
+    <nav>
+      <div class="nav-section">
+        <p class="nav-section-label">Foundations</p>
+        <a class="nav-link" href="#overview">1. Overview</a>
+        <a class="nav-link" href="#architecture">2. Architecture</a>
+        <a class="nav-link" href="#layout">3. Page Layout</a>
+        <a class="nav-link" href="#tailwind">4. Tailwind + CSS</a>
+        <a class="nav-link" href="#theming">5. Dark &amp; Light Theming</a>
+      </div>
+      <div class="nav-section">
+        <p class="nav-section-label">JavaScript</p>
+        <a class="nav-link" href="#state">6. State Management</a>
+        <a class="nav-link" href="#api">7. REST API Flow</a>
+        <a class="nav-link" href="#websocket">8. WebSockets</a>
+        <a class="nav-link" href="#uploads">9. Upload Flow</a>
+        <a class="nav-link" href="#chat">10. Chat Flow</a>
+        <a class="nav-link" href="#rendering">11. DOM Rendering</a>
+      </div>
+      <div class="nav-section">
+        <p class="nav-section-label">Backend</p>
+        <a class="nav-link" href="#fastapi">12. FastAPI Backend</a>
+        <a class="nav-link" href="#temporal">13. Temporal Workflows</a>
+        <a class="nav-link" href="#activities">14. Activities &amp; DI</a>
+        <a class="nav-link" href="#rag">15. RAG Pipeline</a>
+        <a class="nav-link" href="#testing">16. Testing Strategy</a>
+      </div>
+      <div class="nav-section">
+        <p class="nav-section-label">Operations</p>
+        <a class="nav-link" href="#responsive">17. Responsive Design</a>
+        <a class="nav-link" href="#security">18. Security Checklist</a>
+        <a class="nav-link" href="#best-practices">19. Best Practices</a>
+        <a class="nav-link" href="#improvements">20. Next Steps</a>
+        <a class="nav-link" href="#resources">21. Resources &amp; Docs</a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ═══════════════ MAIN ═══════════════ -->
+  <main class="main-content">
+
+    <!-- ─── 1. OVERVIEW ─── -->
+    <section id="overview" class="card">
+      <span class="section-number">Section 1</span>
+      <h2 class="section-title">Overview</h2>
+      <div class="badge-row">
+        <span class="tag">HTML</span>
+        <span class="tag">Tailwind CSS</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">FastAPI</span>
+        <span class="tag">Temporal</span>
+        <span class="tag">ChromaDB</span>
+        <span class="tag">Ollama</span>
+        <span class="tag">S3</span>
+      </div>
+      <div class="prose">
+        <p><strong>Local Context Query</strong> is a full-stack document Q&amp;A application. Users upload files through a browser interface, the backend processes them into a vector database, and users then ask natural-language questions that are answered using only the content from their uploaded documents.</p>
+        <p>The system is built from four cooperating layers:</p>
+        <ul>
+          <li><strong>Frontend</strong> — A single-page HTML client using Tailwind CSS and vanilla JavaScript. Handles uploads, document management, chat, and real-time updates via WebSockets.</li>
+          <li><strong>API layer</strong> — A FastAPI server that exposes REST endpoints and a WebSocket hub. It delegates long-running work to Temporal workflows rather than blocking request threads.</li>
+          <li><strong>Orchestration</strong> — Temporal manages durable workflows for document processing and query execution. Each workflow is composed of retry-safe activities.</li>
+          <li><strong>Infrastructure</strong> — S3 (or LocalStack) for file storage, ChromaDB for vector search, and Ollama for local LLM inference and embeddings.</li>
+        </ul>
+        <p>This guide teaches you how every layer works, why specific design decisions were made, and where to look when things go wrong.</p>
+      </div>
+    </section>
+
+    <!-- ─── 2. ARCHITECTURE ─── -->
+    <section id="architecture" class="card">
+      <span class="section-number">Section 2</span>
+      <h2 class="section-title">System Architecture</h2>
+      <div class="prose">
+        <p>The request flow follows two paths: <strong>upload</strong> and <strong>query</strong>. Both use Temporal for durable orchestration, which means the backend API returns immediately and the browser polls or listens on a WebSocket for results.</p>
+      </div>
+      <div class="diagram" style="margin:1rem 0;">Browser                      FastAPI                 Temporal                   Workers
+  │                            │                       │                          │
+  │─── POST /api/upload ──────▶│                       │                          │
+  │◀── {doc_id, status} ──────│── start workflow ─────▶│                          │
+  │                            │                       │── schedule activities ──▶│
+  │                            │                       │                          │── extract text
+  │                            │                       │                          │── chunk text
+  │                            │                       │                          │── embed &amp; store
+  │                            │                       │◀── workflow complete ────│
+  │                            │◀── callback ──────────│                          │
+  │◀── WebSocket push ────────│                       │                          │
+  │                            │                       │                          │
+  │─── POST /api/query ──────▶│                       │                          │
+  │◀── {query_id} ────────────│── start workflow ─────▶│                          │
+  │                            │                       │── execute_query ────────▶│
+  │                            │                       │                          │── embed question
+  │                            │                       │                          │── vector search
+  │                            │                       │                          │── LLM generate
+  │                            │                       │                          │── save answer → S3
+  │                            │◀── HTTP callback ─────│                          │
+  │◀── WebSocket push ────────│                       │                          │</div>
+      <div class="callout">
+        <strong>Key insight:</strong> The browser never waits for a blocking response. The API starts a Temporal workflow and returns a job ID. The browser then receives the result through either a WebSocket push or by polling.
+      </div>
+    </section>
+
+    <!-- ─── 3. PAGE LAYOUT ─── -->
+    <section id="layout" class="card">
+      <span class="section-number">Section 3</span>
+      <h2 class="section-title">Page Layout</h2>
+      <div class="grid-2">
+        <div class="prose">
+          <p>The HTML is organized into three major regions:</p>
+          <ul>
+            <li><strong>Header</strong> — Fixed at the top. Contains the model selector dropdown, WebSocket status indicator (green/red dot), refresh button, theme toggle, and the sidebar toggle for mobile.</li>
+            <li><strong>Chat panel</strong> — The central column. Holds the scrollable message history (<code>#chatMessages</code>) and the input composer bar with a growing textarea.</li>
+            <li><strong>Sidebar</strong> — On desktop it sits to the right. On mobile it slides in as an overlay drawer. Contains the upload drop zone, the processing queue, and the document selection list.</li>
+          </ul>
+          <p>This three-column pattern (nav, content, sidebar) is extremely common in web applications. Learning it here will help you build dashboards, email clients, and admin panels later.</p>
+        </div>
+        <div class="diagram">body
+├── header
+│   ├── model &lt;select&gt;
+│   ├── refresh btn
+│   ├── WS status dot
+│   ├── theme toggle
+│   └── sidebar toggle (mobile)
+└── main.flex
+    ├── section.chat-column
+    │   ├── #chatMessages (scrollable)
+    │   └── .input-bar
+    │       ├── &lt;textarea&gt;
+    │       └── send &lt;button&gt;
+    ├── #sidebarOverlay
+    └── aside#sidebar
+        ├── upload drop-zone
+        │   └── hidden &lt;input type="file"&gt;
+        ├── processing queue list
+        └── document context list
+            ├── "toggle all" checkbox
+            └── per-doc checkbox + delete</div>
+      </div>
+    </section>
+
+    <!-- ─── 4. TAILWIND + CSS ─── -->
+    <section id="tailwind" class="card">
+      <span class="section-number">Section 4</span>
+      <h2 class="section-title">Tailwind CSS + Custom Styles</h2>
+      <div class="prose">
+        <p><a href="https://tailwindcss.com/docs" target="_blank" rel="noopener">Tailwind CSS</a> is a utility-first CSS framework. Instead of writing custom class names like <code>.chat-container</code>, you compose styles directly in HTML with small utility classes.</p>
+      </div>
+      <div class="grid-2" style="margin-top:1rem">
+        <div class="mini-card">
+          <strong>What Tailwind handles</strong>
+          <p>Flexbox layouts (<code>flex</code>, <code>gap-4</code>), spacing (<code>p-4</code>, <code>m-2</code>), typography (<code>text-sm</code>, <code>font-bold</code>), responsive breakpoints (<code>lg:hidden</code>, <code>sm:px-5</code>), border radius (<code>rounded-xl</code>), and visibility toggling.</p>
+        </div>
+        <div class="mini-card">
+          <strong>What custom CSS handles</strong>
+          <p>Theme color variables (<code>--bg</code>, <code>--card</code>, <code>--accent</code>), the upload drop-zone hover animation, custom checkbox styles, scrollbar appearance, WebSocket status dot animations, and the sidebar slide transition.</p>
+        </div>
+      </div>
+      <h3 class="subsection-title">How Tailwind utility classes work</h3>
+      <div class="code-block"><span class="cm">&lt;!-- Instead of writing separate CSS: --&gt;</span>
+<span class="cm">&lt;!-- .card { padding: 1rem; border-radius: 0.75rem; background: white; } --&gt;</span>
+
+<span class="cm">&lt;!-- You write utilities directly: --&gt;</span>
+<span class="tg">&lt;div</span> <span class="fn">class=</span><span class="st">"p-4 rounded-xl bg-white shadow-md"</span><span class="tg">&gt;</span>
+  Content here
+<span class="tg">&lt;/div&gt;</span>
+
+<span class="cm">&lt;!-- Responsive: hide on mobile, show on desktop --&gt;</span>
+<span class="tg">&lt;aside</span> <span class="fn">class=</span><span class="st">"hidden lg:block w-72"</span><span class="tg">&gt;</span>
+  Sidebar only visible ≥1024px
+<span class="tg">&lt;/aside&gt;</span></div>
+      <div class="callout">
+        <strong>Learning tip:</strong> Open your browser DevTools and hover over elements. You will see each Tailwind class maps to exactly one or two CSS properties. That one-to-one mapping is why Tailwind is fast to learn. The <a href="https://tailwindcss.com/docs/utility-first" target="_blank" rel="noopener">Utility-First Fundamentals</a> page is the best starting point.
+      </div>
+    </section>
+
+    <!-- ─── 5. THEMING ─── -->
+    <section id="theming" class="card">
+      <span class="section-number">Section 5</span>
+      <h2 class="section-title">Dark &amp; Light Theming</h2>
+      <div class="prose">
+        <p>Theme switching is built with <strong>CSS custom properties</strong> (also called CSS variables) and a <code>data-theme</code> attribute on the root <code>&lt;html&gt;</code> element. This is the recommended pattern because it works with any CSS framework and requires zero JavaScript to apply styles — JS only flips the attribute.</p>
+      </div>
+      <h3 class="subsection-title">Step 1 — Define variables for each theme</h3>
+      <div class="code-block"><span class="cm">/* Light theme (default) */</span>
+<span class="kw">:root</span>, [<span class="fn">data-theme</span>=<span class="st">"light"</span>] {
+  <span class="fn">--bg</span>: <span class="st">#f8f7f4</span>;
+  <span class="fn">--text</span>: <span class="st">#1c1917</span>;
+  <span class="fn">--accent</span>: <span class="st">#b45309</span>;
+  <span class="fn">--border</span>: <span class="st">#e7e5e4</span>;
+  <span class="fn">--card</span>: <span class="st">#ffffff</span>;
+}
+
+<span class="cm">/* Dark theme */</span>
+[<span class="fn">data-theme</span>=<span class="st">"dark"</span>] {
+  <span class="fn">--bg</span>: <span class="st">#0c0a09</span>;
+  <span class="fn">--text</span>: <span class="st">#e7e5e4</span>;
+  <span class="fn">--accent</span>: <span class="st">#f59e0b</span>;
+  <span class="fn">--border</span>: <span class="st">#292524</span>;
+  <span class="fn">--card</span>: <span class="st">#1c1917</span>;
+}</div>
+      <h3 class="subsection-title">Step 2 — Use variables everywhere</h3>
+      <div class="code-block"><span class="kw">body</span> {
+  <span class="fn">background</span>: <span class="fn">var</span>(<span class="st">--bg</span>);
+  <span class="fn">color</span>: <span class="fn">var</span>(<span class="st">--text</span>);
+  <span class="fn">transition</span>: background <span class="nu">0.3s</span>, color <span class="nu">0.3s</span>;
+}
+<span class="kw">.card</span> {
+  <span class="fn">background</span>: <span class="fn">var</span>(<span class="st">--card</span>);
+  <span class="fn">border</span>: <span class="nu">1px</span> solid <span class="fn">var</span>(<span class="st">--border</span>);
+}</div>
+      <h3 class="subsection-title">Step 3 — Toggle with JavaScript</h3>
+      <div class="code-block"><span class="kw">const</span> toggle = document.<span class="fn">getElementById</span>(<span class="st">'themeBtn'</span>);
+toggle.<span class="fn">addEventListener</span>(<span class="st">'click'</span>, () =&gt; {
+  <span class="kw">const</span> html = document.documentElement;
+  <span class="kw">const</span> next = html.dataset.theme === <span class="st">'dark'</span> ? <span class="st">'light'</span> : <span class="st">'dark'</span>;
+  html.dataset.theme = next;
+  localStorage.<span class="fn">setItem</span>(<span class="st">'theme'</span>, next); <span class="cm">// persist preference</span>
+});</div>
+      <div class="callout">
+        <strong>Why this works:</strong> Every element using <code>var(--bg)</code> automatically updates when the attribute changes. No class toggling on individual elements, no re-renders, no framework needed. See the <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties" target="_blank" rel="noopener">MDN guide on CSS custom properties</a>.
+      </div>
+    </section>
+
+    <!-- ─── 6. STATE ─── -->
+    <section id="state" class="card">
+      <span class="section-number">Section 6</span>
+      <h2 class="section-title">JavaScript State Management</h2>
+      <div class="prose">
+        <p>The app uses plain JavaScript variables to track state. This is appropriate for a small single-page application. As the app grows, you would migrate to a state container (like Zustand, Redux, or even a simple event bus).</p>
+      </div>
+      <div class="grid-2" style="margin-top:1rem">
+        <div>
+          <div class="code-block"><span class="kw">let</span> documents = [];        <span class="cm">// from GET /api/documents</span>
+<span class="kw">let</span> allDocsEnabled = <span class="kw">true</span>;  <span class="cm">// master toggle</span>
+<span class="kw">let</span> processingQueue = [];   <span class="cm">// uploads in progress</span>
+<span class="kw">let</span> pendingQueries = {};    <span class="cm">// query_id → DOM element</span>
+<span class="kw">const</span> API = <span class="st">'/api'</span>;         <span class="cm">// base path</span></div>
+        </div>
+        <div class="mini-card">
+          <strong>Why track <code>pendingQueries</code> as a map?</strong>
+          <p>When the user sends a question, the UI stores the query ID as a key and the loading bubble DOM element as the value. When the answer arrives (via WebSocket or polling), the code looks up the bubble by query ID and replaces its content. This avoids searching the DOM every time.</p>
+        </div>
+      </div>
+      <h3 class="subsection-title">The <code>safeFetch()</code> helper</h3>
+      <div class="prose">
+        <p>All HTTP calls go through a single helper that standardizes error handling:</p>
+      </div>
+      <div class="code-block"><span class="kw">async function</span> <span class="fn">safeFetch</span>(url, opts = {}) {
+  <span class="kw">const</span> resp = <span class="kw">await</span> <span class="fn">fetch</span>(url, opts);
+  <span class="kw">const</span> text = <span class="kw">await</span> resp.<span class="fn">text</span>();       <span class="cm">// always read as text first</span>
+  <span class="kw">let</span> data;
+  <span class="kw">try</span> { data = JSON.<span class="fn">parse</span>(text); }
+  <span class="kw">catch</span> { <span class="kw">throw new</span> Error(<span class="st">`Non-JSON: ${text.slice(0, 200)}`</span>); }
+  <span class="kw">if</span> (!resp.ok) <span class="kw">throw new</span> Error(data.detail || <span class="st">`HTTP ${resp.status}`</span>);
+  <span class="kw">return</span> data;
+}</div>
+      <div class="callout">
+        <strong>Why read as text first?</strong> If the server returns an HTML error page (like a 502 from a reverse proxy), calling <code>resp.json()</code> directly throws a confusing parse error. Reading as text gives you a chance to handle the raw body and show a useful error message.
+      </div>
+    </section>
+
+    <!-- ─── 7. API FLOW ─── -->
+    <section id="api" class="card">
+      <span class="section-number">Section 7</span>
+      <h2 class="section-title">REST API Endpoints</h2>
+      <div class="prose">
+        <p>The frontend communicates with the FastAPI backend through these endpoints. Each one follows a consistent JSON response pattern.</p>
+      </div>
+      <div class="grid-3" style="margin-top:1rem">
+        <div class="mini-card">
+          <strong>GET /api/health</strong>
+          <p>Returns the status of all backend services: ChromaDB, Ollama, Temporal, and S3. Useful for debugging when things stop working.</p>
+        </div>
+        <div class="mini-card">
+          <strong>GET /api/models</strong>
+          <p>Lists available LLM models from Ollama. Populates the model select dropdown in the header.</p>
+        </div>
+        <div class="mini-card">
+          <strong>POST /api/upload</strong>
+          <p>Accepts a file via <code>FormData</code>. Saves to S3, starts a Temporal upload workflow, returns a <code>doc_id</code>.</p>
+        </div>
+        <div class="mini-card">
+          <strong>GET /api/upload/:id/status</strong>
+          <p>Polls the Temporal workflow status for an upload. Returns <code>processing</code>, <code>completed</code>, or <code>failed</code>.</p>
+        </div>
+        <div class="mini-card">
+          <strong>POST /api/query</strong>
+          <p>Sends a question + selected doc IDs. Saves the query to S3, starts a Temporal query workflow, returns a <code>query_id</code>.</p>
+        </div>
+        <div class="mini-card">
+          <strong>GET /api/query/:id/answer</strong>
+          <p>Polls for the answer in S3. Returns <code>processing</code> until the answer is ready, then returns the full answer with sources.</p>
+        </div>
+        <div class="mini-card">
+          <strong>GET /api/documents</strong>
+          <p>Lists all indexed documents from ChromaDB, de-duplicated by <code>doc_id</code>. Populates the sidebar document list.</p>
+        </div>
+        <div class="mini-card">
+          <strong>DELETE /api/documents/:id</strong>
+          <p>Deletes a document from ChromaDB and cleans up its S3 objects. The frontend removes the card from the sidebar immediately.</p>
+        </div>
+        <div class="mini-card">
+          <strong>POST /api/internal/query-complete</strong>
+          <p>Internal callback from the worker. Loads the answer from S3 and broadcasts it to all WebSocket clients.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 8. WEBSOCKETS ─── -->
+    <section id="websocket" class="card">
+      <span class="section-number">Section 8</span>
+      <h2 class="section-title">WebSocket Design</h2>
+      <div class="prose">
+        <p><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" target="_blank" rel="noopener">WebSockets</a> provide a persistent, bi-directional connection between the browser and the server. Unlike HTTP (where the client must ask for updates), the server can push messages at any time. This app uses WebSockets for instant notification when uploads finish or answers are ready.</p>
+      </div>
+      <h3 class="subsection-title">Connection lifecycle</h3>
+      <div class="code-block"><span class="kw">function</span> <span class="fn">connectWS</span>() {
+  <span class="cm">// Match protocol: https → wss, http → ws</span>
+  <span class="kw">const</span> proto = location.protocol === <span class="st">'https:'</span> ? <span class="st">'wss:'</span> : <span class="st">'ws:'</span>;
+  ws = <span class="kw">new</span> WebSocket(proto + <span class="st">'//'</span> + location.host + <span class="st">'/ws'</span>);
+
+  ws.<span class="fn">onopen</span> = () =&gt; {
+    <span class="cm">// Set status dot to green</span>
+    <span class="cm">// Reset retry counter</span>
+    <span class="cm">// Start keepalive ping every 30 seconds</span>
+    setInterval(() =&gt; ws.<span class="fn">send</span>(<span class="st">'ping'</span>), <span class="nu">30000</span>);
+  };
+
+  ws.<span class="fn">onclose</span> = () =&gt; {
+    <span class="cm">// Set status dot to red</span>
+    <span class="cm">// Reconnect with exponential backoff</span>
+    <span class="kw">const</span> delay = Math.<span class="fn">min</span>(<span class="nu">1000</span> * <span class="nu">2</span> ** retries, <span class="nu">30000</span>);
+    setTimeout(<span class="fn">connectWS</span>, delay);
+    retries++;
+  };
+
+  ws.<span class="fn">onmessage</span> = (event) =&gt; {
+    <span class="kw">const</span> msg = JSON.<span class="fn">parse</span>(event.data);
+    <span class="kw">if</span> (msg.type === <span class="st">'query_answer'</span>)  <span class="fn">handleAnswer</span>(msg);
+    <span class="kw">if</span> (msg.type === <span class="st">'upload_complete'</span>) <span class="fn">handleUploadDone</span>(msg);
+    <span class="kw">if</span> (msg.type === <span class="st">'pong'</span>) <span class="cm">/* keepalive ack */</span>;
+  };
+}</div>
+      <div class="grid-2" style="margin-top:1rem">
+        <div class="mini-card" style="background:var(--green-bg);border-color:var(--green-border)">
+          <strong style="color:var(--green-text)">Why this is good</strong>
+          <p>The dual delivery model (WebSocket push + HTTP polling) means the UI still works even if the WebSocket disconnects temporarily. Exponential backoff prevents flooding the server during outages.</p>
+        </div>
+        <div class="mini-card" style="background:var(--info-bg);border-color:var(--info-border)">
+          <strong style="color:var(--info-text)">Protocol matching matters</strong>
+          <p>If the page loads over HTTPS, you <em>must</em> use <code>wss:</code>. Browsers block mixed content — an insecure WebSocket on a secure page will be rejected. Always derive the protocol from <code>location.protocol</code>.</p>
+        </div>
+      </div>
+      <h3 class="subsection-title">Server-side: the WSHub pattern</h3>
+      <div class="prose">
+        <p>The FastAPI backend maintains a <code>WSHub</code> class that tracks all connected WebSocket clients. When an event happens (answer ready, upload complete), it broadcasts a JSON message to every client. Dead connections are cleaned up automatically.</p>
+      </div>
+      <div class="code-block"><span class="kw">class</span> <span class="fn">WSHub</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self.clients: Set[WebSocket] = <span class="fn">set</span>()
+
+    <span class="kw">async def</span> <span class="fn">broadcast</span>(self, message: <span class="fn">dict</span>):
+        dead = <span class="fn">set</span>()
+        <span class="kw">for</span> ws <span class="kw">in</span> self.clients:
+            <span class="kw">try</span>:
+                <span class="kw">await</span> ws.<span class="fn">send_json</span>(message)
+            <span class="kw">except</span> Exception:
+                dead.<span class="fn">add</span>(ws)
+        self.clients -= dead</div>
+    </section>
+
+    <!-- ─── 9. UPLOADS ─── -->
+    <section id="uploads" class="card">
+      <span class="section-number">Section 9</span>
+      <h2 class="section-title">Upload Flow</h2>
+      <div class="prose">
+        <p>The upload area supports both <strong>click-to-browse</strong> and <strong>drag-and-drop</strong>. Under the hood, a hidden <code>&lt;input type="file"&gt;</code> is triggered when the drop zone is clicked. The drag events (<code>dragenter</code>, <code>dragleave</code>, <code>drop</code>) toggle a visual highlight class.</p>
+      </div>
+      <h3 class="subsection-title">The upload sequence</h3>
+      <div class="prose">
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">1</span> User selects or drops one or more files.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">2</span> Each file is uploaded sequentially via <code>POST /api/upload</code> with a <code>FormData</code> body.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">3</span> The server saves the raw file to S3 and starts a Temporal <code>DocumentUploadWorkflow</code>.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">4</span> The returned <code>doc_id</code> is added to the <code>processingQueue</code> array. A progress card appears in the sidebar.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">5</span> The UI polls <code>GET /api/upload/:id/status</code> every 2 seconds as a fallback.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">6</span> When the WebSocket broadcasts <code>upload_complete</code> (or polling detects completion), the progress card is replaced with a full document card.</p>
+      </div>
+      <div class="callout">
+        <strong>Drag-and-drop tip for beginners:</strong> You must call <code>e.preventDefault()</code> on both <code>dragover</code> and <code>drop</code> events. Without this, the browser will navigate to the dropped file instead of passing it to your JavaScript. See the <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop" target="_blank" rel="noopener">MDN File drag and drop guide</a>.
+      </div>
+    </section>
+
+    <!-- ─── 10. CHAT ─── -->
+    <section id="chat" class="card">
+      <span class="section-number">Section 10</span>
+      <h2 class="section-title">Chat Flow</h2>
+      <div class="prose">
+        <p>The chat composer uses a <code>&lt;textarea&gt;</code> that auto-grows as the user types. It grows by setting <code>style.height = 'auto'</code> then <code>style.height = scrollHeight + 'px'</code> on every <code>input</code> event. A <code>max-height</code> cap prevents it from consuming the entire screen.</p>
+        <p><strong>Keyboard shortcuts:</strong> <code>Enter</code> sends the message. <code>Shift+Enter</code> inserts a newline. This is the same pattern used by Slack, Discord, and most chat applications.</p>
+      </div>
+      <h3 class="subsection-title">The query sequence</h3>
+      <div class="prose">
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">1</span> User presses Enter. The UI adds a user chat bubble and a loading indicator bubble.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">2</span> The UI collects the currently enabled document IDs from the sidebar checkboxes.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">3</span> <code>POST /api/query</code> sends the question, selected model, and enabled doc IDs.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">4</span> The returned <code>query_id</code> is stored in <code>pendingQueries</code> mapped to the loading bubble element.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">5</span> Two answer paths race: WebSocket push and polling at <code>GET /api/query/:id/answer</code>.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">6</span> Whichever arrives first replaces the loading bubble with the answer text and source citations.</p>
+      </div>
+    </section>
+
+    <!-- ─── 11. DOM RENDERING ─── -->
+    <section id="rendering" class="card">
+      <span class="section-number">Section 11</span>
+      <h2 class="section-title">DOM Rendering Patterns</h2>
+      <div class="prose">
+        <p>The app builds HTML strings with template literals and injects them via <code>innerHTML</code>. Helper functions keep this organized:</p>
+        <ul>
+          <li><code>addUser(text)</code> — Creates a user chat bubble (right-aligned).</li>
+          <li><code>addBot(html)</code> — Creates a bot answer bubble (left-aligned) with optional source citations.</li>
+          <li><code>addSys(text)</code> — Creates a system message (centered, muted).</li>
+          <li><code>renderDocList()</code> — Rebuilds the entire document sidebar list from the <code>documents</code> array.</li>
+        </ul>
+      </div>
+      <h3 class="subsection-title">XSS prevention with <code>esc()</code></h3>
+      <div class="code-block"><span class="kw">function</span> <span class="fn">esc</span>(str) {
+  <span class="kw">const</span> el = document.<span class="fn">createElement</span>(<span class="st">'div'</span>);
+  el.textContent = str;        <span class="cm">// the browser escapes all HTML entities</span>
+  <span class="kw">return</span> el.innerHTML;          <span class="cm">// return the safe string</span>
+}</div>
+      <div class="prose">
+        <p>This is a critical security measure. Without escaping, a user could type <code>&lt;img src=x onerror=alert(1)&gt;</code> in the chat and it would execute as JavaScript. The <code>esc()</code> function converts special characters to their HTML entity equivalents (<code>&lt;</code> → <code>&amp;lt;</code>).</p>
+        <p>The <code>renderMd()</code> helper adds simple markdown formatting (bold with <code>**text**</code>, inline code with backticks). It runs <em>after</em> escaping, so the formatting syntax is safe.</p>
+      </div>
+      <div class="callout">
+        <strong>Future improvement:</strong> As the UI grows, building HTML with string concatenation becomes fragile. Consider migrating to <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template" target="_blank" rel="noopener">HTML &lt;template&gt; elements</a>, a lightweight library like <a href="https://lit.dev/" target="_blank" rel="noopener">Lit</a>, or a full framework like React or Vue.
+      </div>
+    </section>
+
+    <!-- ─── 12. FASTAPI ─── -->
+    <section id="fastapi" class="card">
+      <span class="section-number">Section 12</span>
+      <h2 class="section-title">FastAPI Backend</h2>
+      <div class="prose">
+        <p><a href="https://fastapi.tiangolo.com/" target="_blank" rel="noopener">FastAPI</a> is a modern Python web framework designed for building APIs. It uses Python type hints and Pydantic models to auto-validate request and response data, and generates OpenAPI documentation at <code>/docs</code> automatically.</p>
+      </div>
+      <h3 class="subsection-title">Key patterns in <code>main.py</code></h3>
+      <div class="grid-2" style="margin-top:0.5rem">
+        <div class="mini-card">
+          <strong>Global exception handler</strong>
+          <p>The <code>@app.exception_handler(Exception)</code> decorator catches all unhandled errors and returns a structured JSON response instead of an HTML stack trace. This prevents information leakage in production.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Lazy client initialization</strong>
+          <p>Clients for Temporal, ChromaDB, and S3 are created on first use (<code>get_temporal()</code>, <code>get_collection()</code>) and cached as module-level globals. This avoids blocking startup if a service is temporarily down.</p>
+        </div>
+        <div class="mini-card">
+          <strong>CORS middleware</strong>
+          <p>Currently set to <code>allow_origins=["*"]</code> for development. In production, restrict this to your actual domain. Open CORS is a security risk (see Section 18).</p>
+        </div>
+        <div class="mini-card">
+          <strong>Immediate returns</strong>
+          <p>Upload and query endpoints start a Temporal workflow and return a job ID immediately. They never block waiting for processing to finish. This keeps HTTP response times under 500ms even for large files.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 13. TEMPORAL ─── -->
+    <section id="temporal" class="card">
+      <span class="section-number">Section 13</span>
+      <h2 class="section-title">Temporal Workflows</h2>
+      <div class="badge-row">
+        <span class="tag">Durable Execution</span>
+        <span class="tag">Retry Policies</span>
+        <span class="tag">Task Queues</span>
+      </div>
+      <div class="prose">
+        <p><a href="https://docs.temporal.io/" target="_blank" rel="noopener">Temporal</a> is a durable execution platform. A Temporal <strong>workflow</strong> is a function that orchestrates a sequence of steps. If the process crashes at any point, Temporal replays the workflow from the last completed step — without re-executing already-completed activities. This gives you automatic fault tolerance for free.</p>
+      </div>
+
+      <h3 class="subsection-title">Document Upload Workflow</h3>
+      <div class="prose">
+        <p>The <code>DocumentUploadWorkflow</code> orchestrates three activities in sequence:</p>
+      </div>
+      <div class="diagram" style="margin:1rem 0">DocumentUploadWorkflow
+  │
+  ├──▶ extract_text_activity    (5 min timeout, 3 retries)
+  │     Read raw file from S3 → extract text → save text to S3
+  │
+  ├──▶ chunk_text_activity      (2 min timeout, 3 retries)
+  │     Read text from S3 → split into overlapping chunks
+  │
+  └──▶ embed_and_store_activity (30 min timeout, 2 min heartbeat, 3 retries)
+        For each chunk: embed via Ollama → store in ChromaDB</div>
+
+      <h3 class="subsection-title">Query Workflow</h3>
+      <div class="prose">
+        <p>The <code>QueryWorkflow</code> is simpler — it delegates to a single <code>execute_query_activity</code> that performs the entire RAG pipeline:</p>
+      </div>
+      <div class="diagram" style="margin:1rem 0">QueryWorkflow
+  │
+  └──▶ execute_query_activity   (10 min timeout, 3 min heartbeat, 2 retries)
+        Load question from S3 → embed query → vector search ChromaDB →
+        build prompt with context → generate answer via Ollama → save to S3 →
+        notify backend via HTTP callback</div>
+
+      <h3 class="subsection-title">Key Temporal concepts</h3>
+      <div class="grid-2" style="margin-top:0.5rem">
+        <div class="mini-card">
+          <strong>Task Queues</strong>
+          <p>Upload and query workflows run on separate task queues (<code>document-upload-tasks</code> and <code>query-tasks</code>). This lets you scale them independently — you might run 4 upload workers but only 1 query worker (since the LLM is GPU-bound).</p>
+        </div>
+        <div class="mini-card">
+          <strong>Retry Policies</strong>
+          <p>Each activity has a <code>RetryPolicy</code> with <code>maximum_attempts</code> and <code>initial_interval</code>. Permanent failures (bad file, model not found) use <code>ApplicationError(non_retryable=True)</code> to stop retries immediately.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Heartbeats</strong>
+          <p>Long-running activities (embedding, LLM generation) call <code>activity.heartbeat()</code> periodically. If the heartbeat stops for longer than <code>heartbeat_timeout</code>, Temporal assumes the worker crashed and reschedules the activity.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Deterministic Workflows</strong>
+          <p>Workflow code must be deterministic — no I/O, no random numbers, no <code>datetime.now()</code>. All side effects go in activities. Temporal replays the workflow function during recovery and needs identical decisions each time.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Read more:</strong> The <a href="https://docs.temporal.io/develop/python" target="_blank" rel="noopener">Temporal Python SDK docs</a> cover workflow definitions, activity patterns, and retry policies in detail. The <a href="https://learn.temporal.io/getting_started/python/" target="_blank" rel="noopener">Getting Started tutorial</a> is excellent for hands-on learning.
+      </div>
+    </section>
+
+    <!-- ─── 14. ACTIVITIES ─── -->
+    <section id="activities" class="card">
+      <span class="section-number">Section 14</span>
+      <h2 class="section-title">Activities &amp; Dependency Injection</h2>
+      <div class="prose">
+        <p>Activities are where real work happens: reading from S3, calling Ollama, writing to ChromaDB. The codebase uses <strong>class-based activities with constructor injection</strong>, which makes them trivially testable.</p>
+      </div>
+      <div class="code-block"><span class="kw">class</span> <span class="fn">DocumentActivities</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, s3=<span class="kw">None</span>, chroma=<span class="kw">None</span>, ollama=<span class="kw">None</span>):
+        self._s3 = s3 <span class="kw">or</span> <span class="fn">S3Client</span>()      <span class="cm"># real in prod</span>
+        self._chroma = chroma <span class="kw">or</span> <span class="fn">ChromaStore</span>()
+        self._ollama = ollama <span class="kw">or</span> <span class="fn">OllamaClient</span>()
+
+    <span class="tg">@activity.defn</span>(name=<span class="st">"extract_text_activity"</span>)
+    <span class="kw">async def</span> <span class="fn">extract_text</span>(self, inp: UploadInput) -&gt; ExtractResult:
+        raw = self._s3.<span class="fn">get_bytes</span>(inp.s3_raw_key)
+        <span class="cm"># ... extract, save, return result</span></div>
+      <div class="prose">
+        <p>In production, the module creates real instances at import time. In tests, you inject lightweight mocks:</p>
+      </div>
+      <div class="code-block"><span class="cm"># In tests:</span>
+acts = <span class="fn">DocumentActivities</span>(
+    s3=<span class="fn">MockS3Client</span>({<span class="st">"raw/doc.txt"</span>: b<span class="st">"Hello"</span>}),
+    chroma=<span class="fn">MockChromaStore</span>(),
+    ollama=<span class="fn">MockOllamaClient</span>(),
+)
+result = <span class="kw">await</span> acts.<span class="fn">extract_text</span>(inp)</div>
+
+      <h3 class="subsection-title">The Ollama embed fix</h3>
+      <div class="prose">
+        <p>The <code>OllamaClient.embed()</code> method includes a compatibility layer worth understanding. Ollama's <code>/api/embed</code> endpoint changed its input format across versions. The code tries the modern API first (string input), and if the server returns a 400 error, falls back to the legacy <code>/api/embeddings</code> endpoint. It also truncates long inputs to stay within the model's context window and passes <code>truncate: true</code> as a server-side safety net.</p>
+      </div>
+    </section>
+
+    <!-- ─── 15. RAG PIPELINE ─── -->
+    <section id="rag" class="card">
+      <span class="section-number">Section 15</span>
+      <h2 class="section-title">RAG Pipeline</h2>
+      <div class="badge-row">
+        <span class="tag">Retrieval-Augmented Generation</span>
+        <span class="tag">Vector Search</span>
+        <span class="tag">ChromaDB</span>
+      </div>
+      <div class="prose">
+        <p>RAG (Retrieval-Augmented Generation) is a technique where you ground an LLM's answer in specific documents rather than relying on its training data alone. This app implements a straightforward RAG pipeline:</p>
+      </div>
+      <h3 class="subsection-title">Ingestion pipeline</h3>
+      <div class="prose">
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">1</span> <strong>Extract</strong> — Parse the uploaded file (PDF via pdfplumber, DOCX via python-docx, XLSX via openpyxl, or plain text decode). Save extracted text to S3.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">2</span> <strong>Chunk</strong> — Split text into overlapping windows of 500 words with 100-word overlap. Overlap ensures that context at chunk boundaries is not lost.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">3</span> <strong>Embed</strong> — Each chunk is sent to Ollama's <code>nomic-embed-text</code> model, which returns a 768-dimensional vector. Chunks are truncated to 6000 characters (~1500 tokens) to stay within the model's 2048-token context window.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">4</span> <strong>Store</strong> — Vectors, metadata (doc_id, filename, chunk_index), and the original text are upserted into <a href="https://docs.trychroma.com/" target="_blank" rel="noopener">ChromaDB</a> with cosine similarity as the distance metric.</p>
+      </div>
+      <h3 class="subsection-title">Query pipeline</h3>
+      <div class="prose">
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">1</span> <strong>Embed query</strong> — The user's question is embedded using the same model.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">2</span> <strong>Retrieve</strong> — ChromaDB returns the top 8 most similar chunks (filtered by enabled document IDs).</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">3</span> <strong>Generate</strong> — The retrieved chunks are assembled into a prompt context (capped at 12,000 chars) and sent to the LLM with a system prompt that instructs it to answer only from the provided context.</p>
+        <p style="display:flex;align-items:flex-start;gap:0.4rem;"><span class="step-num">4</span> <strong>Persist</strong> — The answer and source citations are saved to S3, then the backend is notified to push the result via WebSocket.</p>
+      </div>
+      <div class="callout">
+        <strong>Why overlapping chunks?</strong> If a sentence falls exactly at a chunk boundary, a non-overlapping split would break the sentence across two chunks. The 100-word overlap means both adjacent chunks contain that sentence, so it can be found by vector search regardless of which chunk the embedding is closer to.
+      </div>
+    </section>
+
+    <!-- ─── 16. TESTING ─── -->
+    <section id="testing" class="card">
+      <span class="section-number">Section 16</span>
+      <h2 class="section-title">Testing Strategy</h2>
+      <div class="prose">
+        <p>The test suite in <code>test_activities.py</code> demonstrates how to test Temporal activities <em>without running a Temporal server</em>. Because activities are just async functions on classes with injected dependencies, you call them directly with mock infrastructure.</p>
+      </div>
+      <div class="grid-2" style="margin-top:1rem">
+        <div class="mini-card">
+          <strong>MockS3Client</strong>
+          <p>An in-memory dictionary that mimics <code>get_bytes()</code> and <code>put_bytes()</code>. Pre-load it with test data. Raises <code>ClientError</code> on missing keys, just like real S3.</p>
+        </div>
+        <div class="mini-card">
+          <strong>MockOllamaClient</strong>
+          <p>Returns deterministic vectors (<code>[0.01] * 768</code>) for embed calls and a fixed string for generate calls. No network needed.</p>
+        </div>
+        <div class="mini-card">
+          <strong>MockChromaStore</strong>
+          <p>Wraps a <code>MagicMock</code> collection. You can assert on <code>.add()</code>, <code>.query()</code>, and <code>.count()</code> calls.</p>
+        </div>
+        <div class="mini-card">
+          <strong>ApplicationError assertions</strong>
+          <p>Tests verify that permanent failures (empty file, missing S3 key, model not found) raise <code>ApplicationError</code> with <code>non_retryable=True</code>, ensuring Temporal won't retry them.</p>
+        </div>
+      </div>
+      <div class="code-block"><span class="cm"># Run the test suite:</span>
+$ pytest test_activities.py -v
+
+<span class="cm"># Example test — plain text extraction:</span>
+<span class="kw">async def</span> <span class="fn">test_plain_text_extraction</span>(self):
+    s3 = <span class="fn">MockS3Client</span>({<span class="st">"raw/doc1.txt"</span>: b<span class="st">"Hello world."</span>})
+    acts = <span class="fn">_make_doc_activities</span>(s3=s3)
+
+    result = <span class="kw">await</span> acts.<span class="fn">extract_text</span>(
+        <span class="fn">UploadInput</span>(doc_id=<span class="st">"doc1"</span>, filename=<span class="st">"readme.txt"</span>,
+                    s3_raw_key=<span class="st">"raw/doc1.txt"</span>)
+    )
+
+    <span class="kw">assert</span> result.characters == <span class="nu">12</span>
+    <span class="kw">assert</span> s3._store[result.s3_text_key] == b<span class="st">"Hello world."</span></div>
+    </section>
+
+    <!-- ─── 17. RESPONSIVE ─── -->
+    <section id="responsive" class="card">
+      <span class="section-number">Section 17</span>
+      <h2 class="section-title">Responsive Design</h2>
+      <div class="prose">
+        <p>The app is mobile-aware using Tailwind's responsive prefix system. Classes like <code>lg:block</code> apply only at the <code>lg</code> breakpoint (1024px) and above. Below that width, the sidebar becomes an off-canvas drawer.</p>
+      </div>
+      <div class="grid-2" style="margin-top:1rem">
+        <div class="mini-card">
+          <strong>Mobile (below 1024px)</strong>
+          <p>The sidebar is hidden by default (<code>hidden</code>). A hamburger button in the header toggles it open. When open, a dark overlay covers the chat area (<code>#sidebarOverlay</code>). Tapping the overlay closes the sidebar.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Desktop (1024px and above)</strong>
+          <p>The sidebar is always visible (<code>lg:block</code>). The overlay is hidden. The main layout uses <code>flex</code> with the chat column taking remaining space and the sidebar fixed at a set width.</p>
+        </div>
+      </div>
+      <div class="code-block"><span class="cm">&lt;!-- Tailwind responsive pattern --&gt;</span>
+<span class="tg">&lt;aside</span> <span class="fn">class=</span><span class="st">"</span>
+  <span class="st">fixed inset-y-0 right-0 w-80        </span><span class="cm">&lt;!-- mobile: full-height drawer --&gt;</span>
+  <span class="st">translate-x-full                      </span><span class="cm">&lt;!-- mobile: off-screen by default --&gt;</span>
+  <span class="st">transition-transform duration-300     </span><span class="cm">&lt;!-- smooth slide --&gt;</span>
+  <span class="st">lg:static lg:translate-x-0            </span><span class="cm">&lt;!-- desktop: normal flow --&gt;</span>
+  <span class="st">lg:w-72                               </span><span class="cm">&lt;!-- desktop: fixed width --&gt;</span>
+<span class="st">"</span><span class="tg">&gt;</span></div>
+      <div class="callout">
+        <strong>Reference:</strong> The <a href="https://tailwindcss.com/docs/responsive-design" target="_blank" rel="noopener">Tailwind Responsive Design</a> docs explain the mobile-first breakpoint system in detail.
+      </div>
+    </section>
+
+    <!-- ─── 18. SECURITY ─── -->
+    <section id="security" class="card card-warn">
+      <span class="section-number">Section 18</span>
+      <h2 class="section-title">Security Checklist</h2>
+      <div class="prose">
+        <p>This section covers security issues you must address before deploying this (or any similar) application to production. Each item is marked with its severity.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">
+
+        <div class="mini-card" style="background:var(--warn-bg);border-color:var(--warn-border)">
+          <strong style="color:var(--warn-text)">🔴 Critical: CDN script integrity</strong>
+          <p>Loading Tailwind from a CDN means a compromised CDN could inject malicious code. In production, either bundle Tailwind locally or use <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity" target="_blank" rel="noopener">Subresource Integrity (SRI)</a> hashes to ensure the file hasn't been tampered with.</p>
+        </div>
+
+        <div class="mini-card" style="background:var(--warn-bg);border-color:var(--warn-border)">
+          <strong style="color:var(--warn-text)">🔴 Critical: CSRF protection</strong>
+          <p>Upload, delete, and query endpoints change server state. If the app uses cookie-based authentication, an attacker could craft a page that submits requests on behalf of a logged-in user. Add CSRF tokens or use <code>SameSite=Strict</code> cookies with server-side origin validation. See the <a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP CSRF Prevention Cheat Sheet</a>.</p>
+        </div>
+
+        <div class="mini-card" style="background:var(--warn-bg);border-color:var(--warn-border)">
+          <strong style="color:var(--warn-text)">🔴 Critical: XSS from model output</strong>
+          <p>The <code>esc()</code> function escapes user input, but the LLM's response may contain HTML-like text. If <code>renderMd()</code> or any rich formatting allows unescaped content through, it becomes an XSS vector. Sanitize all model output before injection. Consider using <a href="https://github.com/cure53/DOMPurify" target="_blank" rel="noopener">DOMPurify</a>.</p>
+        </div>
+
+        <div class="mini-card">
+          <strong>🟡 High: File upload validation</strong>
+          <p>The browser's <code>accept</code> attribute is cosmetic — it does not enforce file types. The server must validate MIME type, file extension, file size, and scan for malware. Limit maximum file size, reject unexpected extensions, and process files in an isolated environment.</p>
+        </div>
+
+        <div class="mini-card">
+          <strong>🟡 High: WebSocket authentication</strong>
+          <p>The current WebSocket endpoint accepts all connections without authentication. In production, verify the user's session token during the handshake. Also authorize document access per user — don't trust <code>enabled_doc_ids</code> from the client blindly.</p>
+        </div>
+
+        <div class="mini-card">
+          <strong>🟡 High: CORS restriction</strong>
+          <p>The backend currently uses <code>allow_origins=["*"]</code>. In production, restrict this to your actual frontend domain. Open CORS allows any website to make requests to your API.</p>
+        </div>
+
+        <div class="mini-card">
+          <strong>🟠 Medium: Transport security (HTTPS/WSS)</strong>
+          <p>All traffic — uploads, chat messages, API calls, WebSocket data — must go over TLS in production. Without it, content can be intercepted by anyone on the network. Use HTTPS for the site and WSS for WebSocket connections.</p>
+        </div>
+
+        <div class="mini-card">
+          <strong>🟠 Medium: Rate limiting</strong>
+          <p>Without rate limits, a malicious user can flood the upload endpoint, exhaust LLM resources, or spam the WebSocket. Add rate limiting at the API gateway or application layer for uploads, queries, deletes, and WebSocket messages.</p>
+        </div>
+
+        <div class="mini-card">
+          <strong>🔵 Low: Access control on documents</strong>
+          <p>The client sends <code>enabled_doc_ids</code> with queries. The server must verify the user actually owns those documents. A multi-tenant deployment without this check would allow users to query other users' documents.</p>
+        </div>
+
+        <div class="mini-card">
+          <strong>🔵 Low: Logging hygiene</strong>
+          <p>Avoid logging raw file content, user prompts, API keys, or session tokens. Use structured logging with redaction for sensitive fields. The <a href="https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP Logging Cheat Sheet</a> has good guidelines.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 19. BEST PRACTICES ─── -->
+    <section id="best-practices" class="card card-green">
+      <span class="section-number">Section 19</span>
+      <h2 class="section-title">Best Practices Applied</h2>
+      <div class="prose">
+        <p>The codebase follows several best practices worth internalizing for your own projects:</p>
+      </div>
+      <div class="grid-2" style="margin-top:1rem">
+        <div class="mini-card">
+          <strong>Separate task queues for different workloads</strong>
+          <p>Upload processing (CPU-bound text extraction) and query execution (GPU-bound LLM inference) run on different Temporal task queues. This lets you scale each independently: many upload workers, fewer query workers.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Concurrency limits on GPU workers</strong>
+          <p>The query worker sets <code>max_concurrent_activities=1</code> because LLM inference is GPU-bound. Running multiple inferences simultaneously would cause OOM errors or severe slowdowns.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Non-retryable errors for permanent failures</strong>
+          <p>Using <code>ApplicationError(non_retryable=True)</code> for things like "model not found" or "empty file" prevents Temporal from wasting retries on failures that will never succeed.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Graceful worker shutdown</strong>
+          <p>The worker process handles <code>SIGINT</code>/<code>SIGTERM</code> signals, allows in-flight activities to drain, and reports any worker crashes. This prevents data loss during deployments.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Dependency injection for testability</strong>
+          <p>Activity classes accept S3, ChromaDB, and Ollama clients as constructor parameters. Tests inject mocks; production uses real clients. No monkey-patching needed.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Dual delivery (push + poll)</strong>
+          <p>The frontend uses WebSocket push as the primary delivery path and HTTP polling as a fallback. If the WebSocket reconnects after the answer was sent, polling still picks it up.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Heartbeats on long-running activities</strong>
+          <p>Embedding 50 chunks can take minutes. Regular <code>activity.heartbeat()</code> calls tell Temporal the worker is alive. Without heartbeats, Temporal would assume the worker crashed and retry the entire activity.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Structured error results instead of workflow failures</strong>
+          <p>Both workflows catch exceptions and return a typed result with <code>status="failed"</code> and an error message. This gives callers a clean response instead of requiring them to handle Temporal workflow failure exceptions.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 20. IMPROVEMENTS ─── -->
+    <section id="improvements" class="card">
+      <span class="section-number">Section 20</span>
+      <h2 class="section-title">Suggested Next Steps</h2>
+      <div class="prose">
+        <p>If you're a new developer working on this codebase, here are concrete improvements to build, roughly ordered by difficulty:</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">
+        <div class="mini-card">
+          <strong>Beginner: Move inline handlers to addEventListener()</strong>
+          <p>Replace <code>onclick="doSomething()"</code> in the HTML with <code>element.addEventListener('click', doSomething)</code> in the JavaScript. This separates structure from behavior and makes the code easier to maintain and debug.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Beginner: Extract chat bubbles into template functions</strong>
+          <p>The <code>addUser()</code>, <code>addBot()</code>, and <code>addSys()</code> functions all build HTML strings. Create a single <code>createBubble(type, content)</code> function that returns a consistent structure.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Intermediate: Add a real markdown parser</strong>
+          <p>Replace the simple <code>renderMd()</code> regex with a library like <a href="https://marked.js.org/" target="_blank" rel="noopener">marked.js</a> combined with <a href="https://github.com/cure53/DOMPurify" target="_blank" rel="noopener">DOMPurify</a> for sanitization. This enables headings, lists, code blocks, and links in answers.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Intermediate: Add cancel support</strong>
+          <p>Allow users to cancel an in-progress upload or query. On the frontend, use <code>AbortController</code> for fetch requests. On the backend, use Temporal's <a href="https://docs.temporal.io/develop/python/cancellation" target="_blank" rel="noopener">cancellation API</a> to terminate workflows.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Intermediate: Split JavaScript into modules</strong>
+          <p>Break the monolithic <code>&lt;script&gt;</code> into ES modules: <code>api.js</code> (HTTP helpers), <code>ws.js</code> (WebSocket logic), <code>ui.js</code> (DOM manipulation), and <code>state.js</code> (data management). Use native <code>import</code>/<code>export</code>.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Advanced: Add authentication</strong>
+          <p>Implement user sessions with JWT or session cookies. Scope documents per user. Authenticate WebSocket connections during the handshake. Add authorization checks on every API endpoint.</p>
+        </div>
+        <div class="mini-card">
+          <strong>Advanced: Streaming LLM responses</strong>
+          <p>Instead of waiting for the full answer, stream tokens from Ollama through the WebSocket to the browser. This gives users immediate feedback as the answer is generated, similar to ChatGPT's typing effect.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 21. RESOURCES ─── -->
+    <section id="resources" class="card card-info">
+      <span class="section-number">Section 21</span>
+      <h2 class="section-title">Resources &amp; Documentation</h2>
+      <div class="prose">
+        <p>Links to official documentation for every technology used in this project:</p>
+      </div>
+      <div class="grid-2" style="margin-top:1rem;">
+        <a class="doc-link" href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" rel="noopener">
+          <span class="doc-icon">📄</span>
+          <div><span class="doc-title">MDN HTML Reference</span><br><span class="doc-desc">Complete HTML element and attribute reference</span></div>
+        </a>
+        <a class="doc-link" href="https://tailwindcss.com/docs" target="_blank" rel="noopener">
+          <span class="doc-icon">🎨</span>
+          <div><span class="doc-title">Tailwind CSS Docs</span><br><span class="doc-desc">Utility class reference and configuration guide</span></div>
+        </a>
+        <a class="doc-link" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide" target="_blank" rel="noopener">
+          <span class="doc-icon">⚡</span>
+          <div><span class="doc-title">MDN JavaScript Guide</span><br><span class="doc-desc">Language fundamentals, async/await, and DOM APIs</span></div>
+        </a>
+        <a class="doc-link" href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API" target="_blank" rel="noopener">
+          <span class="doc-icon">🔌</span>
+          <div><span class="doc-title">MDN WebSocket API</span><br><span class="doc-desc">Browser WebSocket interface reference</span></div>
+        </a>
+        <a class="doc-link" href="https://fastapi.tiangolo.com/" target="_blank" rel="noopener">
+          <span class="doc-icon">🚀</span>
+          <div><span class="doc-title">FastAPI Documentation</span><br><span class="doc-desc">Python web framework for building APIs</span></div>
+        </a>
+        <a class="doc-link" href="https://docs.temporal.io/develop/python" target="_blank" rel="noopener">
+          <span class="doc-icon">⏱️</span>
+          <div><span class="doc-title">Temporal Python SDK</span><br><span class="doc-desc">Workflows, activities, retry policies, and workers</span></div>
+        </a>
+        <a class="doc-link" href="https://learn.temporal.io/getting_started/python/" target="_blank" rel="noopener">
+          <span class="doc-icon">📚</span>
+          <div><span class="doc-title">Temporal Getting Started</span><br><span class="doc-desc">Hands-on tutorial for Temporal with Python</span></div>
+        </a>
+        <a class="doc-link" href="https://docs.trychroma.com/" target="_blank" rel="noopener">
+          <span class="doc-icon">🔍</span>
+          <div><span class="doc-title">ChromaDB Documentation</span><br><span class="doc-desc">Open-source vector database for embeddings</span></div>
+        </a>
+        <a class="doc-link" href="https://github.com/ollama/ollama/blob/main/docs/api.md" target="_blank" rel="noopener">
+          <span class="doc-icon">🤖</span>
+          <div><span class="doc-title">Ollama API Reference</span><br><span class="doc-desc">Embedding, generation, and model management APIs</span></div>
+        </a>
+        <a class="doc-link" href="https://cheatsheetseries.owasp.org/" target="_blank" rel="noopener">
+          <span class="doc-icon">🛡️</span>
+          <div><span class="doc-title">OWASP Cheat Sheet Series</span><br><span class="doc-desc">Security best practices for web applications</span></div>
+        </a>
+        <a class="doc-link" href="https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties" target="_blank" rel="noopener">
+          <span class="doc-icon">🎯</span>
+          <div><span class="doc-title">MDN CSS Custom Properties</span><br><span class="doc-desc">Guide to CSS variables for theming</span></div>
+        </a>
+        <a class="doc-link" href="https://docs.pytest.org/" target="_blank" rel="noopener">
+          <span class="doc-icon">🧪</span>
+          <div><span class="doc-title">Pytest Documentation</span><br><span class="doc-desc">Python testing framework used in this project</span></div>
+        </a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="site-footer">
+  <p>Local Context Query — Developer Training Guide. Built with HTML, CSS variables, and vanilla JavaScript.</p>
+</footer>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script>
+  // ─── Theme Toggle ───
+  (function() {
+    const btn = document.getElementById('themeBtn');
+    const html = document.documentElement;
+
+    // Restore saved preference
+    const saved = localStorage.getItem('lcq-theme');
+    if (saved) html.dataset.theme = saved;
+    else if (window.matchMedia('(prefers-color-scheme: dark)').matches) html.dataset.theme = 'dark';
+
+    btn.addEventListener('click', () => {
+      const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+      html.dataset.theme = next;
+      localStorage.setItem('lcq-theme', next);
+    });
+  })();
+
+  // ─── Active nav link on scroll ───
+  (function() {
+    const links = document.querySelectorAll('.nav-link');
+    const sections = [];
+    links.forEach(link => {
+      const id = link.getAttribute('href')?.slice(1);
+      if (id) {
+        const el = document.getElementById(id);
+        if (el) sections.push({ el, link });
+      }
+    });
+
+    function update() {
+      let current = sections[0];
+      for (const s of sections) {
+        if (s.el.getBoundingClientRect().top <= 120) current = s;
+      }
+      links.forEach(l => l.classList.remove('active'));
+      if (current) current.link.classList.add('active');
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  })();
+</script>
+</body>
+</html>
