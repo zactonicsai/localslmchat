@@ -1,3 +1,4 @@
 .ollama/models/
 offline/target/
 offline/Cargo.lock
+.DS_Store

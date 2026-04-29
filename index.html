@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Manual № 01 — Temporal RAG Activities</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cream: '#F2EBDB',
+        cream2: '#E8DFCB',
+        ink: '#1A1410',
+        ink2: '#2C2520',
+        rust: '#B8421C',
+        rustdark: '#8E2F12',
+        sage: '#54665A',
+        sand: '#8B7E6B',
+        paper: '#FAF6EC',
+      },
+      fontFamily: {
+        display: ['Fraunces', 'serif'],
+        body: ['Newsreader', 'serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
+      },
+    }
+  }
+};
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: #F2EBDB;
+    color: #1A1410;
+    font-family: 'Newsreader', serif;
+    font-feature-settings: "ss01", "ss02";
+  }
+  /* Subtle paper grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .display { font-family: 'Fraunces', serif; font-variation-settings: "SOFT" 30, "opsz" 144; }
+  .display-soft { font-family: 'Fraunces', serif; font-variation-settings: "SOFT" 100, "opsz" 144; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Number markers */
+  .section-num {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+  }
+
+  /* Code blocks */
+  pre.code {
+    font-family: 'JetBrains Mono', monospace;
+    background: #1A1410;
+    color: #E8DFCB;
+    border-radius: 2px;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    border-left: 3px solid #B8421C;
+    position: relative;
+  }
+  pre.code .kw { color: #C84B1E; }
+  pre.code .str { color: #B8C09A; }
+  pre.code .com { color: #8B7E6B; font-style: italic; }
+  pre.code .fn { color: #E8B96B; }
+  pre.code .num { color: #D4906B; }
+
+  /* Inline code */
+  code.inline {
+    font-family: 'JetBrains Mono', monospace;
+    background: #E8DFCB;
+    border: 1px solid #C4B89F;
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-size: 0.85em;
+    color: #2C2520;
+  }
+
+  /* Decorative rule */
+  .rule {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #1A1410 20%, #1A1410 80%, transparent);
+  }
+  .rule-thick {
+    height: 4px;
+    background: #1A1410;
+  }
+
+  /* Expand button */
+  .expand-btn {
+    transition: all 0.2s ease;
+  }
+  .expand-btn:hover {
+    background: #1A1410;
+    color: #F2EBDB;
+  }
+  .expand-btn .arrow {
+    display: inline-block;
+    transition: transform 0.3s ease;
+  }
+  .expand-btn[aria-expanded="true"] .arrow {
+    transform: rotate(90deg);
+  }
+
+  /* Expandable content */
+  .expandable {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .expandable.open {
+    max-height: 8000px;
+  }
+
+  /* SVG hot-spots */
+  .hotspot { cursor: pointer; transition: all 0.2s ease; }
+  .hotspot:hover .hotspot-fill { fill: #B8421C; }
+  .hotspot:hover .hotspot-stroke { stroke: #B8421C; stroke-width: 2.5; }
+  .hotspot:hover .hotspot-text { fill: #F2EBDB; }
+  .hotspot-pulse {
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; r: 4; }
+    50% { opacity: 0.9; r: 7; }
+  }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 20, 16, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .modal-backdrop.open {
+    display: flex;
+    opacity: 1;
+  }
+  .modal-card {
+    background: #FAF6EC;
+    max-width: 720px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 2.5rem;
+    border-radius: 2px;
+    box-shadow: 0 30px 80px -20px rgba(26, 20, 16, 0.4), 0 0 0 1px #1A1410;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    position: relative;
+  }
+  .modal-backdrop.open .modal-card {
+    transform: translateY(0);
+  }
+
+  /* Pull quote */
+  .pullquote {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+  }
+
+  /* Sticky TOC indicator */
+  .toc-link {
+    position: relative;
+    transition: color 0.2s ease;
+  }
+  .toc-link::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 1px;
+    background: #8B7E6B;
+    transition: all 0.2s ease;
+  }
+  .toc-link.active::before {
+    width: 14px;
+    background: #B8421C;
+  }
+  .toc-link.active {
+    color: #B8421C;
+    font-weight: 600;
+  }
+
+  /* Rotating stamp */
+  @keyframes slowspin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .stamp { animation: slowspin 80s linear infinite; }
+
+  /* Fade-in on load */
+  .fadein { opacity: 0; transform: translateY(12px); animation: fadein 0.8s ease forwards; }
+  @keyframes fadein { to { opacity: 1; transform: translateY(0); } }
+
+  /* Tag pill */
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border: 1px solid #1A1410;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 2px;
+  }
+  .tag-rust { background: #B8421C; color: #F2EBDB; border-color: #B8421C; }
+  .tag-sage { background: #54665A; color: #F2EBDB; border-color: #54665A; }
+  .tag-ink { background: #1A1410; color: #F2EBDB; border-color: #1A1410; }
+  .tag-outline { background: transparent; color: #1A1410; }
+
+  /* Margin notes */
+  .marginnote {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #6B5F4F;
+    line-height: 1.5;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #E8DFCB; }
+  ::-webkit-scrollbar-thumb { background: #8B7E6B; border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: #1A1410; }
+
+  /* Selection */
+  ::selection { background: #B8421C; color: #F2EBDB; }
+
+  /* Reference list */
+  .ref-link {
+    border-bottom: 1px solid #8B7E6B;
+    transition: all 0.2s ease;
+  }
+  .ref-link:hover {
+    border-bottom-color: #B8421C;
+    color: #B8421C;
+  }
+
+  /* Diagram label */
+  .dlabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    fill: #1A1410;
+    letter-spacing: 0.04em;
+  }
+  .dlabel-sub {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    font-size: 11px;
+    fill: #6B5F4F;
+  }
+
+  /* Hover lift */
+  .lift { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(26, 20, 16, 0.25); }
+
+  /* Section number deco */
+  .num-deco {
+    font-family: 'Fraunces', serif;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    font-weight: 200;
+    font-size: clamp(8rem, 20vw, 16rem);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    color: #1A1410;
+    opacity: 0.07;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+
+  /* Ascii diagram */
+  .ascii {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    white-space: pre;
+    color: #1A1410;
+  }
+
+  @media (max-width: 768px) {
+    .hide-mobile { display: none; }
+  }
+</style>
+</head>
+<body class="relative">
+
+<!-- ============================================================ -->
+<!-- TOP BANNER -->
+<!-- ============================================================ -->
+<div class="relative z-10 border-b-2 border-ink bg-cream2">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center mono text-xs uppercase tracking-widest">
+    <span>Field Manual № 01</span>
+    <span class="hide-mobile">Temporal × Ollama × Chroma</span>
+    <span>Vol. 1 · Ed. 2026</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- HERO -->
+<!-- ============================================================ -->
+<section id="top" class="relative z-10 max-w-6xl mx-auto px-6 pt-16 pb-24">
+  <div class="grid md:grid-cols-12 gap-8 items-end">
+    <div class="md:col-span-9">
+      <div class="mono text-xs uppercase tracking-[0.3em] text-rust mb-6 fadein" style="animation-delay: 0.1s">
+        ◆ A Tutorial · Annotated Source · Live Walkthrough
+      </div>
+      <h1 class="display text-[clamp(3rem,9vw,8rem)] leading-[0.88] tracking-[-0.04em] font-light fadein" style="animation-delay: 0.2s">
+        Building a<br>
+        <span class="display-soft italic" style="font-weight: 300;">retrieval</span>-augmented<br>
+        memory<span class="text-rust">.</span>
+      </h1>
+      <p class="mt-10 text-xl md:text-2xl max-w-2xl leading-snug fadein" style="animation-delay: 0.4s">
+        A line-by-line field guide to <code class="inline">activities.py</code> — the Temporal worker
+        that turns scattered documents into something an LLM can actually <em>remember</em>.
+      </p>
+    </div>
+    <div class="md:col-span-3 flex md:justify-end fadein" style="animation-delay: 0.6s">
+      <!-- Rotating circular stamp -->
+      <svg viewBox="0 0 200 200" class="w-32 h-32 md:w-40 md:h-40 stamp" aria-hidden="true">
+        <defs>
+          <path id="circle" d="M 100,100 m -75,0 a 75,75 0 1,1 150,0 a 75,75 0 1,1 -150,0" />
+        </defs>
+        <circle cx="100" cy="100" r="88" fill="none" stroke="#1A1410" stroke-width="1"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="#1A1410" stroke-width="1"/>
+        <text class="mono" font-size="11" fill="#1A1410" letter-spacing="3">
+          <textPath href="#circle">RETRIEVAL · AUGMENTATION · GENERATION · </textPath>
+        </text>
+        <text x="100" y="95" text-anchor="middle" class="display" font-size="22" fill="#B8421C" font-weight="600">RAG</text>
+        <text x="100" y="115" text-anchor="middle" class="mono" font-size="9" fill="#1A1410">v.4.7</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="rule mt-16"></div>
+
+  <!-- Quick stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-10">
+    <div>
+      <div class="mono text-xs uppercase tracking-widest text-sand">Activities</div>
+      <div class="display text-5xl mt-2 font-light">04</div>
+      <div class="text-sm mt-1 italic text-sand">extract · chunk · embed · query</div>
+    </div>
+    <div>
+      <div class="mono text-xs uppercase tracking-widest text-sand">Services</div>
+      <div class="display text-5xl mt-2 font-light">03</div>
+      <div class="text-sm mt-1 italic text-sand">S3 · Ollama · Chroma</div>
+    </div>
+    <div>
+      <div class="mono text-xs uppercase tracking-widest text-sand">Endpoints hit</div>
+      <div class="display text-5xl mt-2 font-light">02</div>
+      <div class="text-sm mt-1 italic text-sand">/api/embed · /api/generate</div>
+    </div>
+    <div>
+      <div class="mono text-xs uppercase tracking-widest text-sand">Algorithm</div>
+      <div class="display text-5xl mt-2 font-light italic">HNSW</div>
+      <div class="text-sm mt-1 italic text-sand">cosine, k=8</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TABLE OF CONTENTS (sticky on scroll) -->
+<!-- ============================================================ -->
+<section class="relative z-10 max-w-6xl mx-auto px-6 py-8 border-t-2 border-b-2 border-ink bg-cream2">
+  <div class="grid md:grid-cols-12 gap-6 items-start">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-widest text-rust">Contents</div>
+      <h2 class="display text-3xl mt-2 font-light">Eleven<br>chapters.</h2>
+    </div>
+    <nav class="md:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2 text-base" id="toc">
+      <a href="#sec-1" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>I.&nbsp;&nbsp;The big picture</span><span class="mono text-xs text-sand">01</span></a>
+      <a href="#sec-2" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>II.&nbsp;Architecture, mapped</span><span class="mono text-xs text-sand">02</span></a>
+      <a href="#sec-3" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>III.&nbsp;Algorithms in service</span><span class="mono text-xs text-sand">03</span></a>
+      <a href="#sec-4" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>IV.&nbsp;The upload pipeline</span><span class="mono text-xs text-sand">04</span></a>
+      <a href="#sec-5" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>V.&nbsp;&nbsp;What an embedding <em>is</em></span><span class="mono text-xs text-sand">05</span></a>
+      <a href="#sec-6" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>VI.&nbsp;ChromaDB internals</span><span class="mono text-xs text-sand">06</span></a>
+      <a href="#sec-7" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>VII.&nbsp;The query pipeline</span><span class="mono text-xs text-sand">07</span></a>
+      <a href="#sec-8" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>VIII.&nbsp;Ollama, two ways</span><span class="mono text-xs text-sand">08</span></a>
+      <a href="#sec-9" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>IX.&nbsp;How context is built</span><span class="mono text-xs text-sand">09</span></a>
+      <a href="#sec-10" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>X.&nbsp;&nbsp;Reliability patterns</span><span class="mono text-xs text-sand">10</span></a>
+      <a href="#sec-11" class="toc-link flex justify-between border-b border-sand/40 py-1.5"><span>XI.&nbsp;References &amp; further reading</span><span class="mono text-xs text-sand">11</span></a>
+    </nav>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 1 — THE BIG PICTURE -->
+<!-- ============================================================ -->
+<section id="sec-1" class="relative z-10 max-w-6xl mx-auto px-6 py-24 scroll-mt-24">
+  <div class="num-deco absolute top-8 right-6">01</div>
+
+  <div class="grid md:grid-cols-12 gap-10 relative">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter I</div>
+      <div class="display text-7xl font-light mt-2 leading-none">01</div>
+      <div class="rule-thick w-12 mt-4"></div>
+      <p class="marginnote mt-6">A one-paragraph briefing before the schematics arrive.</p>
+    </div>
+
+    <div class="md:col-span-9">
+      <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+        The big <em class="display-soft">picture</em>.
+      </h2>
+
+      <p class="mt-8 text-lg leading-relaxed max-w-2xl">
+        This module powers a <strong>“chat with your documents”</strong> system. Files arrive,
+        get torn down into bite-size chunks, and each chunk is converted into a numerical
+        fingerprint — a <em>vector</em> — that lives in a specialized database. When a user
+        asks a question, we find the chunks whose fingerprints are nearest to the question's
+        own fingerprint, and hand those chunks to a language model along with the question.
+        The model writes the answer using only what we gave it.
+      </p>
+
+      <div class="mt-12 grid md:grid-cols-2 gap-6">
+        <!-- Two pipelines -->
+        <div class="border-2 border-ink p-6 bg-paper lift">
+          <div class="flex items-center gap-3">
+            <div class="tag tag-rust">Pipeline A</div>
+            <span class="mono text-xs">3 activities</span>
+          </div>
+          <h3 class="display text-2xl mt-4 font-medium">Upload</h3>
+          <p class="mt-2 text-sand italic">extract → chunk → embed &amp; store</p>
+          <p class="mt-4 text-sm leading-relaxed">
+            One-time work per document. The expensive bit. After this, the document is searchable.
+          </p>
+        </div>
+        <div class="border-2 border-ink p-6 bg-paper lift">
+          <div class="flex items-center gap-3">
+            <div class="tag tag-sage">Pipeline B</div>
+            <span class="mono text-xs">1 activity</span>
+          </div>
+          <h3 class="display text-2xl mt-4 font-medium">Query</h3>
+          <p class="mt-2 text-sand italic">embed → retrieve → generate</p>
+          <p class="mt-4 text-sm leading-relaxed">
+            Runs on every question. Fast: one embed call, one DB lookup, one LLM call.
+          </p>
+        </div>
+      </div>
+
+      <button class="expand-btn mt-10 mono text-xs uppercase tracking-widest border border-ink px-5 py-3 inline-flex items-center gap-3" data-target="exp-1" aria-expanded="false">
+        <span class="arrow">▸</span>
+        <span>Expand: why this design wins</span>
+      </button>
+
+      <div id="exp-1" class="expandable mt-6">
+        <div class="bg-paper border-l-4 border-rust p-8">
+          <h4 class="display text-xl font-medium mb-4">The split that matters</h4>
+          <p class="text-base leading-relaxed">
+            The expensive work — embedding every chunk of every document — happens
+            <em>once, at upload time</em>, and is cached forever in ChromaDB. Queries do
+            only one embed (of the question itself) and one nearest-neighbor lookup. This is
+            why a system with 10,000 indexed documents can answer in under a second:
+            you're never re-reading the documents.
+          </p>
+          <p class="text-base leading-relaxed mt-4">
+            The other split is between <strong>orchestration</strong> (Temporal) and
+            <strong>state</strong> (S3 + Chroma). Temporal remembers <em>which steps ran</em>;
+            it doesn't store your data. The data lives in storage that's designed for it.
+            If the worker crashes, Temporal replays the workflow and skips the steps already
+            committed to S3 — no double-processing.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 2 — ARCHITECTURE WITH CLICKABLE SVG -->
+<!-- ============================================================ -->
+<section id="sec-2" class="relative z-10 max-w-6xl mx-auto px-6 py-24 border-t border-ink scroll-mt-24">
+  <div class="num-deco absolute top-8 right-6">02</div>
+
+  <div class="grid md:grid-cols-12 gap-10 mb-12">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter II</div>
+      <div class="display text-7xl font-light mt-2 leading-none">02</div>
+      <div class="rule-thick w-12 mt-4"></div>
+      <p class="marginnote mt-6">Every component on one page.<br>Click any node for the detailed brief.</p>
+    </div>
+
+    <div class="md:col-span-9">
+      <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+        Architecture, <em class="display-soft">mapped</em>.
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed max-w-2xl">
+        Five parts cooperate: a Temporal worker hosting the four activities, two storage
+        backends, and one LLM runtime that doubles as embedder. Tap any component below
+        for its full brief.
+      </p>
+    </div>
+  </div>
+
+  <!-- Clickable architecture diagram -->
+  <div class="border-2 border-ink bg-paper p-6 md:p-10 relative">
+    <div class="flex items-center justify-between mb-6">
+      <div class="mono text-xs uppercase tracking-widest text-sand">Fig. 2.1 — System topology</div>
+      <div class="mono text-xs text-rust">▸ click any element</div>
+    </div>
+
+    <svg viewBox="0 0 880 480" class="w-full h-auto" id="arch-svg">
+      <!-- Background grid -->
+      <defs>
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#8B7E6B" stroke-width="0.3" opacity="0.3"/>
+        </pattern>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A1410"/>
+        </marker>
+        <marker id="arrow-rust" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#B8421C"/>
+        </marker>
+      </defs>
+      <rect width="880" height="480" fill="url(#grid)"/>
+
+      <!-- USER on left -->
+      <g class="hotspot" data-modal="m-user">
+        <rect class="hotspot-fill" x="20" y="200" width="100" height="80" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="70" y="232" text-anchor="middle" class="dlabel" font-weight="700">USER</text>
+        <text x="70" y="250" text-anchor="middle" class="dlabel-sub">browser/CLI</text>
+        <circle cx="108" cy="208" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- TEMPORAL WORKER (center, large) -->
+      <g class="hotspot" data-modal="m-temporal">
+        <rect class="hotspot-fill" x="220" y="80" width="280" height="320" fill="#F2EBDB" stroke="#1A1410" stroke-width="2" stroke-dasharray="0"/>
+        <text x="360" y="105" text-anchor="middle" class="dlabel" font-weight="700">TEMPORAL WORKER</text>
+        <text x="360" y="120" text-anchor="middle" class="dlabel-sub">activities.py</text>
+        <line x1="240" y1="135" x2="480" y2="135" stroke="#1A1410" stroke-width="0.5"/>
+
+        <!-- Activity boxes inside -->
+        <rect x="240" y="150" width="240" height="42" fill="#FAF6EC" stroke="#1A1410" stroke-width="1"/>
+        <text x="252" y="170" class="dlabel">extract_text_activity</text>
+        <text x="252" y="184" class="dlabel-sub">PDF/DOCX/XLSX → text</text>
+
+        <rect x="240" y="200" width="240" height="42" fill="#FAF6EC" stroke="#1A1410" stroke-width="1"/>
+        <text x="252" y="220" class="dlabel">chunk_text_activity</text>
+        <text x="252" y="234" class="dlabel-sub">sliding window 500w / 100w overlap</text>
+
+        <rect x="240" y="250" width="240" height="42" fill="#FAF6EC" stroke="#1A1410" stroke-width="1"/>
+        <text x="252" y="270" class="dlabel">embed_and_store_activity</text>
+        <text x="252" y="284" class="dlabel-sub">N chunks → N vectors → Chroma</text>
+
+        <rect x="240" y="300" width="240" height="42" fill="#FAF6EC" stroke="#B8421C" stroke-width="1.5"/>
+        <text x="252" y="320" class="dlabel" fill="#B8421C">execute_query_activity</text>
+        <text x="252" y="334" class="dlabel-sub">RAG: embed→retrieve→generate</text>
+
+        <text x="360" y="372" text-anchor="middle" class="dlabel-sub">heartbeats · retries · DI seams</text>
+        <circle cx="488" cy="92" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- S3 (top right) -->
+      <g class="hotspot" data-modal="m-s3">
+        <rect class="hotspot-fill" x="600" y="60" width="200" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="700" y="92" text-anchor="middle" class="dlabel" font-weight="700">S3 / MinIO</text>
+        <text x="700" y="112" text-anchor="middle" class="dlabel-sub">raw/{doc}.pdf</text>
+        <text x="700" y="128" text-anchor="middle" class="dlabel-sub">text/{doc}.txt</text>
+        <text x="700" y="144" text-anchor="middle" class="dlabel-sub">answer/{q}.json</text>
+        <circle cx="788" cy="68" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- Ollama (middle right) -->
+      <g class="hotspot" data-modal="m-ollama">
+        <rect class="hotspot-fill" x="600" y="200" width="200" height="80" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="700" y="230" text-anchor="middle" class="dlabel" font-weight="700">OLLAMA</text>
+        <text x="700" y="248" text-anchor="middle" class="dlabel-sub">/api/embed</text>
+        <text x="700" y="264" text-anchor="middle" class="dlabel-sub">/api/generate</text>
+        <circle cx="788" cy="208" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- ChromaDB (bottom right) -->
+      <g class="hotspot" data-modal="m-chroma">
+        <rect class="hotspot-fill" x="600" y="320" width="200" height="80" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="700" y="350" text-anchor="middle" class="dlabel" font-weight="700">CHROMADB</text>
+        <text x="700" y="368" text-anchor="middle" class="dlabel-sub">collection: local_context</text>
+        <text x="700" y="384" text-anchor="middle" class="dlabel-sub">HNSW · cosine</text>
+        <circle cx="788" cy="328" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- Connections -->
+      <!-- User <-> Worker -->
+      <line x1="120" y1="240" x2="218" y2="240" stroke="#1A1410" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="155" y="232" class="dlabel-sub">upload/query</text>
+
+      <!-- Worker -> S3 -->
+      <line x1="500" y1="170" x2="598" y2="100" stroke="#1A1410" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
+      <text x="525" y="118" class="dlabel-sub">read/write</text>
+
+      <!-- Worker <-> Ollama (rust to highlight) -->
+      <line x1="500" y1="240" x2="598" y2="240" stroke="#B8421C" stroke-width="2" marker-end="url(#arrow-rust)"/>
+      <text x="528" y="234" class="dlabel-sub" fill="#B8421C">HTTP</text>
+
+      <!-- Worker -> Chroma -->
+      <line x1="500" y1="310" x2="598" y2="360" stroke="#1A1410" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
+      <text x="528" y="345" class="dlabel-sub">add/query</text>
+
+      <!-- Caption -->
+      <text x="20" y="455" class="dlabel-sub">⚬ pulsing dots indicate clickable nodes</text>
+      <text x="20" y="470" class="dlabel-sub">— solid lines: synchronous · - - - dashed: data writes</text>
+    </svg>
+  </div>
+
+  <!-- Pull quote -->
+  <div class="mt-16 max-w-3xl mx-auto text-center">
+    <p class="pullquote">
+      “Temporal remembers <em>what ran</em>. <br>S3 remembers <em>what was made</em>. <br>Chroma remembers <em>what it means</em>.”
+    </p>
+    <div class="mono text-xs uppercase tracking-widest text-sand mt-6">— design principle, this module</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 3 — ALGORITHMS -->
+<!-- ============================================================ -->
+<section id="sec-3" class="relative z-10 max-w-6xl mx-auto px-6 py-24 border-t border-ink scroll-mt-24">
+  <div class="num-deco absolute top-8 right-6">03</div>
+
+  <div class="grid md:grid-cols-12 gap-10 mb-12">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter III</div>
+      <div class="display text-7xl font-light mt-2 leading-none">03</div>
+      <div class="rule-thick w-12 mt-4"></div>
+      <p class="marginnote mt-6">Four algorithms doing the heavy lifting. None of them are new. All of them earn their place.</p>
+    </div>
+
+    <div class="md:col-span-9">
+      <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+        Algorithms <em class="display-soft">in service</em>.
+      </h2>
+    </div>
+  </div>
+
+  <!-- Algorithm cards -->
+  <div class="grid md:grid-cols-2 gap-6">
+
+    <!-- 1. Sliding window chunking -->
+    <div class="border-2 border-ink bg-paper p-7 lift">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="mono text-xs uppercase tracking-widest text-rust">Algorithm № 1</div>
+          <h3 class="display text-3xl mt-2 font-medium">Sliding-window chunking</h3>
+        </div>
+        <div class="tag tag-outline">O(n)</div>
+      </div>
+
+      <!-- Mini SVG -->
+      <svg viewBox="0 0 380 90" class="w-full mt-5">
+        <g>
+          <rect x="0" y="40" width="380" height="14" fill="#E8DFCB" stroke="#1A1410" stroke-width="0.5"/>
+          <rect x="0" y="40" width="100" height="14" fill="#B8421C" opacity="0.7"/>
+          <rect x="80" y="56" width="100" height="14" fill="#54665A" opacity="0.7"/>
+          <rect x="160" y="40" width="100" height="14" fill="#B8421C" opacity="0.7"/>
+          <rect x="240" y="56" width="100" height="14" fill="#54665A" opacity="0.7"/>
+          <text x="0" y="30" class="dlabel">words →</text>
+          <text x="0" y="86" class="dlabel-sub" font-size="9">overlap = 100 words → context preserved at boundaries</text>
+        </g>
+      </svg>
+
+      <p class="mt-4 text-sm leading-relaxed">
+        Split text into 500-word windows that <em>overlap by 100 words</em>. The overlap means a
+        sentence sitting on a boundary still has its surrounding context preserved in the next chunk —
+        retrieval doesn't miss it.
+      </p>
+
+      <button class="expand-btn mt-5 mono text-xs uppercase tracking-widest border border-ink px-4 py-2 inline-flex items-center gap-2" data-target="exp-3a" aria-expanded="false">
+        <span class="arrow">▸</span><span>Why these numbers</span>
+      </button>
+      <div id="exp-3a" class="expandable mt-4">
+        <div class="border-l-4 border-rust pl-5 py-2 bg-cream">
+          <p class="text-sm leading-relaxed">
+            <code class="inline">nomic-embed-text</code> has a 2048-token context. At ~1.3 tokens
+            per word, 500 words ≈ 650 tokens — comfortable margin. The previous default of
+            800 words occasionally crashed the embedder on dense technical text.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            <strong>Stride math:</strong> if size=500 and overlap=100, the stride is 500−100 = 400 words.
+            A 5,000-word document yields ⌈5000/400⌉ = 13 chunks.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Cosine similarity -->
+    <div class="border-2 border-ink bg-paper p-7 lift">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="mono text-xs uppercase tracking-widest text-rust">Algorithm № 2</div>
+          <h3 class="display text-3xl mt-2 font-medium">Cosine similarity</h3>
+        </div>
+        <div class="tag tag-outline">O(d)</div>
+      </div>
+
+      <svg viewBox="0 0 380 110" class="w-full mt-5">
+        <g transform="translate(190, 95)">
+          <line x1="0" y1="0" x2="0" y2="-90" stroke="#8B7E6B" stroke-width="0.5"/>
+          <line x1="-180" y1="0" x2="180" y2="0" stroke="#8B7E6B" stroke-width="0.5"/>
+
+          <!-- Vectors -->
+          <line x1="0" y1="0" x2="120" y2="-60" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow)"/>
+          <line x1="0" y1="0" x2="100" y2="-70" stroke="#B8421C" stroke-width="2" marker-end="url(#arrow-rust)"/>
+
+          <!-- Angle arc -->
+          <path d="M 30 -15 A 33 33 0 0 1 22 -22" fill="none" stroke="#54665A" stroke-width="1.2"/>
+          <text x="40" y="-20" class="dlabel-sub" fill="#54665A">θ</text>
+
+          <text x="125" y="-65" class="dlabel">query</text>
+          <text x="105" y="-78" class="dlabel" fill="#B8421C">chunk</text>
+          <text x="-180" y="-72" class="dlabel-sub" font-size="9">cos(θ) = a·b ÷ (‖a‖·‖b‖)</text>
+        </g>
+      </svg>
+
+      <p class="mt-4 text-sm leading-relaxed">
+        Two vectors are similar if they point in the <em>same direction</em>, regardless of length.
+        Magnitude-blind, so a long passage and a short passage are compared on meaning alone.
+        ChromaDB returns <code class="inline">distance = 1 − cosine</code> — smaller is better.
+      </p>
+
+      <button class="expand-btn mt-5 mono text-xs uppercase tracking-widest border border-ink px-4 py-2 inline-flex items-center gap-2" data-target="exp-3b" aria-expanded="false">
+        <span class="arrow">▸</span><span>Why not Euclidean?</span>
+      </button>
+      <div id="exp-3b" class="expandable mt-4">
+        <div class="border-l-4 border-rust pl-5 py-2 bg-cream">
+          <p class="text-sm leading-relaxed">
+            Embedding models normalize semantic intensity into vector <em>direction</em>, not length.
+            A two-sentence summary and a paragraph saying the same thing produce vectors of
+            similar direction but very different magnitudes. Euclidean distance would call them
+            far apart; cosine calls them close — which is what we want.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            Configured in code by:
+            <code class="inline">metadata={"hnsw:space": "cosine"}</code> on the collection.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. HNSW -->
+    <div class="border-2 border-ink bg-paper p-7 lift">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="mono text-xs uppercase tracking-widest text-rust">Algorithm № 3</div>
+          <h3 class="display text-3xl mt-2 font-medium">HNSW index</h3>
+        </div>
+        <div class="tag tag-outline">O(log n)</div>
+      </div>
+
+      <svg viewBox="0 0 380 130" class="w-full mt-5">
+        <!-- HNSW layered graph -->
+        <g>
+          <text x="0" y="14" class="dlabel-sub">layer 2 (sparse)</text>
+          <circle cx="80" cy="20" r="4" fill="#1A1410"/>
+          <circle cx="240" cy="20" r="4" fill="#1A1410"/>
+          <line x1="80" y1="20" x2="240" y2="20" stroke="#1A1410" stroke-width="0.6"/>
+
+          <text x="0" y="54" class="dlabel-sub">layer 1</text>
+          <circle cx="60" cy="60" r="3.5" fill="#54665A"/>
+          <circle cx="140" cy="60" r="3.5" fill="#54665A"/>
+          <circle cx="220" cy="60" r="3.5" fill="#54665A"/>
+          <circle cx="300" cy="60" r="3.5" fill="#54665A"/>
+          <line x1="60" y1="60" x2="140" y2="60" stroke="#54665A" stroke-width="0.6"/>
+          <line x1="140" y1="60" x2="220" y2="60" stroke="#54665A" stroke-width="0.6"/>
+          <line x1="220" y1="60" x2="300" y2="60" stroke="#54665A" stroke-width="0.6"/>
+          <line x1="80" y1="20" x2="60" y2="60" stroke="#1A1410" stroke-width="0.4" stroke-dasharray="2 2"/>
+          <line x1="240" y1="20" x2="220" y2="60" stroke="#1A1410" stroke-width="0.4" stroke-dasharray="2 2"/>
+
+          <text x="0" y="94" class="dlabel-sub">layer 0 (dense, all nodes)</text>
+          <g fill="#B8421C">
+            <circle cx="40" cy="100" r="3"/><circle cx="80" cy="100" r="3"/>
+            <circle cx="120" cy="100" r="3"/><circle cx="160" cy="100" r="3"/>
+            <circle cx="200" cy="100" r="3"/><circle cx="240" cy="100" r="3"/>
+            <circle cx="280" cy="100" r="3"/><circle cx="320" cy="100" r="3"/>
+          </g>
+          <line x1="40" y1="100" x2="80" y2="100" stroke="#B8421C" stroke-width="0.5"/>
+          <line x1="80" y1="100" x2="120" y2="100" stroke="#B8421C" stroke-width="0.5"/>
+          <line x1="120" y1="100" x2="160" y2="100" stroke="#B8421C" stroke-width="0.5"/>
+          <line x1="160" y1="100" x2="200" y2="100" stroke="#B8421C" stroke-width="0.5"/>
+          <line x1="200" y1="100" x2="240" y2="100" stroke="#B8421C" stroke-width="0.5"/>
+          <line x1="60" y1="60" x2="40" y2="100" stroke="#54665A" stroke-width="0.4" stroke-dasharray="2 2"/>
+          <line x1="140" y1="60" x2="160" y2="100" stroke="#54665A" stroke-width="0.4" stroke-dasharray="2 2"/>
+
+          <!-- Search path -->
+          <path d="M 80 20 L 60 60 L 40 100" stroke="#B8421C" stroke-width="2" fill="none" opacity="0.4"/>
+          <text x="335" y="112" class="dlabel-sub" fill="#B8421C">search ↓</text>
+        </g>
+      </svg>
+
+      <p class="mt-4 text-sm leading-relaxed">
+        <strong>Hierarchical Navigable Small Worlds.</strong> A multi-layer graph where the top
+        layers are sparse highways and the bottom is dense local streets. Search starts at the top,
+        descending greedily. Find your nearest neighbor among millions of vectors in
+        logarithmic time.
+      </p>
+
+      <button class="expand-btn mt-5 mono text-xs uppercase tracking-widest border border-ink px-4 py-2 inline-flex items-center gap-2" data-target="exp-3c" aria-expanded="false">
+        <span class="arrow">▸</span><span>The mental model</span>
+      </button>
+      <div id="exp-3c" class="expandable mt-4">
+        <div class="border-l-4 border-rust pl-5 py-2 bg-cream">
+          <p class="text-sm leading-relaxed">
+            Imagine an interstate map (top layer): five cities, two highways. You pick the city
+            nearest your destination. Then the state-road map (middle layer): twenty towns, you
+            zoom in. Finally the local street map (bottom layer): every house. You arrive in
+            three hops, not by checking every house.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            This is approximate — HNSW <em>occasionally</em> misses the true nearest neighbor — but
+            for retrieval the approximation is invisible. <strong>Brute-force</strong> would be
+            O(n) per query; HNSW is O(log n).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Transformer embeddings -->
+    <div class="border-2 border-ink bg-paper p-7 lift">
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="mono text-xs uppercase tracking-widest text-rust">Algorithm № 4</div>
+          <h3 class="display text-3xl mt-2 font-medium">Transformer embeddings</h3>
+        </div>
+        <div class="tag tag-outline">768-d</div>
+      </div>
+
+      <svg viewBox="0 0 380 110" class="w-full mt-5">
+        <g>
+          <rect x="0" y="35" width="80" height="40" fill="#E8DFCB" stroke="#1A1410"/>
+          <text x="40" y="58" text-anchor="middle" class="dlabel">"warranty"</text>
+
+          <line x1="80" y1="55" x2="125" y2="55" stroke="#1A1410" stroke-width="1" marker-end="url(#arrow)"/>
+
+          <rect x="125" y="35" width="120" height="40" fill="#1A1410"/>
+          <text x="185" y="55" text-anchor="middle" class="dlabel" fill="#F2EBDB">nomic-embed</text>
+          <text x="185" y="68" text-anchor="middle" class="dlabel-sub" fill="#8B7E6B">transformer</text>
+
+          <line x1="245" y1="55" x2="290" y2="55" stroke="#1A1410" stroke-width="1" marker-end="url(#arrow)"/>
+
+          <rect x="290" y="20" width="90" height="70" fill="#FAF6EC" stroke="#1A1410"/>
+          <text x="335" y="34" text-anchor="middle" class="dlabel-sub" font-size="9">[</text>
+          <text x="335" y="46" text-anchor="middle" class="mono" font-size="9" fill="#B8421C">0.012,</text>
+          <text x="335" y="58" text-anchor="middle" class="mono" font-size="9" fill="#B8421C">−0.034,</text>
+          <text x="335" y="70" text-anchor="middle" class="mono" font-size="9" fill="#B8421C">0.567, …</text>
+          <text x="335" y="82" text-anchor="middle" class="dlabel-sub" font-size="9">] (768 floats)</text>
+        </g>
+      </svg>
+
+      <p class="mt-4 text-sm leading-relaxed">
+        A neural network reads the text and produces a fixed-length vector. Texts with similar
+        meanings — even using different words — produce vectors that point in similar directions.
+        “warranty period” and “coverage duration” end up neighbors in 768-dimensional space.
+      </p>
+
+      <button class="expand-btn mt-5 mono text-xs uppercase tracking-widest border border-ink px-4 py-2 inline-flex items-center gap-2" data-target="exp-3d" aria-expanded="false">
+        <span class="arrow">▸</span><span>How meaning lands in numbers</span>
+      </button>
+      <div id="exp-3d" class="expandable mt-4">
+        <div class="border-l-4 border-rust pl-5 py-2 bg-cream">
+          <p class="text-sm leading-relaxed">
+            <code class="inline">nomic-embed-text</code> is a transformer trained with
+            <em>contrastive learning</em>: pairs of related texts (paraphrases, query/document)
+            were pushed together in vector space, while unrelated pairs were pushed apart.
+            Repeat for billions of pairs and the geometry of meaning emerges.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            <strong>Why 768?</strong> A balance — high enough to capture semantic nuance,
+            low enough that nearest-neighbor search stays fast and storage stays cheap.
+            (~3 KB per chunk vector.)
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 4 — UPLOAD PIPELINE -->
+<!-- ============================================================ -->
+<section id="sec-4" class="relative z-10 max-w-6xl mx-auto px-6 py-24 border-t border-ink scroll-mt-24">
+  <div class="num-deco absolute top-8 right-6">04</div>
+
+  <div class="grid md:grid-cols-12 gap-10 mb-12">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter IV</div>
+      <div class="display text-7xl font-light mt-2 leading-none">04</div>
+      <div class="rule-thick w-12 mt-4"></div>
+      <p class="marginnote mt-6">Three activities, run in sequence, that turn a PDF into a searchable memory.</p>
+    </div>
+
+    <div class="md:col-span-9">
+      <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+        The <em class="display-soft">upload</em> pipeline.
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed max-w-2xl">
+        A user drops a file into the system. Three activities fire — each one a discrete,
+        retryable step. Click any node in the flow below.
+      </p>
+    </div>
+  </div>
+
+  <!-- Pipeline flow SVG -->
+  <div class="border-2 border-ink bg-paper p-6 md:p-10">
+    <div class="flex items-center justify-between mb-6">
+      <div class="mono text-xs uppercase tracking-widest text-sand">Fig. 4.1 — Upload sequence</div>
+      <div class="mono text-xs text-rust">▸ click any step</div>
+    </div>
+
+    <svg viewBox="0 0 880 280" class="w-full h-auto" id="upload-svg">
+      <defs>
+        <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A1410"/>
+        </marker>
+      </defs>
+
+      <!-- Step 1: extract -->
+      <g class="hotspot" data-modal="m-extract">
+        <rect class="hotspot-fill" x="40" y="80" width="180" height="120" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="58" y="105" class="dlabel" font-weight="700">01 · EXTRACT</text>
+        <line x1="58" y1="115" x2="200" y2="115" stroke="#1A1410" stroke-width="0.4"/>
+        <text x="58" y="135" class="dlabel-sub">in: s3_raw_key</text>
+        <text x="58" y="152" class="dlabel-sub">out: s3_text_key</text>
+        <text x="58" y="172" class="dlabel-sub">pdfplumber, python-docx,</text>
+        <text x="58" y="186" class="dlabel-sub">openpyxl, plain</text>
+        <circle cx="208" cy="88" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- arrow 1->2 -->
+      <line x1="220" y1="140" x2="258" y2="140" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+
+      <!-- Step 2: chunk -->
+      <g class="hotspot" data-modal="m-chunk">
+        <rect class="hotspot-fill" x="260" y="80" width="180" height="120" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="278" y="105" class="dlabel" font-weight="700">02 · CHUNK</text>
+        <line x1="278" y1="115" x2="420" y2="115" stroke="#1A1410" stroke-width="0.4"/>
+        <text x="278" y="135" class="dlabel-sub">in: s3_text_key</text>
+        <text x="278" y="152" class="dlabel-sub">out: List[str]</text>
+        <text x="278" y="172" class="dlabel-sub">size = 500 words</text>
+        <text x="278" y="186" class="dlabel-sub">overlap = 100 words</text>
+        <circle cx="428" cy="88" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- arrow 2->3 -->
+      <line x1="440" y1="140" x2="478" y2="140" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+
+      <!-- Step 3: embed & store -->
+      <g class="hotspot" data-modal="m-embed">
+        <rect class="hotspot-fill" x="480" y="80" width="220" height="120" fill="#F2EBDB" stroke="#B8421C" stroke-width="2"/>
+        <text x="498" y="105" class="dlabel" font-weight="700" fill="#B8421C">03 · EMBED &amp; STORE</text>
+        <line x1="498" y1="115" x2="680" y2="115" stroke="#1A1410" stroke-width="0.4"/>
+        <text x="498" y="135" class="dlabel-sub">for chunk in chunks:</text>
+        <text x="510" y="150" class="dlabel-sub">vec = ollama.embed()</text>
+        <text x="510" y="165" class="dlabel-sub">heartbeat()</text>
+        <text x="498" y="183" class="dlabel-sub">collection.add(...)  ← batch</text>
+        <circle cx="688" cy="88" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- arrow 3 -> Chroma + Ollama -->
+      <line x1="700" y1="120" x2="780" y2="60" stroke="#1A1410" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
+      <line x1="700" y1="160" x2="780" y2="220" stroke="#1A1410" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
+
+      <rect x="780" y="40" width="80" height="44" fill="#E8DFCB" stroke="#1A1410" stroke-width="1"/>
+      <text x="820" y="58" text-anchor="middle" class="dlabel" font-weight="700">OLLAMA</text>
+      <text x="820" y="74" text-anchor="middle" class="dlabel-sub">/api/embed</text>
+
+      <rect x="780" y="200" width="80" height="44" fill="#E8DFCB" stroke="#1A1410" stroke-width="1"/>
+      <text x="820" y="218" text-anchor="middle" class="dlabel" font-weight="700">CHROMA</text>
+      <text x="820" y="234" text-anchor="middle" class="dlabel-sub">add()</text>
+
+      <!-- Heartbeat animation hint -->
+      <text x="40" y="240" class="dlabel-sub">⚬ each box is a Temporal activity — independently retried, independently observed</text>
+      <text x="40" y="258" class="dlabel-sub">⚬ between activities, intermediate state lives in S3 — workflow stays compact</text>
+    </svg>
+  </div>
+
+  <!-- Code reveal -->
+  <div class="mt-12">
+    <button class="expand-btn mono text-xs uppercase tracking-widest border border-ink px-5 py-3 inline-flex items-center gap-3" data-target="exp-4" aria-expanded="false">
+      <span class="arrow">▸</span><span>Show the embed-and-store loop</span>
+    </button>
+    <div id="exp-4" class="expandable mt-6">
+<pre class="code"><span class="kw">@activity.defn</span>(name=<span class="str">"embed_and_store_activity"</span>)
+<span class="kw">async def</span> <span class="fn">embed_and_store</span>(self, doc_id: str, filename: str, chunks: List[str]):
+    ids, embeddings, metadatas, documents = [], [], [], []
+    now = datetime.now(timezone.utc).isoformat()
+
+    <span class="kw">for</span> i, chunk <span class="kw">in</span> <span class="fn">enumerate</span>(chunks):
+        activity.heartbeat(<span class="str">f"Embedding chunk {i + 1}/{len(chunks)}"</span>)  <span class="com"># Temporal stays calm</span>
+        vector = <span class="kw">await</span> self._ollama.embed(chunk)                  <span class="com"># Ollama → 768-d float[]</span>
+
+        ids.append(<span class="str">f"{doc_id}_chunk_{i}"</span>)                          <span class="com"># deterministic → idempotent</span>
+        embeddings.append(vector)
+        metadatas.append({<span class="str">"doc_id"</span>: doc_id, <span class="str">"filename"</span>: filename,
+                          <span class="str">"chunk_index"</span>: i, <span class="str">"total_chunks"</span>: <span class="fn">len</span>(chunks),
+                          <span class="str">"uploaded_at"</span>: now})
+        documents.append(chunk)
+
+    self._chroma.collection.add(ids=ids, embeddings=embeddings,           <span class="com"># ONE batched call</span>
+                                metadatas=metadatas, documents=documents)
+    <span class="kw">return</span> EmbedStoreResult(chunks_stored=<span class="fn">len</span>(ids))</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 5 — WHAT AN EMBEDDING IS -->
+<!-- ============================================================ -->
+<section id="sec-5" class="relative z-10 bg-ink text-cream py-24 border-t border-ink">
+  <div class="max-w-6xl mx-auto px-6 relative scroll-mt-24">
+    <div class="num-deco absolute top-8 right-6" style="color: #F2EBDB;">05</div>
+
+    <div class="grid md:grid-cols-12 gap-10 mb-12">
+      <div class="md:col-span-3">
+        <div class="mono text-xs uppercase tracking-[0.25em]" style="color:#E8B96B">Chapter V</div>
+        <div class="display text-7xl font-light mt-2 leading-none">05</div>
+        <div class="w-12 mt-4 h-1 bg-cream"></div>
+        <p class="marginnote mt-6" style="color:#C4B89F">A short interlude on <em>what numbers can know</em>.</p>
+      </div>
+
+      <div class="md:col-span-9">
+        <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+          What an <em class="display-soft" style="color:#E8B96B">embedding</em> is.
+        </h2>
+        <p class="mt-8 text-lg leading-relaxed max-w-2xl" style="color:#E8DFCB">
+          An embedding is a list of numbers — typically 768 of them — that captures what
+          a piece of text <em>means</em>. Two passages that say the same thing using different
+          words land near each other; two passages that disagree point in different directions.
+          That's the entire trick.
+        </p>
+      </div>
+    </div>
+
+    <!-- Vector-space intuition diagram -->
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+      <svg viewBox="0 0 400 300" class="w-full h-auto">
+        <!-- 2D projection of "vector space" -->
+        <g>
+          <line x1="40" y1="260" x2="380" y2="260" stroke="#8B7E6B" stroke-width="0.5"/>
+          <line x1="40" y1="40" x2="40" y2="260" stroke="#8B7E6B" stroke-width="0.5"/>
+          <text x="380" y="278" class="dlabel-sub" fill="#8B7E6B" text-anchor="end">dim 1</text>
+          <text x="20" y="40" class="dlabel-sub" fill="#8B7E6B">dim 2</text>
+
+          <!-- Cluster: warranty -->
+          <circle cx="120" cy="100" r="6" fill="#E8B96B"/>
+          <text x="135" y="105" class="dlabel" fill="#F2EBDB">"warranty period is 24 months"</text>
+          <circle cx="135" cy="125" r="5" fill="#E8B96B"/>
+          <text x="150" y="130" class="dlabel-sub" fill="#C4B89F">"coverage lasts two years"</text>
+          <circle cx="105" cy="135" r="5" fill="#E8B96B"/>
+          <text x="120" y="140" class="dlabel-sub" fill="#C4B89F">"valid for 730 days"</text>
+          <ellipse cx="125" cy="120" rx="55" ry="35" fill="none" stroke="#E8B96B" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+          <!-- Cluster: shipping -->
+          <circle cx="280" cy="200" r="6" fill="#B8421C"/>
+          <text x="195" y="205" class="dlabel" fill="#F2EBDB" text-anchor="end">"shipping takes 3-5 days"</text>
+          <circle cx="295" cy="220" r="5" fill="#B8421C"/>
+          <text x="210" y="225" class="dlabel-sub" fill="#C4B89F" text-anchor="end">"delivered within a week"</text>
+          <ellipse cx="288" cy="210" rx="48" ry="30" fill="none" stroke="#B8421C" stroke-width="0.6" stroke-dasharray="3 2"/>
+
+          <!-- Query vector -->
+          <circle cx="115" cy="115" r="9" fill="none" stroke="#F2EBDB" stroke-width="2"/>
+          <text x="55" y="80" class="dlabel" fill="#F2EBDB">? "how long is the warranty"</text>
+          <line x1="60" y1="85" x2="110" y2="110" stroke="#F2EBDB" stroke-width="0.6" stroke-dasharray="2 2"/>
+        </g>
+      </svg>
+
+      <div>
+        <p class="text-base leading-relaxed" style="color:#E8DFCB">
+          Picture vectors as points scattered through 768-dimensional space. We can't visualize
+          768 dimensions, so the diagram squashes it to 2. The principle survives the squash:
+          <em>related ideas cluster</em>.
+        </p>
+        <p class="text-base leading-relaxed mt-4" style="color:#E8DFCB">
+          When the user asks <em class="text-cream">“how long is the warranty?”</em>, that
+          question becomes its own vector (the hollow ring). It lands inside the warranty cluster.
+          ChromaDB returns the nearest neighbors. The shipping cluster — far away in vector
+          space — is correctly ignored.
+        </p>
+
+        <button class="expand-btn mt-6 mono text-xs uppercase tracking-widest border border-cream px-4 py-2 inline-flex items-center gap-2 text-cream" data-target="exp-5" aria-expanded="false" style="color:#F2EBDB">
+          <span class="arrow">▸</span><span>The training intuition</span>
+        </button>
+        <div id="exp-5" class="expandable mt-5">
+          <div class="border-l-4 pl-5 py-3" style="border-color:#E8B96B; background:rgba(232,185,107,0.08)">
+            <p class="text-sm leading-relaxed" style="color:#E8DFCB">
+              Embedding models are trained with <em>contrastive loss</em>. Show the network
+              billions of (anchor, positive, negative) triples — paraphrases, query–document
+              pairs, translations — and reward it for putting positives close to anchors and
+              negatives far away. The geometry of meaning falls out of the optimization.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 6 — CHROMADB INTERNALS -->
+<!-- ============================================================ -->
+<section id="sec-6" class="relative z-10 max-w-6xl mx-auto px-6 py-24 border-t border-ink scroll-mt-24">
+  <div class="num-deco absolute top-8 right-6">06</div>
+
+  <div class="grid md:grid-cols-12 gap-10 mb-12">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter VI</div>
+      <div class="display text-7xl font-light mt-2 leading-none">06</div>
+      <div class="rule-thick w-12 mt-4"></div>
+      <p class="marginnote mt-6">The system's memory.<br>How vectors live, how they're found.</p>
+    </div>
+
+    <div class="md:col-span-9">
+      <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+        ChromaDB <em class="display-soft">internals</em>.
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed max-w-2xl">
+        Three ideas worth knowing: the parallel-array <code class="inline">add()</code> shape,
+        the metadata-driven filter, and the HNSW index sitting underneath.
+      </p>
+    </div>
+  </div>
+
+  <!-- Storage diagram -->
+  <div class="border-2 border-ink bg-paper p-6 md:p-10 mb-10">
+    <div class="mono text-xs uppercase tracking-widest text-sand mb-6">Fig. 6.1 — How a chunk is stored</div>
+
+    <svg viewBox="0 0 880 220" class="w-full h-auto">
+      <!-- Four parallel arrays -->
+      <g>
+        <text x="40" y="30" class="dlabel" font-weight="700">collection.add(...)</text>
+
+        <!-- ids -->
+        <text x="40" y="60" class="dlabel">ids</text>
+        <rect x="100" y="48" width="160" height="20" fill="#FAF6EC" stroke="#1A1410"/>
+        <text x="180" y="62" text-anchor="middle" class="mono" font-size="10">"abc-123_chunk_0"</text>
+
+        <!-- embeddings -->
+        <text x="40" y="92" class="dlabel">embeddings</text>
+        <rect x="100" y="80" width="160" height="20" fill="#1A1410" stroke="#1A1410"/>
+        <text x="180" y="94" text-anchor="middle" class="mono" font-size="10" fill="#E8B96B">[0.012, -0.034, ...]</text>
+
+        <!-- metadatas -->
+        <text x="40" y="124" class="dlabel">metadatas</text>
+        <rect x="100" y="112" width="380" height="20" fill="#FAF6EC" stroke="#1A1410"/>
+        <text x="290" y="126" text-anchor="middle" class="mono" font-size="10">{doc_id, filename, chunk_index, total_chunks, uploaded_at}</text>
+
+        <!-- documents -->
+        <text x="40" y="156" class="dlabel">documents</text>
+        <rect x="100" y="144" width="600" height="20" fill="#FAF6EC" stroke="#1A1410"/>
+        <text x="400" y="158" text-anchor="middle" class="mono" font-size="10">"The warranty period is 24 months from date of purchase, per page 4..."</text>
+
+        <!-- Lockstep arrows -->
+        <line x1="100" y1="180" x2="700" y2="180" stroke="#B8421C" stroke-width="0.6" stroke-dasharray="2 2"/>
+        <text x="400" y="200" text-anchor="middle" class="dlabel-sub" fill="#B8421C">all four arrays must be the same length — index <tspan font-weight="700">i</tspan> across them describes one chunk</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Query path -->
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="border-2 border-ink bg-paper p-7">
+      <div class="tag tag-rust mb-3">WRITE PATH</div>
+      <h3 class="display text-2xl font-medium">add() — bulk index</h3>
+      <p class="mt-3 text-sm leading-relaxed">
+        ChromaDB indexes the embeddings into the HNSW graph as a batch. One round-trip,
+        one rebuild of the graph layers. Calling <code class="inline">add</code> per chunk
+        would be ~10× slower for large documents.
+      </p>
+      <button class="expand-btn mt-4 mono text-xs uppercase tracking-widest border border-ink px-4 py-2 inline-flex items-center gap-2" data-target="exp-6a" aria-expanded="false">
+        <span class="arrow">▸</span><span>Idempotency note</span>
+      </button>
+      <div id="exp-6a" class="expandable mt-3">
+        <div class="bg-cream p-4 border-l-4 border-rust">
+          <p class="text-sm leading-relaxed">
+            Chunk IDs are deterministic: <code class="inline">{doc_id}_chunk_{i}</code>.
+            If Temporal retries the activity after a partial success, the second pass overwrites
+            instead of duplicating. This is what lets us treat the activity as retryable without
+            fear.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-2 border-ink bg-paper p-7">
+      <div class="tag tag-sage mb-3">READ PATH</div>
+      <h3 class="display text-2xl font-medium">query() — k nearest</h3>
+      <p class="mt-3 text-sm leading-relaxed">
+        Pass a query vector and <code class="inline">n_results=8</code>. ChromaDB walks the
+        HNSW graph, returns the eight nearest chunks plus their metadata and cosine distances.
+        The activity then filters by enabled <code class="inline">doc_id</code> if specified.
+      </p>
+      <button class="expand-btn mt-4 mono text-xs uppercase tracking-widest border border-ink px-4 py-2 inline-flex items-center gap-2" data-target="exp-6b" aria-expanded="false">
+        <span class="arrow">▸</span><span>The batched response shape</span>
+      </button>
+      <div id="exp-6b" class="expandable mt-3">
+        <div class="bg-cream p-4 border-l-4 border-rust">
+<pre class="mono text-xs leading-relaxed whitespace-pre-wrap">{
+  "ids":        [["abc_chunk_3", ...]],   ← outer list = batch
+  "documents":  [["chunk text", ...]],
+  "metadatas":  [[{...}, ...]],
+  "distances":  [[0.1234, ...]]
+}</pre>
+          <p class="text-sm leading-relaxed mt-3">
+            The outer list exists because <code class="inline">query()</code> can take many
+            query vectors at once. We pass one, so we always index <code class="inline">[0]</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 7 — QUERY PIPELINE -->
+<!-- ============================================================ -->
+<section id="sec-7" class="relative z-10 max-w-6xl mx-auto px-6 py-24 border-t border-ink scroll-mt-24">
+  <div class="num-deco absolute top-8 right-6">07</div>
+
+  <div class="grid md:grid-cols-12 gap-10 mb-12">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter VII</div>
+      <div class="display text-7xl font-light mt-2 leading-none">07</div>
+      <div class="rule-thick w-12 mt-4"></div>
+      <p class="marginnote mt-6">One activity. Three external calls. Many subtle decisions.</p>
+    </div>
+
+    <div class="md:col-span-9">
+      <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+        The <em class="display-soft">query</em> pipeline.
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed max-w-2xl">
+        A user types a question. The system embeds it, retrieves nearby chunks from Chroma,
+        constructs a prompt, and asks Ollama for an answer. Click any step.
+      </p>
+    </div>
+  </div>
+
+  <!-- Query flow SVG -->
+  <div class="border-2 border-ink bg-paper p-6 md:p-10">
+    <div class="flex items-center justify-between mb-6">
+      <div class="mono text-xs uppercase tracking-widest text-sand">Fig. 7.1 — RAG sequence</div>
+      <div class="mono text-xs text-rust">▸ click any step</div>
+    </div>
+
+    <svg viewBox="0 0 880 320" class="w-full h-auto" id="query-svg">
+      <!-- Step 1: load query -->
+      <g class="hotspot" data-modal="m-q1">
+        <rect class="hotspot-fill" x="20" y="100" width="140" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="32" y="125" class="dlabel" font-weight="700">01 · LOAD</text>
+        <line x1="32" y1="135" x2="148" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <text x="32" y="155" class="dlabel-sub">read query JSON</text>
+        <text x="32" y="170" class="dlabel-sub">from S3</text>
+        <text x="32" y="188" class="dlabel-sub">→ query_text</text>
+        <circle cx="148" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <line x1="160" y1="150" x2="178" y2="150" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+
+      <!-- Step 2: embed query -->
+      <g class="hotspot" data-modal="m-q2">
+        <rect class="hotspot-fill" x="180" y="100" width="140" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="192" y="125" class="dlabel" font-weight="700">02 · EMBED</text>
+        <line x1="192" y1="135" x2="308" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <text x="192" y="155" class="dlabel-sub">ollama.embed(q)</text>
+        <text x="192" y="170" class="dlabel-sub">heartbeat()</text>
+        <text x="192" y="188" class="dlabel-sub">→ 768-d vector</text>
+        <circle cx="308" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <line x1="320" y1="150" x2="338" y2="150" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+
+      <!-- Step 3: retrieve -->
+      <g class="hotspot" data-modal="m-q3">
+        <rect class="hotspot-fill" x="340" y="100" width="160" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="352" y="125" class="dlabel" font-weight="700">03 · RETRIEVE</text>
+        <line x1="352" y1="135" x2="488" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <text x="352" y="155" class="dlabel-sub">collection.query()</text>
+        <text x="352" y="170" class="dlabel-sub">n_results = 8</text>
+        <text x="352" y="188" class="dlabel-sub">filter by doc_id</text>
+        <circle cx="488" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <line x1="500" y1="150" x2="518" y2="150" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+
+      <!-- Step 4: build context -->
+      <g class="hotspot" data-modal="m-q4">
+        <rect class="hotspot-fill" x="520" y="100" width="160" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <text x="532" y="125" class="dlabel" font-weight="700">04 · BUILD</text>
+        <line x1="532" y1="135" x2="668" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <text x="532" y="155" class="dlabel-sub">join with "\n\n---"</text>
+        <text x="532" y="170" class="dlabel-sub">cap at 12 000 chars</text>
+        <text x="532" y="188" class="dlabel-sub">+ system + question</text>
+        <circle cx="668" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <line x1="680" y1="150" x2="698" y2="150" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+
+      <!-- Step 5: generate -->
+      <g class="hotspot" data-modal="m-q5">
+        <rect class="hotspot-fill" x="700" y="100" width="160" height="100" fill="#F2EBDB" stroke="#B8421C" stroke-width="2"/>
+        <text x="712" y="125" class="dlabel" font-weight="700" fill="#B8421C">05 · GENERATE</text>
+        <line x1="712" y1="135" x2="848" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <text x="712" y="155" class="dlabel-sub">ollama.generate()</text>
+        <text x="712" y="170" class="dlabel-sub">temp 0.3 · ctx 4096</text>
+        <text x="712" y="188" class="dlabel-sub">strip &lt;think&gt; · cap 50k</text>
+        <circle cx="848" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+      </g>
+
+      <!-- Output writes -->
+      <line x1="780" y1="200" x2="780" y2="240" stroke="#1A1410" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
+      <rect x="700" y="240" width="160" height="40" fill="#E8DFCB" stroke="#1A1410"/>
+      <text x="780" y="260" text-anchor="middle" class="dlabel" font-weight="700">S3: answer/{q}.json</text>
+      <text x="780" y="274" text-anchor="middle" class="dlabel-sub">+ webhook to backend</text>
+
+      <text x="20" y="296" class="dlabel-sub">⚬ entire activity heartbeats twice — once before embed, once before generate</text>
+      <text x="20" y="312" class="dlabel-sub">⚬ if Chroma is empty: short-circuit with "I do not know."  ⚬ if no doc passes filter: same</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 8 — OLLAMA TWO WAYS -->
+<!-- ============================================================ -->
+<section id="sec-8" class="relative z-10 max-w-6xl mx-auto px-6 py-24 border-t border-ink scroll-mt-24">
+  <div class="num-deco absolute top-8 right-6">08</div>
+
+  <div class="grid md:grid-cols-12 gap-10 mb-12">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter VIII</div>
+      <div class="display text-7xl font-light mt-2 leading-none">08</div>
+      <div class="rule-thick w-12 mt-4"></div>
+      <p class="marginnote mt-6">One service, two jobs. Different endpoints, different payload shapes, different failure modes.</p>
+    </div>
+
+    <div class="md:col-span-9">
+      <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+        Ollama, <em class="display-soft">two ways</em>.
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed max-w-2xl">
+        Ollama runs LLMs locally. This module asks it for two things: turn a string into a
+        vector, and turn a prompt into prose. Same server. Two endpoints. Two payload shapes.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+
+    <!-- /api/embed -->
+    <div class="border-2 border-ink bg-paper p-7">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="tag tag-rust">EMBED</div>
+        <div class="mono text-xs">POST /api/embed</div>
+      </div>
+      <h3 class="display text-3xl font-medium">String → vector</h3>
+      <p class="mt-4 text-sm leading-relaxed">
+        Input: any text up to <code class="inline">~6 000 chars</code> after pre-truncation.
+        Output: a list of 768 floats. Used <em>once per chunk</em> at upload time and
+        <em>once per question</em> at query time.
+      </p>
+
+      <div class="mt-5 mono text-xs">
+        <div class="bg-cream p-3 border border-ink">
+<pre class="whitespace-pre-wrap">{
+  "model": "nomic-embed-text",
+  "input": "warranty period 24 months",
+  "truncate": true
+}</pre>
+        </div>
+        <div class="text-center text-sand my-1">↓</div>
+        <div class="bg-cream p-3 border border-ink">
+<pre class="whitespace-pre-wrap">{ "embeddings": [[0.012, -0.034, …]] }</pre>
+        </div>
+      </div>
+
+      <button class="expand-btn mt-5 mono text-xs uppercase tracking-widest border border-ink px-4 py-2 inline-flex items-center gap-2" data-target="exp-8a" aria-expanded="false">
+        <span class="arrow">▸</span><span>The legacy fallback &amp; truncation defenses</span>
+      </button>
+      <div id="exp-8a" class="expandable mt-4">
+        <div class="bg-cream border-l-4 border-rust p-4">
+          <p class="text-sm leading-relaxed">
+            Older Ollama versions don't speak <code class="inline">/api/embed</code>. The client
+            tries it first; on a non-404 failure it retries against the legacy
+            <code class="inline">/api/embeddings</code> (uses <code class="inline">"prompt"</code> instead of
+            <code class="inline">"input"</code>, returns <code class="inline">"embedding"</code> singular).
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            <strong>Three layers of token-limit defense:</strong>
+          </p>
+          <ol class="list-decimal ml-5 text-sm leading-relaxed mt-2 space-y-1">
+            <li>Word-based chunking caps theoretical token count.</li>
+            <li>Pre-flight character truncation at 6 000 chars (cuts at last word boundary).</li>
+            <li><code class="inline">"truncate": true</code> tells Ollama to handle whatever still slips through.</li>
+          </ol>
+          <p class="text-sm leading-relaxed mt-3">
+            All three exist because real-world text contains base64, URLs, and hex dumps that
+            confound naive word-counting.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- /api/generate -->
+    <div class="border-2 border-ink bg-paper p-7">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="tag tag-sage">GENERATE</div>
+        <div class="mono text-xs">POST /api/generate</div>
+      </div>
+      <h3 class="display text-3xl font-medium">Prompt → answer</h3>
+      <p class="mt-4 text-sm leading-relaxed">
+        Input: a <em>system</em> prompt that constrains behavior plus a <em>user</em> prompt
+        carrying the question and retrieved context. Output: natural-language text.
+      </p>
+
+      <div class="mt-5 mono text-xs">
+        <div class="bg-cream p-3 border border-ink">
+<pre class="whitespace-pre-wrap">{
+  "model": "llama3.1:8b",
+  "system": "Answer ONLY from context...",
+  "prompt": "CONTEXT: ... QUESTION: ...",
+  "stream": false,
+  "options": {
+    "temperature": 0.3,
+    "num_ctx": 4096
+  }
+}</pre>
+        </div>
+        <div class="text-center text-sand my-1">↓</div>
+        <div class="bg-cream p-3 border border-ink">
+<pre class="whitespace-pre-wrap">{ "response": "The warranty is 24 months..." }</pre>
+        </div>
+      </div>
+
+      <button class="expand-btn mt-5 mono text-xs uppercase tracking-widest border border-ink px-4 py-2 inline-flex items-center gap-2" data-target="exp-8b" aria-expanded="false">
+        <span class="arrow">▸</span><span>Why temperature 0.3 and num_ctx 4096</span>
+      </button>
+      <div id="exp-8b" class="expandable mt-4">
+        <div class="bg-cream border-l-4 border-sage p-4">
+          <p class="text-sm leading-relaxed">
+            <strong>temperature: 0.3</strong> &mdash; for RAG you want grounded answers, not
+            creative ones. Lower temperature concentrates probability on the most likely
+            tokens, suppressing novelty and rambling. Set to 0 you'd get repetitive output;
+            0.3 is the sweet spot for grounded prose.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            <strong>num_ctx: 4096</strong> &mdash; the context window the model is allowed to
+            attend to. Big enough for ~12 000 chars of context + the question + the answer.
+            Bigger windows cost more memory; this is the tightest comfortable size.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            <strong>The <code class="inline">&lt;think&gt;</code> strip</strong> &mdash; reasoning
+            models like Qwen and DeepSeek prefix their answers with chain-of-thought wrapped
+            in <code class="inline">&lt;think&gt;...&lt;/think&gt;</code>. The activity strips
+            those before returning, so users see only the answer.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 9 — HOW OLLAMA GETS CONTEXT -->
+<!-- ============================================================ -->
+<section id="sec-9" class="relative z-10 bg-cream2 py-24 border-t border-ink">
+  <div class="max-w-6xl mx-auto px-6 relative scroll-mt-24">
+    <div class="num-deco absolute top-8 right-6">09</div>
+
+    <div class="grid md:grid-cols-12 gap-10 mb-12">
+      <div class="md:col-span-3">
+        <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter IX</div>
+        <div class="display text-7xl font-light mt-2 leading-none">09</div>
+        <div class="rule-thick w-12 mt-4"></div>
+        <p class="marginnote mt-6">The single most important paragraph of this whole tour.</p>
+      </div>
+
+      <div class="md:col-span-9">
+        <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+          How Ollama <em class="display-soft">gets context</em>.
+        </h2>
+        <p class="mt-6 text-lg leading-relaxed max-w-2xl">
+          Ollama, the language model, knows nothing about your documents. It only knows what
+          you put in its prompt. The art of RAG is composing that prompt so the model has
+          exactly what it needs — and a clear instruction not to make things up.
+        </p>
+      </div>
+    </div>
+
+    <!-- The prompt anatomy -->
+    <div class="border-2 border-ink bg-paper p-8 md:p-10">
+      <div class="mono text-xs uppercase tracking-widest text-sand mb-6">Anatomy of a RAG prompt</div>
+
+      <!-- System prompt -->
+      <div class="mb-6">
+        <div class="tag tag-rust mb-2">① system prompt</div>
+        <div class="mono text-sm bg-ink text-cream p-5 leading-relaxed border-l-4 border-rust">
+          You are Local Context Query. Answer ONLY from provided context.<br>
+          If context lacks info say <span class="text-rust">'I do not know.'</span><br>
+          Cite document names. Be concise.
+        </div>
+        <p class="text-sm italic text-sand mt-2">— constrains the model's persona and forbids hallucination.</p>
+      </div>
+
+      <!-- User prompt -->
+      <div class="mb-6">
+        <div class="tag tag-sage mb-2">② user prompt — context block</div>
+        <div class="mono text-sm bg-ink text-cream p-5 leading-relaxed border-l-4 border-sage">
+          CONTEXT:<br>
+          <span class="text-cream2">[chunk 1: "The warranty period for product Z-9 is 24 months..."]</span><br>
+          ---<br>
+          <span class="text-cream2">[chunk 2: "Coverage begins on the date of purchase as shown..."]</span><br>
+          ---<br>
+          <span class="text-cream2">[chunk 3: "Extended warranty options include 36, 48, and 60..."]</span>
+        </div>
+        <p class="text-sm italic text-sand mt-2">— the eight (or fewer) chunks Chroma returned, joined by <code class="inline">\n\n---\n\n</code>, capped at 12 000 chars.</p>
+      </div>
+
+      <!-- The question -->
+      <div class="mb-6">
+        <div class="tag tag-ink mb-2">③ user prompt — the question</div>
+        <div class="mono text-sm bg-ink text-cream p-5 leading-relaxed border-l-4 border-cream">
+          QUESTION:<br>
+          <span class="text-cream2">How long is the warranty?</span><br><br>
+          Answer from context only:
+        </div>
+        <p class="text-sm italic text-sand mt-2">— the literal user question, plus a final framing line that re-anchors the constraint.</p>
+      </div>
+
+      <!-- Result -->
+      <div>
+        <div class="tag tag-outline mb-2">resulting answer</div>
+        <div class="mono text-sm bg-cream p-5 leading-relaxed border-l-4 border-rust border-2">
+          The warranty is 24 months from the date of purchase, per the
+          product documentation. Extended options of 36, 48, and 60 months are also available.
+        </div>
+      </div>
+    </div>
+
+    <!-- Pull quote / principle -->
+    <div class="mt-12 max-w-3xl mx-auto text-center">
+      <p class="pullquote">
+        “The model knows nothing. <br>The retrieval knows everything. <br>The system prompt is the bridge.”
+      </p>
+    </div>
+
+    <!-- Expand: why the structure matters -->
+    <div class="mt-12 max-w-3xl mx-auto">
+      <button class="expand-btn mono text-xs uppercase tracking-widest border border-ink px-5 py-3 inline-flex items-center gap-3" data-target="exp-9" aria-expanded="false">
+        <span class="arrow">▸</span><span>Why this exact structure works</span>
+      </button>
+      <div id="exp-9" class="expandable mt-5">
+        <div class="bg-paper border-l-4 border-rust p-6">
+          <p class="text-sm leading-relaxed">
+            <strong>Order matters.</strong> Putting context <em>before</em> the question makes
+            the model treat the chunks as the source of truth. Putting the question first would
+            invite it to answer from training data and "verify" against the chunks afterward —
+            which is how hallucinations sneak in.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            <strong>Repeating the constraint.</strong> The system prompt says "answer from
+            context only." The final "Answer from context only:" line in the user prompt
+            repeats it — the closer to the answer's generation point, the more weight the
+            instruction carries.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            <strong>"I do not know" as an explicit option.</strong> Without permission to refuse,
+            language models <em>will</em> invent an answer. Giving them a clean exit
+            ("If context lacks info say 'I do not know.'") dramatically reduces hallucination
+            rate.
+          </p>
+          <p class="text-sm leading-relaxed mt-3">
+            <strong>The 12 000-char cap.</strong> Beyond a certain point, models start ignoring
+            the middle of long contexts (the "lost in the middle" effect). Capping context
+            keeps the most-relevant chunks salient.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 10 — RELIABILITY -->
+<!-- ============================================================ -->
+<section id="sec-10" class="relative z-10 max-w-6xl mx-auto px-6 py-24 border-t border-ink scroll-mt-24">
+  <div class="num-deco absolute top-8 right-6">10</div>
+
+  <div class="grid md:grid-cols-12 gap-10 mb-12">
+    <div class="md:col-span-3">
+      <div class="mono text-xs uppercase tracking-[0.25em] text-rust">Chapter X</div>
+      <div class="display text-7xl font-light mt-2 leading-none">10</div>
+      <div class="rule-thick w-12 mt-4"></div>
+      <p class="marginnote mt-6">What makes this thing not break in production.</p>
+    </div>
+
+    <div class="md:col-span-9">
+      <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+        Reliability <em class="display-soft">patterns</em>.
+      </h2>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-6">
+
+    <div class="border-2 border-ink bg-paper p-6 lift">
+      <div class="display text-4xl font-light text-rust">①</div>
+      <h3 class="display text-xl font-medium mt-3">Two-tier errors</h3>
+      <p class="mt-3 text-sm leading-relaxed">
+        <code class="inline">ApplicationError(non_retryable=True)</code> for permanent failures
+        — empty file, model not pulled, schema violation. Plain
+        <code class="inline">Exception</code> for transient — Temporal retries by policy.
+      </p>
+    </div>
+
+    <div class="border-2 border-ink bg-paper p-6 lift">
+      <div class="display text-4xl font-light text-rust">②</div>
+      <h3 class="display text-xl font-medium mt-3">Heartbeats</h3>
+      <p class="mt-3 text-sm leading-relaxed">
+        Inside the embed loop: <code class="inline">activity.heartbeat(f"chunk {i}/{n}")</code>.
+        Without it, Temporal would assume the worker died on a long activity and reschedule.
+        Visible as live progress in the Temporal UI.
+      </p>
+    </div>
+
+    <div class="border-2 border-ink bg-paper p-6 lift">
+      <div class="display text-4xl font-light text-rust">③</div>
+      <h3 class="display text-xl font-medium mt-3">Idempotent IDs</h3>
+      <p class="mt-3 text-sm leading-relaxed">
+        Chunk IDs <code class="inline">{doc_id}_chunk_{i}</code> are deterministic.
+        A retried activity overwrites cleanly — no duplicates, no orphans.
+      </p>
+    </div>
+
+    <div class="border-2 border-ink bg-paper p-6 lift">
+      <div class="display text-4xl font-light text-rust">④</div>
+      <h3 class="display text-xl font-medium mt-3">Compact workflow history</h3>
+      <p class="mt-3 text-sm leading-relaxed">
+        Bulky data (raw bytes, extracted text, generated answers) lives in S3.
+        Workflows pass S3 keys, not payloads. Temporal history stays small.
+      </p>
+    </div>
+
+    <div class="border-2 border-ink bg-paper p-6 lift">
+      <div class="display text-4xl font-light text-rust">⑤</div>
+      <h3 class="display text-xl font-medium mt-3">Dependency injection</h3>
+      <p class="mt-3 text-sm leading-relaxed">
+        S3, Chroma, Ollama wrapped in thin classes. Activities accept them via constructor.
+        Tests pass mocks; production passes real clients. No monkeypatching.
+      </p>
+    </div>
+
+    <div class="border-2 border-ink bg-paper p-6 lift">
+      <div class="display text-4xl font-light text-rust">⑥</div>
+      <h3 class="display text-xl font-medium mt-3">Fire-and-forget webhooks</h3>
+      <p class="mt-3 text-sm leading-relaxed">
+        Backend notification wrapped in <code class="inline">try/except: pass</code>.
+        Answer is already saved; the webhook is best-effort. The activity must not fail
+        on a flaky downstream.
+      </p>
+    </div>
+  </div>
+
+  <button class="expand-btn mt-10 mono text-xs uppercase tracking-widest border border-ink px-5 py-3 inline-flex items-center gap-3" data-target="exp-10" aria-expanded="false">
+    <span class="arrow">▸</span><span>The taxonomy of failures, in code</span>
+  </button>
+  <div id="exp-10" class="expandable mt-6">
+<pre class="code"><span class="com"># Permanent — DO NOT retry, hint at human action</span>
+<span class="kw">if</span> r.status_code == <span class="num">404</span>:
+    <span class="kw">raise</span> ApplicationError(
+        <span class="str">f"Embedding model '{self._embed_model}' not found. "</span>
+        <span class="str">f"Pull it with: ollama pull {self._embed_model}"</span>,
+        non_retryable=<span class="kw">True</span>,
+    )
+
+<span class="com"># Transient — let Temporal retry by policy</span>
+<span class="kw">if</span> r.status_code != <span class="num">200</span>:
+    <span class="kw">raise</span> ValueError(<span class="str">f"Ollama generate error {r.status_code}: {r.text[:200]}"</span>)
+
+<span class="com"># Best-effort — never fail the activity</span>
+<span class="kw">try</span>:
+    <span class="kw">await</span> client.post(f<span class="str">"{self._backend_url}/api/internal/query-complete"</span>, ...)
+<span class="kw">except</span> Exception:
+    activity.logger.debug(<span class="str">"Backend notification failed (non-critical)"</span>)</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 11 — REFERENCES -->
+<!-- ============================================================ -->
+<section id="sec-11" class="relative z-10 bg-ink text-cream py-24 border-t border-ink scroll-mt-24">
+  <div class="max-w-6xl mx-auto px-6 relative">
+    <div class="num-deco absolute top-8 right-6" style="color: #F2EBDB;">11</div>
+
+    <div class="grid md:grid-cols-12 gap-10 mb-12">
+      <div class="md:col-span-3">
+        <div class="mono text-xs uppercase tracking-[0.25em]" style="color:#E8B96B">Chapter XI</div>
+        <div class="display text-7xl font-light mt-2 leading-none">11</div>
+        <div class="w-12 mt-4 h-1 bg-cream"></div>
+        <p class="marginnote mt-6" style="color:#C4B89F">Where to read deeper. Primary sources only.</p>
+      </div>
+
+      <div class="md:col-span-9">
+        <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
+          References &amp; <em class="display-soft" style="color:#E8B96B">further reading</em>.
+        </h2>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-x-12 gap-y-2">
+      <!-- Temporal -->
+      <div class="border-t border-cream/30 py-5">
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Temporal</div>
+        <ul class="space-y-2 text-base">
+          <li><a href="https://docs.temporal.io/develop/python/core-application" target="_blank" rel="noopener" class="ref-link">Python SDK · Activities</a></li>
+          <li><a href="https://docs.temporal.io/encyclopedia/retry-policies" target="_blank" rel="noopener" class="ref-link">Retry policies</a></li>
+          <li><a href="https://docs.temporal.io/develop/python/failure-detection#activity-heartbeats" target="_blank" rel="noopener" class="ref-link">Heartbeats &amp; failure detection</a></li>
+          <li><a href="https://docs.temporal.io/references/errors" target="_blank" rel="noopener" class="ref-link">ApplicationError reference</a></li>
+        </ul>
+      </div>
+
+      <!-- Ollama -->
+      <div class="border-t border-cream/30 py-5">
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Ollama</div>
+        <ul class="space-y-2 text-base">
+          <li><a href="https://github.com/ollama/ollama/blob/main/docs/api.md" target="_blank" rel="noopener" class="ref-link">REST API reference</a></li>
+          <li><a href="https://github.com/ollama/ollama/blob/main/docs/api.md#generate-embeddings" target="_blank" rel="noopener" class="ref-link">/api/embed endpoint</a></li>
+          <li><a href="https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-completion" target="_blank" rel="noopener" class="ref-link">/api/generate endpoint</a></li>
+          <li><a href="https://ollama.com/library/nomic-embed-text" target="_blank" rel="noopener" class="ref-link">nomic-embed-text model card</a></li>
+        </ul>
+      </div>
+
+      <!-- ChromaDB -->
+      <div class="border-t border-cream/30 py-5">
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">ChromaDB</div>
+        <ul class="space-y-2 text-base">
+          <li><a href="https://docs.trychroma.com/" target="_blank" rel="noopener" class="ref-link">Chroma documentation</a></li>
+          <li><a href="https://docs.trychroma.com/docs/collections/configure" target="_blank" rel="noopener" class="ref-link">Collection configuration · HNSW</a></li>
+          <li><a href="https://docs.trychroma.com/docs/querying-collections/query-and-get" target="_blank" rel="noopener" class="ref-link">Querying collections</a></li>
+        </ul>
+      </div>
+
+      <!-- Algorithms -->
+      <div class="border-t border-cream/30 py-5">
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Algorithms &amp; theory</div>
+        <ul class="space-y-2 text-base">
+          <li><a href="https://arxiv.org/abs/1603.09320" target="_blank" rel="noopener" class="ref-link">HNSW paper · Malkov &amp; Yashunin (2016)</a></li>
+          <li><a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener" class="ref-link">Original RAG paper · Lewis et al. (2020)</a></li>
+          <li><a href="https://arxiv.org/abs/2402.01613" target="_blank" rel="noopener" class="ref-link">Nomic Embed · technical report</a></li>
+          <li><a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener" class="ref-link">"Lost in the Middle" · Liu et al. (2023)</a></li>
+        </ul>
+      </div>
+
+      <!-- Python libs -->
+      <div class="border-t border-cream/30 py-5">
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Python libraries used</div>
+        <ul class="space-y-2 text-base">
+          <li><a href="https://github.com/jsvine/pdfplumber" target="_blank" rel="noopener" class="ref-link">pdfplumber</a> — PDF text extraction</li>
+          <li><a href="https://python-docx.readthedocs.io/" target="_blank" rel="noopener" class="ref-link">python-docx</a> — Word documents</li>
+          <li><a href="https://openpyxl.readthedocs.io/" target="_blank" rel="noopener" class="ref-link">openpyxl</a> — Excel spreadsheets</li>
+          <li><a href="https://www.python-httpx.org/" target="_blank" rel="noopener" class="ref-link">httpx</a> — async HTTP client</li>
+          <li><a href="https://boto3.amazonaws.com/v1/documentation/api/latest/index.html" target="_blank" rel="noopener" class="ref-link">boto3</a> — S3 client</li>
+        </ul>
+      </div>
+
+      <!-- Patterns -->
+      <div class="border-t border-cream/30 py-5">
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Patterns referenced</div>
+        <ul class="space-y-2 text-base">
+          <li><a href="https://martinfowler.com/articles/injection.html" target="_blank" rel="noopener" class="ref-link">Dependency Injection · Fowler</a></li>
+          <li><a href="https://min.io/" target="_blank" rel="noopener" class="ref-link">MinIO · S3-compatible local storage</a></li>
+          <li><a href="https://github.com/nmslib/hnswlib" target="_blank" rel="noopener" class="ref-link">hnswlib · the C++ library Chroma uses</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-20 flex justify-between items-end">
+      <div>
+        <div class="mono text-xs uppercase tracking-[0.3em]" style="color:#8B7E6B">End of manual</div>
+        <p class="display text-3xl mt-3 italic font-light" style="font-variation-settings: 'SOFT' 100;">Happy retrieving.</p>
+      </div>
+      <a href="#top" class="mono text-xs uppercase tracking-widest border border-cream px-4 py-2 hover:bg-cream hover:text-ink transition">↑ Back to top</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- MODALS -->
+<!-- ============================================================ -->
+
+<!-- Reusable modal backdrop -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal-card" id="modal-card">
+    <button class="absolute top-4 right-4 mono text-xs uppercase tracking-widest border border-ink px-3 py-1.5 hover:bg-ink hover:text-cream transition" id="modal-close">Close ✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- Modal content templates (hidden) -->
+<div class="hidden">
+
+  <div id="m-user">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Component</div>
+    <h3 class="display text-3xl mt-2 font-medium">User · Frontend</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      Not part of <code class="inline">activities.py</code>, but shapes its API. The frontend
+      uploads files and writes query JSON directly to S3, then starts a Temporal workflow
+      that references the S3 key.
+    </p>
+    <p class="text-base leading-relaxed mt-3">
+      Why this indirection? It keeps the Temporal workflow's history compact — workflows
+      remember the <em>key</em>, not the bytes. A 50 MB PDF doesn't bloat the orchestration
+      database.
+    </p>
+    <div class="mt-5 bg-cream2 p-4 mono text-xs">
+      Upload: PUT s3://bucket/raw/{doc_id}.pdf<br>
+      Query:  PUT s3://bucket/query/{query_id}.json<br>
+      Then:   client.start_workflow(...)
+    </div>
+  </div>
+
+  <div id="m-temporal">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Component</div>
+    <h3 class="display text-3xl mt-2 font-medium">Temporal Worker</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      A long-running Python process that <em>polls</em> Temporal Server for activity tasks.
+      When tasks arrive, it runs the appropriate Python function and reports the result back.
+    </p>
+    <p class="text-base leading-relaxed mt-4">
+      Three properties make it special:
+    </p>
+    <ul class="list-disc ml-5 mt-2 space-y-2 text-base">
+      <li><strong>Durable.</strong> Worker crashes are recoverable. Temporal replays the
+        workflow from history, skipping completed activities.</li>
+      <li><strong>Observable.</strong> Every activity start, retry, heartbeat, and result is
+        logged in the Temporal UI.</li>
+      <li><strong>Composable.</strong> The four activities can be reused in other workflows
+        — say, a re-indexing workflow that calls <code class="inline">embed_and_store</code>
+        without the upload steps.</li>
+    </ul>
+    <div class="mt-5 tag tag-ink">activities.py registers four activities by name</div>
+  </div>
+
+  <div id="m-s3">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Component</div>
+    <h3 class="display text-3xl mt-2 font-medium">S3 / MinIO</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      Object storage. Holds three categories of blob:
+    </p>
+    <div class="mt-4 grid grid-cols-1 gap-2">
+      <div class="bg-cream2 p-3 mono text-xs"><strong>raw/{doc_id}.{ext}</strong> — original uploaded files</div>
+      <div class="bg-cream2 p-3 mono text-xs"><strong>text/{doc_id}.txt</strong> — extracted plain text</div>
+      <div class="bg-cream2 p-3 mono text-xs"><strong>query/{query_id}.json</strong> — incoming questions</div>
+      <div class="bg-cream2 p-3 mono text-xs"><strong>answer/{query_id}.json</strong> — generated answers</div>
+    </div>
+    <p class="text-base leading-relaxed mt-4">
+      <code class="inline">S3Client</code> wraps boto3 with two methods —
+      <code class="inline">get_bytes</code> and <code class="inline">put_bytes</code>. The
+      endpoint URL is configurable, so the same code talks to AWS, MinIO, or LocalStack.
+    </p>
+  </div>
+
+  <div id="m-ollama">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Component</div>
+    <h3 class="display text-3xl mt-2 font-medium">Ollama</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      A local LLM runtime. Runs models on the user's machine — no API keys, no rate limits,
+      no data leaving the host. This module talks to it via two HTTP endpoints:
+    </p>
+    <div class="mt-4 grid grid-cols-1 gap-3">
+      <div class="border-l-4 border-rust bg-cream2 p-4">
+        <div class="mono text-xs uppercase tracking-widest text-rust">/api/embed</div>
+        <p class="text-sm mt-1">Turns text into a 768-dimensional vector. Called once per chunk at upload, once per question at query.</p>
+      </div>
+      <div class="border-l-4 border-sage bg-cream2 p-4">
+        <div class="mono text-xs uppercase tracking-widest text-sage">/api/generate</div>
+        <p class="text-sm mt-1">Turns a (system + user) prompt into a natural-language answer. Called once per query.</p>
+      </div>
+    </div>
+    <p class="text-base leading-relaxed mt-4">
+      The class also handles the legacy <code class="inline">/api/embeddings</code> endpoint
+      as a fallback for older Ollama versions.
+    </p>
+    <a href="https://github.com/ollama/ollama/blob/main/docs/api.md" target="_blank" rel="noopener" class="ref-link inline-block mt-4 text-rust">→ Ollama API docs</a>
+  </div>
+
+  <div id="m-chroma">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Component</div>
+    <h3 class="display text-3xl mt-2 font-medium">ChromaDB</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      A vector database — purpose-built for storing high-dimensional embeddings and finding
+      nearest neighbors quickly.
+    </p>
+    <p class="text-base leading-relaxed mt-4">
+      One collection: <code class="inline">local_context</code>. Configured for cosine similarity:
+    </p>
+    <div class="mt-3 bg-cream2 p-4 mono text-xs">
+      metadata = {"hnsw:space": "cosine"}
+    </div>
+    <p class="text-base leading-relaxed mt-4">
+      Underneath, Chroma uses <strong>HNSW</strong> (Hierarchical Navigable Small Worlds) to
+      make nearest-neighbor lookups O(log n) instead of O(n). With 100 000 chunks, the
+      difference is "instantaneous" vs. "noticeable lag."
+    </p>
+    <a href="https://docs.trychroma.com/" target="_blank" rel="noopener" class="ref-link inline-block mt-4 text-rust">→ Chroma docs</a>
+  </div>
+
+  <div id="m-extract">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Activity 01</div>
+    <h3 class="display text-3xl mt-2 font-medium">extract_text_activity</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      Reads a file from S3 and extracts its plain-text content. Dispatches to a parser
+      based on file extension:
+    </p>
+    <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
+      <div class="bg-cream2 p-3"><span class="mono">.pdf</span> → pdfplumber</div>
+      <div class="bg-cream2 p-3"><span class="mono">.docx</span> → python-docx</div>
+      <div class="bg-cream2 p-3"><span class="mono">.xlsx</span> → openpyxl</div>
+      <div class="bg-cream2 p-3"><span class="mono">other</span> → utf-8 decode</div>
+    </div>
+    <p class="text-base leading-relaxed mt-4">
+      Output is written back to S3 at <code class="inline">text/{doc_id}.txt</code>. The
+      activity returns just the key — keeping the workflow history small.
+    </p>
+    <p class="text-base leading-relaxed mt-3">
+      Empty extraction → <code class="inline">ApplicationError(non_retryable=True)</code>.
+      No point retrying a broken PDF.
+    </p>
+    <div class="mt-5">
+      <span class="tag tag-ink">in: UploadInput</span>
+      <span class="tag tag-ink ml-2">out: ExtractResult</span>
+    </div>
+  </div>
+
+  <div id="m-chunk">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Activity 02</div>
+    <h3 class="display text-3xl mt-2 font-medium">chunk_text_activity</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      Reads the extracted text from S3 and splits it into overlapping windows.
+    </p>
+    <div class="mt-4 bg-ink text-cream p-4 mono text-xs leading-relaxed">
+      <span class="text-cream2"># sliding window</span><br>
+      chunks, i = [], 0<br>
+      <span class="text-cream2">while</span> i &lt; len(words):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;chunks.append(<span style="color:#B8C09A">" "</span>.join(words[i : i + 500]))<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;i += 500 - 100  <span class="text-cream2"># stride = 400</span>
+    </div>
+    <p class="text-base leading-relaxed mt-4">
+      The 100-word overlap is critical: a sentence at a chunk boundary still has surrounding
+      context preserved in the next chunk, so retrieval doesn't miss it.
+    </p>
+    <p class="text-base leading-relaxed mt-3">
+      Math: a 5000-word document with size=500/overlap=100 → ⌈5000/400⌉ = <strong>13 chunks</strong>.
+    </p>
+    <div class="mt-5">
+      <span class="tag tag-ink">in: s3_text_key</span>
+      <span class="tag tag-ink ml-2">out: ChunkResult</span>
+    </div>
+  </div>
+
+  <div id="m-embed">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Activity 03</div>
+    <h3 class="display text-3xl mt-2 font-medium">embed_and_store_activity</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      The expensive one. For each chunk:
+    </p>
+    <ol class="list-decimal ml-5 mt-3 space-y-2 text-base">
+      <li>Heartbeat with progress (<code class="inline">f"chunk {i+1}/{n}"</code>)</li>
+      <li>Call <code class="inline">ollama.embed(chunk)</code> → 768 floats</li>
+      <li>Build parallel arrays of ids, embeddings, metadata, documents</li>
+    </ol>
+    <p class="text-base leading-relaxed mt-4">
+      After the loop, <em>one</em> batched <code class="inline">collection.add(...)</code> call
+      writes everything to Chroma. Per-chunk inserts would be ~10× slower at scale.
+    </p>
+    <p class="text-base leading-relaxed mt-3">
+      Chunk IDs are deterministic (<code class="inline">{doc_id}_chunk_{i}</code>), so retrying
+      after a partial failure overwrites instead of duplicating.
+    </p>
+    <div class="mt-5">
+      <span class="tag tag-rust">heartbeats every iteration</span>
+    </div>
+  </div>
+
+  <div id="m-q1">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Query Step 01</div>
+    <h3 class="display text-3xl mt-2 font-medium">Load query</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      Read <code class="inline">query/{query_id}.json</code> from S3. The frontend wrote this
+      JSON before starting the workflow. Why not pass it as a workflow argument? Two reasons:
+    </p>
+    <ul class="list-disc ml-5 mt-3 space-y-2 text-base">
+      <li><strong>Compact history.</strong> Workflows store every input forever. Keeping
+        questions in S3 keeps the orchestration database lean.</li>
+      <li><strong>Larger payloads.</strong> A query might include attached context, system
+        overrides, or per-user settings — easier to evolve without bumping a workflow version.</li>
+    </ul>
+  </div>
+
+  <div id="m-q2">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Query Step 02</div>
+    <h3 class="display text-3xl mt-2 font-medium">Embed the question</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      The same <code class="inline">OllamaClient.embed()</code> used at upload time is now
+      called on the user's question. Critical: the question and the chunks must use
+      <em>the same embedding model</em>. Different models produce vectors in incompatible
+      spaces.
+    </p>
+    <p class="text-base leading-relaxed mt-3">
+      A heartbeat is fired before the call: <code class="inline">activity.heartbeat("Embedding query")</code>.
+      The Temporal UI shows this as live progress.
+    </p>
+  </div>
+
+  <div id="m-q3">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Query Step 03</div>
+    <h3 class="display text-3xl mt-2 font-medium">Retrieve neighbors</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      Ask Chroma for the 8 chunks whose vectors are nearest to the query vector
+      (<code class="inline">n_results = min(8, count)</code>). Chroma walks its HNSW index and
+      returns matches in milliseconds.
+    </p>
+    <p class="text-base leading-relaxed mt-3">
+      Then comes the per-document filter: if the user enabled only documents A and C,
+      drop any returned chunk whose <code class="inline">doc_id</code> is something else.
+    </p>
+    <p class="text-base leading-relaxed mt-3">
+      <strong>Edge cases handled:</strong> empty collection → "I do not know — no documents
+      uploaded." All-filtered-out → "I do not know — no relevant info."
+    </p>
+  </div>
+
+  <div id="m-q4">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Query Step 04</div>
+    <h3 class="display text-3xl mt-2 font-medium">Build the prompt</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      Three pieces are assembled:
+    </p>
+    <ol class="list-decimal ml-5 mt-3 space-y-2 text-base">
+      <li><strong>System prompt</strong> — persona &amp; constraints ("answer ONLY from context, say 'I do not know' otherwise").</li>
+      <li><strong>Context block</strong> — the surviving chunks joined with
+        <code class="inline">\n\n---\n\n</code>, capped at 12 000 chars.</li>
+      <li><strong>The question</strong> — verbatim, plus a final "Answer from context only:" framing line.</li>
+    </ol>
+    <p class="text-base leading-relaxed mt-4">
+      The 12 000-char cap exists because of the <em>"lost in the middle"</em> phenomenon —
+      LLMs pay less attention to information buried mid-context. Keeping context tight
+      keeps recall high.
+    </p>
+  </div>
+
+  <div id="m-q5">
+    <div class="mono text-xs uppercase tracking-widest text-rust">Query Step 05</div>
+    <h3 class="display text-3xl mt-2 font-medium">Generate the answer</h3>
+    <div class="rule mt-4 mb-5"></div>
+    <p class="text-base leading-relaxed">
+      <code class="inline">ollama.generate(model, prompt, system)</code>. Critical settings:
+    </p>
+    <ul class="list-disc ml-5 mt-3 space-y-2 text-base">
+      <li><code class="inline">temperature: 0.3</code> — low enough to suppress flowery
+        rambling, high enough to handle paraphrasing.</li>
+      <li><code class="inline">num_ctx: 4096</code> — the model's attention window. Big enough
+        for context + question + answer.</li>
+      <li><code class="inline">stream: false</code> — we want the full string, not chunks.</li>
+    </ul>
+    <p class="text-base leading-relaxed mt-4">
+      Post-processing: strip <code class="inline">&lt;think&gt;...&lt;/think&gt;</code>
+      blocks (chain-of-thought from reasoning models), cap output at 50 000 chars.
+    </p>
+    <p class="text-base leading-relaxed mt-3">
+      Final step: write <code class="inline">{query_id, answer, sources}</code> to
+      <code class="inline">s3://answer/{query_id}.json</code> and POST a fire-and-forget
+      webhook to the backend.
+    </p>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="relative z-10 max-w-6xl mx-auto px-6 py-12 mono text-xs uppercase tracking-widest text-sand flex flex-col md:flex-row justify-between gap-4 border-t border-ink">
+  <div>Field Manual № 01 · Annotated source</div>
+  <div>activities.py · 2026 edition</div>
+  <div>Set in Fraunces, Newsreader &amp; JetBrains Mono</div>
+</footer>
+
+<!-- ============================================================ -->
+<!-- JAVASCRIPT -->
+<!-- ============================================================ -->
+<script>
+(function() {
+  // ---------------------------------------------------------------
+  // Expand/collapse buttons
+  // ---------------------------------------------------------------
+  document.querySelectorAll('.expand-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var targetId = btn.getAttribute('data-target');
+      var target = document.getElementById(targetId);
+      if (!target) return;
+      var isOpen = target.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      // Update label text
+      var labelSpan = btn.querySelector('span:last-child');
+      if (labelSpan && labelSpan.dataset.openLabel === undefined) {
+        labelSpan.dataset.originalLabel = labelSpan.textContent;
+        labelSpan.dataset.openLabel = labelSpan.textContent.replace(/^(Expand|Show)/i, 'Hide').replace(/^/, function(s) {
+          return s.match(/^(Expand|Show|Hide)/i) ? '' : '';
+        });
+      }
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // Modal system
+  // ---------------------------------------------------------------
+  var backdrop = document.getElementById('modal-backdrop');
+  var modalContent = document.getElementById('modal-content');
+  var modalClose = document.getElementById('modal-close');
+
+  function openModal(id) {
+    var template = document.getElementById(id);
+    if (!template) return;
+    modalContent.innerHTML = template.innerHTML;
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(function() { modalContent.innerHTML = ''; }, 300);
+  }
+
+  // Hotspot clicks
+  document.querySelectorAll('.hotspot').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var id = el.getAttribute('data-modal');
+      openModal(id);
+    });
+  });
+
+  modalClose.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', function(e) {
+    if (e.target === backdrop) closeModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // ---------------------------------------------------------------
+  // Active TOC highlighting via IntersectionObserver
+  // ---------------------------------------------------------------
+  var sections = document.querySelectorAll('section[id^="sec-"]');
+  var tocLinks = document.querySelectorAll('#toc .toc-link');
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var id = entry.target.id;
+        tocLinks.forEach(function(link) {
+          if (link.getAttribute('href') === '#' + id) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(function(s) { observer.observe(s); });
+
+  // ---------------------------------------------------------------
+  // Smooth-scroll for TOC links is handled by CSS scroll-behavior
+  // ---------------------------------------------------------------
+})();
+</script>
+</body>
+</html>
