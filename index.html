@@ -13,15 +13,15 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        cream: '#F2EBDB',
-        cream2: '#E8DFCB',
-        ink: '#1A1410',
-        ink2: '#2C2520',
-        rust: '#B8421C',
-        rustdark: '#8E2F12',
-        sage: '#54665A',
-        sand: '#8B7E6B',
-        paper: '#FAF6EC',
+        cream: '#FFFFFF',
+        cream2: '#F4F4F4',
+        ink: '#161616',
+        ink2: '#262626',
+        rust: '#0F62FE',
+        rustdark: '#002D9C',
+        sage: '#002D9C',
+        sand: '#6F6F6F',
+        paper: '#FFFFFF',
       },
       fontFamily: {
         display: ['Fraunces', 'serif'],
@@ -35,8 +35,8 @@ tailwind.config = {
 <style>
   html { scroll-behavior: smooth; }
   body {
-    background-color: #F2EBDB;
-    color: #1A1410;
+    background-color: #FFFFFF;
+    color: #161616;
     font-family: 'Newsreader', serif;
     font-feature-settings: "ss01", "ss02";
   }
@@ -47,8 +47,7 @@ tailwind.config = {
     inset: 0;
     pointer-events: none;
     z-index: 1;
-    opacity: 0.4;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.45; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.09 0 0 0 0 0.13 0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   .display { font-family: 'Fraunces', serif; font-variation-settings: "SOFT" 30, "opsz" 144; }
   .display-soft { font-family: 'Fraunces', serif; font-variation-settings: "SOFT" 100, "opsz" 144; }
@@ -65,41 +64,41 @@ tailwind.config = {
   /* Code blocks */
   pre.code {
     font-family: 'JetBrains Mono', monospace;
-    background: #1A1410;
-    color: #E8DFCB;
+    background: #161616;
+    color: #F4F4F4;
     border-radius: 2px;
     padding: 1.25rem 1.5rem;
     overflow-x: auto;
     font-size: 0.82rem;
     line-height: 1.65;
-    border-left: 3px solid #B8421C;
+    border-left: 3px solid #0F62FE;
     position: relative;
   }
-  pre.code .kw { color: #C84B1E; }
-  pre.code .str { color: #B8C09A; }
-  pre.code .com { color: #8B7E6B; font-style: italic; }
-  pre.code .fn { color: #E8B96B; }
-  pre.code .num { color: #D4906B; }
+  pre.code .kw { color: #0043CE; }
+  pre.code .str { color: #D0E2FF; }
+  pre.code .com { color: #6F6F6F; font-style: italic; }
+  pre.code .fn { color: #A6C8FF; }
+  pre.code .num { color: #78A9FF; }
 
   /* Inline code */
   code.inline {
     font-family: 'JetBrains Mono', monospace;
-    background: #E8DFCB;
-    border: 1px solid #C4B89F;
+    background: #F4F4F4;
+    border: 1px solid #C6C6C6;
     padding: 1px 6px;
     border-radius: 2px;
     font-size: 0.85em;
-    color: #2C2520;
+    color: #262626;
   }
 
   /* Decorative rule */
   .rule {
     height: 1px;
-    background: linear-gradient(to right, transparent, #1A1410 20%, #1A1410 80%, transparent);
+    background: linear-gradient(to right, transparent, #161616 20%, #161616 80%, transparent);
   }
   .rule-thick {
     height: 4px;
-    background: #1A1410;
+    background: #161616;
   }
 
   /* Expand button */
@@ -107,8 +106,8 @@ tailwind.config = {
     transition: all 0.2s ease;
   }
   .expand-btn:hover {
-    background: #1A1410;
-    color: #F2EBDB;
+    background: #161616;
+    color: #FFFFFF;
   }
   .expand-btn .arrow {
     display: inline-block;
@@ -130,9 +129,9 @@ tailwind.config = {
 
   /* SVG hot-spots */
   .hotspot { cursor: pointer; transition: all 0.2s ease; }
-  .hotspot:hover .hotspot-fill { fill: #B8421C; }
-  .hotspot:hover .hotspot-stroke { stroke: #B8421C; stroke-width: 2.5; }
-  .hotspot:hover .hotspot-text { fill: #F2EBDB; }
+  .hotspot:hover .hotspot-fill { fill: #0F62FE; }
+  .hotspot:hover .hotspot-stroke { stroke: #0F62FE; stroke-width: 2.5; }
+  .hotspot:hover .hotspot-text { fill: #FFFFFF; }
   .hotspot-pulse {
     animation: pulse 2s infinite;
   }
@@ -145,7 +144,7 @@ tailwind.config = {
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(26, 20, 16, 0.65);
+    background: rgba(22, 22, 22, 0.55);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     z-index: 100;
@@ -161,14 +160,14 @@ tailwind.config = {
     opacity: 1;
   }
   .modal-card {
-    background: #FAF6EC;
+    background: #FFFFFF;
     max-width: 720px;
     width: 100%;
     max-height: 85vh;
     overflow-y: auto;
     padding: 2.5rem;
     border-radius: 2px;
-    box-shadow: 0 30px 80px -20px rgba(26, 20, 16, 0.4), 0 0 0 1px #1A1410;
+    box-shadow: 0 30px 80px -20px rgba(22, 22, 22, 0.25), 0 0 0 1px #161616;
     transform: translateY(20px);
     transition: transform 0.3s ease;
     position: relative;
@@ -201,15 +200,15 @@ tailwind.config = {
     transform: translateY(-50%);
     width: 6px;
     height: 1px;
-    background: #8B7E6B;
+    background: #6F6F6F;
     transition: all 0.2s ease;
   }
   .toc-link.active::before {
     width: 14px;
-    background: #B8421C;
+    background: #0F62FE;
   }
   .toc-link.active {
-    color: #B8421C;
+    color: #0F62FE;
     font-weight: 600;
   }
 
@@ -228,63 +227,63 @@ tailwind.config = {
   .tag {
     display: inline-block;
     padding: 3px 10px;
-    border: 1px solid #1A1410;
+    border: 1px solid #161616;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border-radius: 2px;
   }
-  .tag-rust { background: #B8421C; color: #F2EBDB; border-color: #B8421C; }
-  .tag-sage { background: #54665A; color: #F2EBDB; border-color: #54665A; }
-  .tag-ink { background: #1A1410; color: #F2EBDB; border-color: #1A1410; }
-  .tag-outline { background: transparent; color: #1A1410; }
+  .tag-rust { background: #0F62FE; color: #FFFFFF; border-color: #0F62FE; }
+  .tag-sage { background: #002D9C; color: #FFFFFF; border-color: #002D9C; }
+  .tag-ink { background: #161616; color: #FFFFFF; border-color: #161616; }
+  .tag-outline { background: transparent; color: #161616; }
 
   /* Margin notes */
   .marginnote {
     font-family: 'Newsreader', serif;
     font-style: italic;
     font-size: 0.85rem;
-    color: #6B5F4F;
+    color: #525252;
     line-height: 1.5;
   }
 
   /* Custom scrollbar */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: #E8DFCB; }
-  ::-webkit-scrollbar-thumb { background: #8B7E6B; border-radius: 0; }
-  ::-webkit-scrollbar-thumb:hover { background: #1A1410; }
+  ::-webkit-scrollbar-track { background: #F4F4F4; }
+  ::-webkit-scrollbar-thumb { background: #6F6F6F; border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: #161616; }
 
   /* Selection */
-  ::selection { background: #B8421C; color: #F2EBDB; }
+  ::selection { background: #0F62FE; color: #FFFFFF; }
 
   /* Reference list */
   .ref-link {
-    border-bottom: 1px solid #8B7E6B;
+    border-bottom: 1px solid #6F6F6F;
     transition: all 0.2s ease;
   }
   .ref-link:hover {
-    border-bottom-color: #B8421C;
-    color: #B8421C;
+    border-bottom-color: #0F62FE;
+    color: #0F62FE;
   }
 
   /* Diagram label */
   .dlabel {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
-    fill: #1A1410;
+    fill: #161616;
     letter-spacing: 0.04em;
   }
   .dlabel-sub {
     font-family: 'Newsreader', serif;
     font-style: italic;
     font-size: 11px;
-    fill: #6B5F4F;
+    fill: #525252;
   }
 
   /* Hover lift */
   .lift { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-  .lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(26, 20, 16, 0.25); }
+  .lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -8px rgba(22, 22, 22, 0.18); }
 
   /* Section number deco */
   .num-deco {
@@ -294,7 +293,7 @@ tailwind.config = {
     font-size: clamp(8rem, 20vw, 16rem);
     line-height: 0.85;
     letter-spacing: -0.06em;
-    color: #1A1410;
+    color: #161616;
     opacity: 0.07;
     user-select: none;
     pointer-events: none;
@@ -309,7 +308,7 @@ tailwind.config = {
     font-size: 0.78rem;
     line-height: 1.2;
     white-space: pre;
-    color: #1A1410;
+    color: #161616;
   }
 
   @media (max-width: 768px) {
@@ -355,13 +354,13 @@ tailwind.config = {
         <defs>
           <path id="circle" d="M 100,100 m -75,0 a 75,75 0 1,1 150,0 a 75,75 0 1,1 -150,0" />
         </defs>
-        <circle cx="100" cy="100" r="88" fill="none" stroke="#1A1410" stroke-width="1"/>
-        <circle cx="100" cy="100" r="62" fill="none" stroke="#1A1410" stroke-width="1"/>
-        <text class="mono" font-size="11" fill="#1A1410" letter-spacing="3">
+        <circle cx="100" cy="100" r="88" fill="none" stroke="#161616" stroke-width="1"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="#161616" stroke-width="1"/>
+        <text class="mono" font-size="11" fill="#161616" letter-spacing="3">
           <textPath href="#circle">RETRIEVAL · AUGMENTATION · GENERATION · </textPath>
         </text>
-        <text x="100" y="95" text-anchor="middle" class="display" font-size="22" fill="#B8421C" font-weight="600">RAG</text>
-        <text x="100" y="115" text-anchor="middle" class="mono" font-size="9" fill="#1A1410">v.4.7</text>
+        <text x="100" y="95" text-anchor="middle" class="display" font-size="22" fill="#0F62FE" font-weight="600">RAG</text>
+        <text x="100" y="115" text-anchor="middle" class="mono" font-size="9" fill="#161616">v.4.7</text>
       </svg>
     </div>
   </div>
@@ -537,96 +536,96 @@ tailwind.config = {
       <!-- Background grid -->
       <defs>
         <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#8B7E6B" stroke-width="0.3" opacity="0.3"/>
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#6F6F6F" stroke-width="0.3" opacity="0.3"/>
         </pattern>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A1410"/>
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#161616"/>
         </marker>
         <marker id="arrow-rust" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#B8421C"/>
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#0F62FE"/>
         </marker>
       </defs>
       <rect width="880" height="480" fill="url(#grid)"/>
 
       <!-- USER on left -->
       <g class="hotspot" data-modal="m-user">
-        <rect class="hotspot-fill" x="20" y="200" width="100" height="80" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="20" y="200" width="100" height="80" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="70" y="232" text-anchor="middle" class="dlabel" font-weight="700">USER</text>
         <text x="70" y="250" text-anchor="middle" class="dlabel-sub">browser/CLI</text>
-        <circle cx="108" cy="208" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="108" cy="208" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- TEMPORAL WORKER (center, large) -->
       <g class="hotspot" data-modal="m-temporal">
-        <rect class="hotspot-fill" x="220" y="80" width="280" height="320" fill="#F2EBDB" stroke="#1A1410" stroke-width="2" stroke-dasharray="0"/>
+        <rect class="hotspot-fill" x="220" y="80" width="280" height="320" fill="#FFFFFF" stroke="#161616" stroke-width="2" stroke-dasharray="0"/>
         <text x="360" y="105" text-anchor="middle" class="dlabel" font-weight="700">TEMPORAL WORKER</text>
         <text x="360" y="120" text-anchor="middle" class="dlabel-sub">activities.py</text>
-        <line x1="240" y1="135" x2="480" y2="135" stroke="#1A1410" stroke-width="0.5"/>
+        <line x1="240" y1="135" x2="480" y2="135" stroke="#161616" stroke-width="0.5"/>
 
         <!-- Activity boxes inside -->
-        <rect x="240" y="150" width="240" height="42" fill="#FAF6EC" stroke="#1A1410" stroke-width="1"/>
+        <rect x="240" y="150" width="240" height="42" fill="#FFFFFF" stroke="#161616" stroke-width="1"/>
         <text x="252" y="170" class="dlabel">extract_text_activity</text>
         <text x="252" y="184" class="dlabel-sub">PDF/DOCX/XLSX → text</text>
 
-        <rect x="240" y="200" width="240" height="42" fill="#FAF6EC" stroke="#1A1410" stroke-width="1"/>
+        <rect x="240" y="200" width="240" height="42" fill="#FFFFFF" stroke="#161616" stroke-width="1"/>
         <text x="252" y="220" class="dlabel">chunk_text_activity</text>
         <text x="252" y="234" class="dlabel-sub">sliding window 500w / 100w overlap</text>
 
-        <rect x="240" y="250" width="240" height="42" fill="#FAF6EC" stroke="#1A1410" stroke-width="1"/>
+        <rect x="240" y="250" width="240" height="42" fill="#FFFFFF" stroke="#161616" stroke-width="1"/>
         <text x="252" y="270" class="dlabel">embed_and_store_activity</text>
         <text x="252" y="284" class="dlabel-sub">N chunks → N vectors → Chroma</text>
 
-        <rect x="240" y="300" width="240" height="42" fill="#FAF6EC" stroke="#B8421C" stroke-width="1.5"/>
-        <text x="252" y="320" class="dlabel" fill="#B8421C">execute_query_activity</text>
+        <rect x="240" y="300" width="240" height="42" fill="#FFFFFF" stroke="#0F62FE" stroke-width="1.5"/>
+        <text x="252" y="320" class="dlabel" fill="#0F62FE">execute_query_activity</text>
         <text x="252" y="334" class="dlabel-sub">RAG: embed→retrieve→generate</text>
 
         <text x="360" y="372" text-anchor="middle" class="dlabel-sub">heartbeats · retries · DI seams</text>
-        <circle cx="488" cy="92" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="488" cy="92" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- S3 (top right) -->
       <g class="hotspot" data-modal="m-s3">
-        <rect class="hotspot-fill" x="600" y="60" width="200" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="600" y="60" width="200" height="100" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="700" y="92" text-anchor="middle" class="dlabel" font-weight="700">S3 / MinIO</text>
         <text x="700" y="112" text-anchor="middle" class="dlabel-sub">raw/{doc}.pdf</text>
         <text x="700" y="128" text-anchor="middle" class="dlabel-sub">text/{doc}.txt</text>
         <text x="700" y="144" text-anchor="middle" class="dlabel-sub">answer/{q}.json</text>
-        <circle cx="788" cy="68" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="788" cy="68" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- Ollama (middle right) -->
       <g class="hotspot" data-modal="m-ollama">
-        <rect class="hotspot-fill" x="600" y="200" width="200" height="80" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="600" y="200" width="200" height="80" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="700" y="230" text-anchor="middle" class="dlabel" font-weight="700">OLLAMA</text>
         <text x="700" y="248" text-anchor="middle" class="dlabel-sub">/api/embed</text>
         <text x="700" y="264" text-anchor="middle" class="dlabel-sub">/api/generate</text>
-        <circle cx="788" cy="208" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="788" cy="208" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- ChromaDB (bottom right) -->
       <g class="hotspot" data-modal="m-chroma">
-        <rect class="hotspot-fill" x="600" y="320" width="200" height="80" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="600" y="320" width="200" height="80" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="700" y="350" text-anchor="middle" class="dlabel" font-weight="700">CHROMADB</text>
         <text x="700" y="368" text-anchor="middle" class="dlabel-sub">collection: local_context</text>
         <text x="700" y="384" text-anchor="middle" class="dlabel-sub">HNSW · cosine</text>
-        <circle cx="788" cy="328" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="788" cy="328" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- Connections -->
       <!-- User <-> Worker -->
-      <line x1="120" y1="240" x2="218" y2="240" stroke="#1A1410" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="120" y1="240" x2="218" y2="240" stroke="#161616" stroke-width="1.5" marker-end="url(#arrow)"/>
       <text x="155" y="232" class="dlabel-sub">upload/query</text>
 
       <!-- Worker -> S3 -->
-      <line x1="500" y1="170" x2="598" y2="100" stroke="#1A1410" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
+      <line x1="500" y1="170" x2="598" y2="100" stroke="#161616" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
       <text x="525" y="118" class="dlabel-sub">read/write</text>
 
       <!-- Worker <-> Ollama (rust to highlight) -->
-      <line x1="500" y1="240" x2="598" y2="240" stroke="#B8421C" stroke-width="2" marker-end="url(#arrow-rust)"/>
-      <text x="528" y="234" class="dlabel-sub" fill="#B8421C">HTTP</text>
+      <line x1="500" y1="240" x2="598" y2="240" stroke="#0F62FE" stroke-width="2" marker-end="url(#arrow-rust)"/>
+      <text x="528" y="234" class="dlabel-sub" fill="#0F62FE">HTTP</text>
 
       <!-- Worker -> Chroma -->
-      <line x1="500" y1="310" x2="598" y2="360" stroke="#1A1410" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
+      <line x1="500" y1="310" x2="598" y2="360" stroke="#161616" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
       <text x="528" y="345" class="dlabel-sub">add/query</text>
 
       <!-- Caption -->
@@ -681,11 +680,11 @@ tailwind.config = {
       <!-- Mini SVG -->
       <svg viewBox="0 0 380 90" class="w-full mt-5">
         <g>
-          <rect x="0" y="40" width="380" height="14" fill="#E8DFCB" stroke="#1A1410" stroke-width="0.5"/>
-          <rect x="0" y="40" width="100" height="14" fill="#B8421C" opacity="0.7"/>
-          <rect x="80" y="56" width="100" height="14" fill="#54665A" opacity="0.7"/>
-          <rect x="160" y="40" width="100" height="14" fill="#B8421C" opacity="0.7"/>
-          <rect x="240" y="56" width="100" height="14" fill="#54665A" opacity="0.7"/>
+          <rect x="0" y="40" width="380" height="14" fill="#F4F4F4" stroke="#161616" stroke-width="0.5"/>
+          <rect x="0" y="40" width="100" height="14" fill="#0F62FE" opacity="0.7"/>
+          <rect x="80" y="56" width="100" height="14" fill="#002D9C" opacity="0.7"/>
+          <rect x="160" y="40" width="100" height="14" fill="#0F62FE" opacity="0.7"/>
+          <rect x="240" y="56" width="100" height="14" fill="#002D9C" opacity="0.7"/>
           <text x="0" y="30" class="dlabel">words →</text>
           <text x="0" y="86" class="dlabel-sub" font-size="9">overlap = 100 words → context preserved at boundaries</text>
         </g>
@@ -727,19 +726,19 @@ tailwind.config = {
 
       <svg viewBox="0 0 380 110" class="w-full mt-5">
         <g transform="translate(190, 95)">
-          <line x1="0" y1="0" x2="0" y2="-90" stroke="#8B7E6B" stroke-width="0.5"/>
-          <line x1="-180" y1="0" x2="180" y2="0" stroke="#8B7E6B" stroke-width="0.5"/>
+          <line x1="0" y1="0" x2="0" y2="-90" stroke="#6F6F6F" stroke-width="0.5"/>
+          <line x1="-180" y1="0" x2="180" y2="0" stroke="#6F6F6F" stroke-width="0.5"/>
 
           <!-- Vectors -->
-          <line x1="0" y1="0" x2="120" y2="-60" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow)"/>
-          <line x1="0" y1="0" x2="100" y2="-70" stroke="#B8421C" stroke-width="2" marker-end="url(#arrow-rust)"/>
+          <line x1="0" y1="0" x2="120" y2="-60" stroke="#161616" stroke-width="2" marker-end="url(#arrow)"/>
+          <line x1="0" y1="0" x2="100" y2="-70" stroke="#0F62FE" stroke-width="2" marker-end="url(#arrow-rust)"/>
 
           <!-- Angle arc -->
-          <path d="M 30 -15 A 33 33 0 0 1 22 -22" fill="none" stroke="#54665A" stroke-width="1.2"/>
-          <text x="40" y="-20" class="dlabel-sub" fill="#54665A">θ</text>
+          <path d="M 30 -15 A 33 33 0 0 1 22 -22" fill="none" stroke="#002D9C" stroke-width="1.2"/>
+          <text x="40" y="-20" class="dlabel-sub" fill="#002D9C">θ</text>
 
           <text x="125" y="-65" class="dlabel">query</text>
-          <text x="105" y="-78" class="dlabel" fill="#B8421C">chunk</text>
+          <text x="105" y="-78" class="dlabel" fill="#0F62FE">chunk</text>
           <text x="-180" y="-72" class="dlabel-sub" font-size="9">cos(θ) = a·b ÷ (‖a‖·‖b‖)</text>
         </g>
       </svg>
@@ -783,39 +782,39 @@ tailwind.config = {
         <!-- HNSW layered graph -->
         <g>
           <text x="0" y="14" class="dlabel-sub">layer 2 (sparse)</text>
-          <circle cx="80" cy="20" r="4" fill="#1A1410"/>
-          <circle cx="240" cy="20" r="4" fill="#1A1410"/>
-          <line x1="80" y1="20" x2="240" y2="20" stroke="#1A1410" stroke-width="0.6"/>
+          <circle cx="80" cy="20" r="4" fill="#161616"/>
+          <circle cx="240" cy="20" r="4" fill="#161616"/>
+          <line x1="80" y1="20" x2="240" y2="20" stroke="#161616" stroke-width="0.6"/>
 
           <text x="0" y="54" class="dlabel-sub">layer 1</text>
-          <circle cx="60" cy="60" r="3.5" fill="#54665A"/>
-          <circle cx="140" cy="60" r="3.5" fill="#54665A"/>
-          <circle cx="220" cy="60" r="3.5" fill="#54665A"/>
-          <circle cx="300" cy="60" r="3.5" fill="#54665A"/>
-          <line x1="60" y1="60" x2="140" y2="60" stroke="#54665A" stroke-width="0.6"/>
-          <line x1="140" y1="60" x2="220" y2="60" stroke="#54665A" stroke-width="0.6"/>
-          <line x1="220" y1="60" x2="300" y2="60" stroke="#54665A" stroke-width="0.6"/>
-          <line x1="80" y1="20" x2="60" y2="60" stroke="#1A1410" stroke-width="0.4" stroke-dasharray="2 2"/>
-          <line x1="240" y1="20" x2="220" y2="60" stroke="#1A1410" stroke-width="0.4" stroke-dasharray="2 2"/>
+          <circle cx="60" cy="60" r="3.5" fill="#002D9C"/>
+          <circle cx="140" cy="60" r="3.5" fill="#002D9C"/>
+          <circle cx="220" cy="60" r="3.5" fill="#002D9C"/>
+          <circle cx="300" cy="60" r="3.5" fill="#002D9C"/>
+          <line x1="60" y1="60" x2="140" y2="60" stroke="#002D9C" stroke-width="0.6"/>
+          <line x1="140" y1="60" x2="220" y2="60" stroke="#002D9C" stroke-width="0.6"/>
+          <line x1="220" y1="60" x2="300" y2="60" stroke="#002D9C" stroke-width="0.6"/>
+          <line x1="80" y1="20" x2="60" y2="60" stroke="#161616" stroke-width="0.4" stroke-dasharray="2 2"/>
+          <line x1="240" y1="20" x2="220" y2="60" stroke="#161616" stroke-width="0.4" stroke-dasharray="2 2"/>
 
           <text x="0" y="94" class="dlabel-sub">layer 0 (dense, all nodes)</text>
-          <g fill="#B8421C">
+          <g fill="#0F62FE">
             <circle cx="40" cy="100" r="3"/><circle cx="80" cy="100" r="3"/>
             <circle cx="120" cy="100" r="3"/><circle cx="160" cy="100" r="3"/>
             <circle cx="200" cy="100" r="3"/><circle cx="240" cy="100" r="3"/>
             <circle cx="280" cy="100" r="3"/><circle cx="320" cy="100" r="3"/>
           </g>
-          <line x1="40" y1="100" x2="80" y2="100" stroke="#B8421C" stroke-width="0.5"/>
-          <line x1="80" y1="100" x2="120" y2="100" stroke="#B8421C" stroke-width="0.5"/>
-          <line x1="120" y1="100" x2="160" y2="100" stroke="#B8421C" stroke-width="0.5"/>
-          <line x1="160" y1="100" x2="200" y2="100" stroke="#B8421C" stroke-width="0.5"/>
-          <line x1="200" y1="100" x2="240" y2="100" stroke="#B8421C" stroke-width="0.5"/>
-          <line x1="60" y1="60" x2="40" y2="100" stroke="#54665A" stroke-width="0.4" stroke-dasharray="2 2"/>
-          <line x1="140" y1="60" x2="160" y2="100" stroke="#54665A" stroke-width="0.4" stroke-dasharray="2 2"/>
+          <line x1="40" y1="100" x2="80" y2="100" stroke="#0F62FE" stroke-width="0.5"/>
+          <line x1="80" y1="100" x2="120" y2="100" stroke="#0F62FE" stroke-width="0.5"/>
+          <line x1="120" y1="100" x2="160" y2="100" stroke="#0F62FE" stroke-width="0.5"/>
+          <line x1="160" y1="100" x2="200" y2="100" stroke="#0F62FE" stroke-width="0.5"/>
+          <line x1="200" y1="100" x2="240" y2="100" stroke="#0F62FE" stroke-width="0.5"/>
+          <line x1="60" y1="60" x2="40" y2="100" stroke="#002D9C" stroke-width="0.4" stroke-dasharray="2 2"/>
+          <line x1="140" y1="60" x2="160" y2="100" stroke="#002D9C" stroke-width="0.4" stroke-dasharray="2 2"/>
 
           <!-- Search path -->
-          <path d="M 80 20 L 60 60 L 40 100" stroke="#B8421C" stroke-width="2" fill="none" opacity="0.4"/>
-          <text x="335" y="112" class="dlabel-sub" fill="#B8421C">search ↓</text>
+          <path d="M 80 20 L 60 60 L 40 100" stroke="#0F62FE" stroke-width="2" fill="none" opacity="0.4"/>
+          <text x="335" y="112" class="dlabel-sub" fill="#0F62FE">search ↓</text>
         </g>
       </svg>
 
@@ -858,22 +857,22 @@ tailwind.config = {
 
       <svg viewBox="0 0 380 110" class="w-full mt-5">
         <g>
-          <rect x="0" y="35" width="80" height="40" fill="#E8DFCB" stroke="#1A1410"/>
+          <rect x="0" y="35" width="80" height="40" fill="#F4F4F4" stroke="#161616"/>
           <text x="40" y="58" text-anchor="middle" class="dlabel">"warranty"</text>
 
-          <line x1="80" y1="55" x2="125" y2="55" stroke="#1A1410" stroke-width="1" marker-end="url(#arrow)"/>
+          <line x1="80" y1="55" x2="125" y2="55" stroke="#161616" stroke-width="1" marker-end="url(#arrow)"/>
 
-          <rect x="125" y="35" width="120" height="40" fill="#1A1410"/>
-          <text x="185" y="55" text-anchor="middle" class="dlabel" fill="#F2EBDB">nomic-embed</text>
-          <text x="185" y="68" text-anchor="middle" class="dlabel-sub" fill="#8B7E6B">transformer</text>
+          <rect x="125" y="35" width="120" height="40" fill="#161616"/>
+          <text x="185" y="55" text-anchor="middle" class="dlabel" fill="#FFFFFF">nomic-embed</text>
+          <text x="185" y="68" text-anchor="middle" class="dlabel-sub" fill="#6F6F6F">transformer</text>
 
-          <line x1="245" y1="55" x2="290" y2="55" stroke="#1A1410" stroke-width="1" marker-end="url(#arrow)"/>
+          <line x1="245" y1="55" x2="290" y2="55" stroke="#161616" stroke-width="1" marker-end="url(#arrow)"/>
 
-          <rect x="290" y="20" width="90" height="70" fill="#FAF6EC" stroke="#1A1410"/>
+          <rect x="290" y="20" width="90" height="70" fill="#FFFFFF" stroke="#161616"/>
           <text x="335" y="34" text-anchor="middle" class="dlabel-sub" font-size="9">[</text>
-          <text x="335" y="46" text-anchor="middle" class="mono" font-size="9" fill="#B8421C">0.012,</text>
-          <text x="335" y="58" text-anchor="middle" class="mono" font-size="9" fill="#B8421C">−0.034,</text>
-          <text x="335" y="70" text-anchor="middle" class="mono" font-size="9" fill="#B8421C">0.567, …</text>
+          <text x="335" y="46" text-anchor="middle" class="mono" font-size="9" fill="#0F62FE">0.012,</text>
+          <text x="335" y="58" text-anchor="middle" class="mono" font-size="9" fill="#0F62FE">−0.034,</text>
+          <text x="335" y="70" text-anchor="middle" class="mono" font-size="9" fill="#0F62FE">0.567, …</text>
           <text x="335" y="82" text-anchor="middle" class="dlabel-sub" font-size="9">] (768 floats)</text>
         </g>
       </svg>
@@ -942,61 +941,61 @@ tailwind.config = {
     <svg viewBox="0 0 880 280" class="w-full h-auto" id="upload-svg">
       <defs>
         <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A1410"/>
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#161616"/>
         </marker>
       </defs>
 
       <!-- Step 1: extract -->
       <g class="hotspot" data-modal="m-extract">
-        <rect class="hotspot-fill" x="40" y="80" width="180" height="120" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="40" y="80" width="180" height="120" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="58" y="105" class="dlabel" font-weight="700">01 · EXTRACT</text>
-        <line x1="58" y1="115" x2="200" y2="115" stroke="#1A1410" stroke-width="0.4"/>
+        <line x1="58" y1="115" x2="200" y2="115" stroke="#161616" stroke-width="0.4"/>
         <text x="58" y="135" class="dlabel-sub">in: s3_raw_key</text>
         <text x="58" y="152" class="dlabel-sub">out: s3_text_key</text>
         <text x="58" y="172" class="dlabel-sub">pdfplumber, python-docx,</text>
         <text x="58" y="186" class="dlabel-sub">openpyxl, plain</text>
-        <circle cx="208" cy="88" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="208" cy="88" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- arrow 1->2 -->
-      <line x1="220" y1="140" x2="258" y2="140" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+      <line x1="220" y1="140" x2="258" y2="140" stroke="#161616" stroke-width="2" marker-end="url(#arrow2)"/>
 
       <!-- Step 2: chunk -->
       <g class="hotspot" data-modal="m-chunk">
-        <rect class="hotspot-fill" x="260" y="80" width="180" height="120" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="260" y="80" width="180" height="120" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="278" y="105" class="dlabel" font-weight="700">02 · CHUNK</text>
-        <line x1="278" y1="115" x2="420" y2="115" stroke="#1A1410" stroke-width="0.4"/>
+        <line x1="278" y1="115" x2="420" y2="115" stroke="#161616" stroke-width="0.4"/>
         <text x="278" y="135" class="dlabel-sub">in: s3_text_key</text>
         <text x="278" y="152" class="dlabel-sub">out: List[str]</text>
         <text x="278" y="172" class="dlabel-sub">size = 500 words</text>
         <text x="278" y="186" class="dlabel-sub">overlap = 100 words</text>
-        <circle cx="428" cy="88" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="428" cy="88" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- arrow 2->3 -->
-      <line x1="440" y1="140" x2="478" y2="140" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+      <line x1="440" y1="140" x2="478" y2="140" stroke="#161616" stroke-width="2" marker-end="url(#arrow2)"/>
 
       <!-- Step 3: embed & store -->
       <g class="hotspot" data-modal="m-embed">
-        <rect class="hotspot-fill" x="480" y="80" width="220" height="120" fill="#F2EBDB" stroke="#B8421C" stroke-width="2"/>
-        <text x="498" y="105" class="dlabel" font-weight="700" fill="#B8421C">03 · EMBED &amp; STORE</text>
-        <line x1="498" y1="115" x2="680" y2="115" stroke="#1A1410" stroke-width="0.4"/>
+        <rect class="hotspot-fill" x="480" y="80" width="220" height="120" fill="#FFFFFF" stroke="#0F62FE" stroke-width="2"/>
+        <text x="498" y="105" class="dlabel" font-weight="700" fill="#0F62FE">03 · EMBED &amp; STORE</text>
+        <line x1="498" y1="115" x2="680" y2="115" stroke="#161616" stroke-width="0.4"/>
         <text x="498" y="135" class="dlabel-sub">for chunk in chunks:</text>
         <text x="510" y="150" class="dlabel-sub">vec = ollama.embed()</text>
         <text x="510" y="165" class="dlabel-sub">heartbeat()</text>
         <text x="498" y="183" class="dlabel-sub">collection.add(...)  ← batch</text>
-        <circle cx="688" cy="88" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="688" cy="88" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- arrow 3 -> Chroma + Ollama -->
-      <line x1="700" y1="120" x2="780" y2="60" stroke="#1A1410" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
-      <line x1="700" y1="160" x2="780" y2="220" stroke="#1A1410" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
+      <line x1="700" y1="120" x2="780" y2="60" stroke="#161616" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
+      <line x1="700" y1="160" x2="780" y2="220" stroke="#161616" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
 
-      <rect x="780" y="40" width="80" height="44" fill="#E8DFCB" stroke="#1A1410" stroke-width="1"/>
+      <rect x="780" y="40" width="80" height="44" fill="#F4F4F4" stroke="#161616" stroke-width="1"/>
       <text x="820" y="58" text-anchor="middle" class="dlabel" font-weight="700">OLLAMA</text>
       <text x="820" y="74" text-anchor="middle" class="dlabel-sub">/api/embed</text>
 
-      <rect x="780" y="200" width="80" height="44" fill="#E8DFCB" stroke="#1A1410" stroke-width="1"/>
+      <rect x="780" y="200" width="80" height="44" fill="#F4F4F4" stroke="#161616" stroke-width="1"/>
       <text x="820" y="218" text-anchor="middle" class="dlabel" font-weight="700">CHROMA</text>
       <text x="820" y="234" text-anchor="middle" class="dlabel-sub">add()</text>
 
@@ -1040,21 +1039,21 @@ tailwind.config = {
 <!-- ============================================================ -->
 <section id="sec-5" class="relative z-10 bg-ink text-cream py-24 border-t border-ink">
   <div class="max-w-6xl mx-auto px-6 relative scroll-mt-24">
-    <div class="num-deco absolute top-8 right-6" style="color: #F2EBDB;">05</div>
+    <div class="num-deco absolute top-8 right-6" style="color: #FFFFFF;">05</div>
 
     <div class="grid md:grid-cols-12 gap-10 mb-12">
       <div class="md:col-span-3">
-        <div class="mono text-xs uppercase tracking-[0.25em]" style="color:#E8B96B">Chapter V</div>
+        <div class="mono text-xs uppercase tracking-[0.25em]" style="color:#A6C8FF">Chapter V</div>
         <div class="display text-7xl font-light mt-2 leading-none">05</div>
         <div class="w-12 mt-4 h-1 bg-cream"></div>
-        <p class="marginnote mt-6" style="color:#C4B89F">A short interlude on <em>what numbers can know</em>.</p>
+        <p class="marginnote mt-6" style="color:#C6C6C6">A short interlude on <em>what numbers can know</em>.</p>
       </div>
 
       <div class="md:col-span-9">
         <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
-          What an <em class="display-soft" style="color:#E8B96B">embedding</em> is.
+          What an <em class="display-soft" style="color:#A6C8FF">embedding</em> is.
         </h2>
-        <p class="mt-8 text-lg leading-relaxed max-w-2xl" style="color:#E8DFCB">
+        <p class="mt-8 text-lg leading-relaxed max-w-2xl" style="color:#F4F4F4">
           An embedding is a list of numbers — typically 768 of them — that captures what
           a piece of text <em>means</em>. Two passages that say the same thing using different
           words land near each other; two passages that disagree point in different directions.
@@ -1068,53 +1067,53 @@ tailwind.config = {
       <svg viewBox="0 0 400 300" class="w-full h-auto">
         <!-- 2D projection of "vector space" -->
         <g>
-          <line x1="40" y1="260" x2="380" y2="260" stroke="#8B7E6B" stroke-width="0.5"/>
-          <line x1="40" y1="40" x2="40" y2="260" stroke="#8B7E6B" stroke-width="0.5"/>
-          <text x="380" y="278" class="dlabel-sub" fill="#8B7E6B" text-anchor="end">dim 1</text>
-          <text x="20" y="40" class="dlabel-sub" fill="#8B7E6B">dim 2</text>
+          <line x1="40" y1="260" x2="380" y2="260" stroke="#6F6F6F" stroke-width="0.5"/>
+          <line x1="40" y1="40" x2="40" y2="260" stroke="#6F6F6F" stroke-width="0.5"/>
+          <text x="380" y="278" class="dlabel-sub" fill="#6F6F6F" text-anchor="end">dim 1</text>
+          <text x="20" y="40" class="dlabel-sub" fill="#6F6F6F">dim 2</text>
 
           <!-- Cluster: warranty -->
-          <circle cx="120" cy="100" r="6" fill="#E8B96B"/>
-          <text x="135" y="105" class="dlabel" fill="#F2EBDB">"warranty period is 24 months"</text>
-          <circle cx="135" cy="125" r="5" fill="#E8B96B"/>
-          <text x="150" y="130" class="dlabel-sub" fill="#C4B89F">"coverage lasts two years"</text>
-          <circle cx="105" cy="135" r="5" fill="#E8B96B"/>
-          <text x="120" y="140" class="dlabel-sub" fill="#C4B89F">"valid for 730 days"</text>
-          <ellipse cx="125" cy="120" rx="55" ry="35" fill="none" stroke="#E8B96B" stroke-width="0.6" stroke-dasharray="3 2"/>
+          <circle cx="120" cy="100" r="6" fill="#A6C8FF"/>
+          <text x="135" y="105" class="dlabel" fill="#FFFFFF">"warranty period is 24 months"</text>
+          <circle cx="135" cy="125" r="5" fill="#A6C8FF"/>
+          <text x="150" y="130" class="dlabel-sub" fill="#C6C6C6">"coverage lasts two years"</text>
+          <circle cx="105" cy="135" r="5" fill="#A6C8FF"/>
+          <text x="120" y="140" class="dlabel-sub" fill="#C6C6C6">"valid for 730 days"</text>
+          <ellipse cx="125" cy="120" rx="55" ry="35" fill="none" stroke="#A6C8FF" stroke-width="0.6" stroke-dasharray="3 2"/>
 
           <!-- Cluster: shipping -->
-          <circle cx="280" cy="200" r="6" fill="#B8421C"/>
-          <text x="195" y="205" class="dlabel" fill="#F2EBDB" text-anchor="end">"shipping takes 3-5 days"</text>
-          <circle cx="295" cy="220" r="5" fill="#B8421C"/>
-          <text x="210" y="225" class="dlabel-sub" fill="#C4B89F" text-anchor="end">"delivered within a week"</text>
-          <ellipse cx="288" cy="210" rx="48" ry="30" fill="none" stroke="#B8421C" stroke-width="0.6" stroke-dasharray="3 2"/>
+          <circle cx="280" cy="200" r="6" fill="#0F62FE"/>
+          <text x="195" y="205" class="dlabel" fill="#FFFFFF" text-anchor="end">"shipping takes 3-5 days"</text>
+          <circle cx="295" cy="220" r="5" fill="#0F62FE"/>
+          <text x="210" y="225" class="dlabel-sub" fill="#C6C6C6" text-anchor="end">"delivered within a week"</text>
+          <ellipse cx="288" cy="210" rx="48" ry="30" fill="none" stroke="#0F62FE" stroke-width="0.6" stroke-dasharray="3 2"/>
 
           <!-- Query vector -->
-          <circle cx="115" cy="115" r="9" fill="none" stroke="#F2EBDB" stroke-width="2"/>
-          <text x="55" y="80" class="dlabel" fill="#F2EBDB">? "how long is the warranty"</text>
-          <line x1="60" y1="85" x2="110" y2="110" stroke="#F2EBDB" stroke-width="0.6" stroke-dasharray="2 2"/>
+          <circle cx="115" cy="115" r="9" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+          <text x="55" y="80" class="dlabel" fill="#FFFFFF">? "how long is the warranty"</text>
+          <line x1="60" y1="85" x2="110" y2="110" stroke="#FFFFFF" stroke-width="0.6" stroke-dasharray="2 2"/>
         </g>
       </svg>
 
       <div>
-        <p class="text-base leading-relaxed" style="color:#E8DFCB">
+        <p class="text-base leading-relaxed" style="color:#F4F4F4">
           Picture vectors as points scattered through 768-dimensional space. We can't visualize
           768 dimensions, so the diagram squashes it to 2. The principle survives the squash:
           <em>related ideas cluster</em>.
         </p>
-        <p class="text-base leading-relaxed mt-4" style="color:#E8DFCB">
+        <p class="text-base leading-relaxed mt-4" style="color:#F4F4F4">
           When the user asks <em class="text-cream">“how long is the warranty?”</em>, that
           question becomes its own vector (the hollow ring). It lands inside the warranty cluster.
           ChromaDB returns the nearest neighbors. The shipping cluster — far away in vector
           space — is correctly ignored.
         </p>
 
-        <button class="expand-btn mt-6 mono text-xs uppercase tracking-widest border border-cream px-4 py-2 inline-flex items-center gap-2 text-cream" data-target="exp-5" aria-expanded="false" style="color:#F2EBDB">
+        <button class="expand-btn mt-6 mono text-xs uppercase tracking-widest border border-cream px-4 py-2 inline-flex items-center gap-2 text-cream" data-target="exp-5" aria-expanded="false" style="color:#FFFFFF">
           <span class="arrow">▸</span><span>The training intuition</span>
         </button>
         <div id="exp-5" class="expandable mt-5">
-          <div class="border-l-4 pl-5 py-3" style="border-color:#E8B96B; background:rgba(232,185,107,0.08)">
-            <p class="text-sm leading-relaxed" style="color:#E8DFCB">
+          <div class="border-l-4 pl-5 py-3" style="border-color:#A6C8FF; background:rgba(166,200,255,0.10)">
+            <p class="text-sm leading-relaxed" style="color:#F4F4F4">
               Embedding models are trained with <em>contrastive loss</em>. Show the network
               billions of (anchor, positive, negative) triples — paraphrases, query–document
               pairs, translations — and reward it for putting positives close to anchors and
@@ -1163,27 +1162,27 @@ tailwind.config = {
 
         <!-- ids -->
         <text x="40" y="60" class="dlabel">ids</text>
-        <rect x="100" y="48" width="160" height="20" fill="#FAF6EC" stroke="#1A1410"/>
+        <rect x="100" y="48" width="160" height="20" fill="#FFFFFF" stroke="#161616"/>
         <text x="180" y="62" text-anchor="middle" class="mono" font-size="10">"abc-123_chunk_0"</text>
 
         <!-- embeddings -->
         <text x="40" y="92" class="dlabel">embeddings</text>
-        <rect x="100" y="80" width="160" height="20" fill="#1A1410" stroke="#1A1410"/>
-        <text x="180" y="94" text-anchor="middle" class="mono" font-size="10" fill="#E8B96B">[0.012, -0.034, ...]</text>
+        <rect x="100" y="80" width="160" height="20" fill="#161616" stroke="#161616"/>
+        <text x="180" y="94" text-anchor="middle" class="mono" font-size="10" fill="#A6C8FF">[0.012, -0.034, ...]</text>
 
         <!-- metadatas -->
         <text x="40" y="124" class="dlabel">metadatas</text>
-        <rect x="100" y="112" width="380" height="20" fill="#FAF6EC" stroke="#1A1410"/>
+        <rect x="100" y="112" width="380" height="20" fill="#FFFFFF" stroke="#161616"/>
         <text x="290" y="126" text-anchor="middle" class="mono" font-size="10">{doc_id, filename, chunk_index, total_chunks, uploaded_at}</text>
 
         <!-- documents -->
         <text x="40" y="156" class="dlabel">documents</text>
-        <rect x="100" y="144" width="600" height="20" fill="#FAF6EC" stroke="#1A1410"/>
+        <rect x="100" y="144" width="600" height="20" fill="#FFFFFF" stroke="#161616"/>
         <text x="400" y="158" text-anchor="middle" class="mono" font-size="10">"The warranty period is 24 months from date of purchase, per page 4..."</text>
 
         <!-- Lockstep arrows -->
-        <line x1="100" y1="180" x2="700" y2="180" stroke="#B8421C" stroke-width="0.6" stroke-dasharray="2 2"/>
-        <text x="400" y="200" text-anchor="middle" class="dlabel-sub" fill="#B8421C">all four arrays must be the same length — index <tspan font-weight="700">i</tspan> across them describes one chunk</text>
+        <line x1="100" y1="180" x2="700" y2="180" stroke="#0F62FE" stroke-width="0.6" stroke-dasharray="2 2"/>
+        <text x="400" y="200" text-anchor="middle" class="dlabel-sub" fill="#0F62FE">all four arrays must be the same length — index <tspan font-weight="700">i</tspan> across them describes one chunk</text>
       </g>
     </svg>
   </div>
@@ -1277,70 +1276,70 @@ tailwind.config = {
     <svg viewBox="0 0 880 320" class="w-full h-auto" id="query-svg">
       <!-- Step 1: load query -->
       <g class="hotspot" data-modal="m-q1">
-        <rect class="hotspot-fill" x="20" y="100" width="140" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="20" y="100" width="140" height="100" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="32" y="125" class="dlabel" font-weight="700">01 · LOAD</text>
-        <line x1="32" y1="135" x2="148" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <line x1="32" y1="135" x2="148" y2="135" stroke="#161616" stroke-width="0.4"/>
         <text x="32" y="155" class="dlabel-sub">read query JSON</text>
         <text x="32" y="170" class="dlabel-sub">from S3</text>
         <text x="32" y="188" class="dlabel-sub">→ query_text</text>
-        <circle cx="148" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="148" cy="108" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
-      <line x1="160" y1="150" x2="178" y2="150" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+      <line x1="160" y1="150" x2="178" y2="150" stroke="#161616" stroke-width="2" marker-end="url(#arrow2)"/>
 
       <!-- Step 2: embed query -->
       <g class="hotspot" data-modal="m-q2">
-        <rect class="hotspot-fill" x="180" y="100" width="140" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="180" y="100" width="140" height="100" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="192" y="125" class="dlabel" font-weight="700">02 · EMBED</text>
-        <line x1="192" y1="135" x2="308" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <line x1="192" y1="135" x2="308" y2="135" stroke="#161616" stroke-width="0.4"/>
         <text x="192" y="155" class="dlabel-sub">ollama.embed(q)</text>
         <text x="192" y="170" class="dlabel-sub">heartbeat()</text>
         <text x="192" y="188" class="dlabel-sub">→ 768-d vector</text>
-        <circle cx="308" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="308" cy="108" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
-      <line x1="320" y1="150" x2="338" y2="150" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+      <line x1="320" y1="150" x2="338" y2="150" stroke="#161616" stroke-width="2" marker-end="url(#arrow2)"/>
 
       <!-- Step 3: retrieve -->
       <g class="hotspot" data-modal="m-q3">
-        <rect class="hotspot-fill" x="340" y="100" width="160" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="340" y="100" width="160" height="100" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="352" y="125" class="dlabel" font-weight="700">03 · RETRIEVE</text>
-        <line x1="352" y1="135" x2="488" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <line x1="352" y1="135" x2="488" y2="135" stroke="#161616" stroke-width="0.4"/>
         <text x="352" y="155" class="dlabel-sub">collection.query()</text>
         <text x="352" y="170" class="dlabel-sub">n_results = 8</text>
         <text x="352" y="188" class="dlabel-sub">filter by doc_id</text>
-        <circle cx="488" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="488" cy="108" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
-      <line x1="500" y1="150" x2="518" y2="150" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+      <line x1="500" y1="150" x2="518" y2="150" stroke="#161616" stroke-width="2" marker-end="url(#arrow2)"/>
 
       <!-- Step 4: build context -->
       <g class="hotspot" data-modal="m-q4">
-        <rect class="hotspot-fill" x="520" y="100" width="160" height="100" fill="#F2EBDB" stroke="#1A1410" stroke-width="1.5"/>
+        <rect class="hotspot-fill" x="520" y="100" width="160" height="100" fill="#FFFFFF" stroke="#161616" stroke-width="1.5"/>
         <text x="532" y="125" class="dlabel" font-weight="700">04 · BUILD</text>
-        <line x1="532" y1="135" x2="668" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <line x1="532" y1="135" x2="668" y2="135" stroke="#161616" stroke-width="0.4"/>
         <text x="532" y="155" class="dlabel-sub">join with "\n\n---"</text>
         <text x="532" y="170" class="dlabel-sub">cap at 12 000 chars</text>
         <text x="532" y="188" class="dlabel-sub">+ system + question</text>
-        <circle cx="668" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="668" cy="108" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
-      <line x1="680" y1="150" x2="698" y2="150" stroke="#1A1410" stroke-width="2" marker-end="url(#arrow2)"/>
+      <line x1="680" y1="150" x2="698" y2="150" stroke="#161616" stroke-width="2" marker-end="url(#arrow2)"/>
 
       <!-- Step 5: generate -->
       <g class="hotspot" data-modal="m-q5">
-        <rect class="hotspot-fill" x="700" y="100" width="160" height="100" fill="#F2EBDB" stroke="#B8421C" stroke-width="2"/>
-        <text x="712" y="125" class="dlabel" font-weight="700" fill="#B8421C">05 · GENERATE</text>
-        <line x1="712" y1="135" x2="848" y2="135" stroke="#1A1410" stroke-width="0.4"/>
+        <rect class="hotspot-fill" x="700" y="100" width="160" height="100" fill="#FFFFFF" stroke="#0F62FE" stroke-width="2"/>
+        <text x="712" y="125" class="dlabel" font-weight="700" fill="#0F62FE">05 · GENERATE</text>
+        <line x1="712" y1="135" x2="848" y2="135" stroke="#161616" stroke-width="0.4"/>
         <text x="712" y="155" class="dlabel-sub">ollama.generate()</text>
         <text x="712" y="170" class="dlabel-sub">temp 0.3 · ctx 4096</text>
         <text x="712" y="188" class="dlabel-sub">strip &lt;think&gt; · cap 50k</text>
-        <circle cx="848" cy="108" r="3" fill="#B8421C" class="hotspot-pulse"/>
+        <circle cx="848" cy="108" r="3" fill="#0F62FE" class="hotspot-pulse"/>
       </g>
 
       <!-- Output writes -->
-      <line x1="780" y1="200" x2="780" y2="240" stroke="#1A1410" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
-      <rect x="700" y="240" width="160" height="40" fill="#E8DFCB" stroke="#1A1410"/>
+      <line x1="780" y1="200" x2="780" y2="240" stroke="#161616" stroke-width="1.2" marker-end="url(#arrow2)" stroke-dasharray="3 2"/>
+      <rect x="700" y="240" width="160" height="40" fill="#F4F4F4" stroke="#161616"/>
       <text x="780" y="260" text-anchor="middle" class="dlabel" font-weight="700">S3: answer/{q}.json</text>
       <text x="780" y="274" text-anchor="middle" class="dlabel-sub">+ webhook to backend</text>
 
@@ -1720,19 +1719,19 @@ tailwind.config = {
 <!-- ============================================================ -->
 <section id="sec-11" class="relative z-10 bg-ink text-cream py-24 border-t border-ink scroll-mt-24">
   <div class="max-w-6xl mx-auto px-6 relative">
-    <div class="num-deco absolute top-8 right-6" style="color: #F2EBDB;">11</div>
+    <div class="num-deco absolute top-8 right-6" style="color: #FFFFFF;">11</div>
 
     <div class="grid md:grid-cols-12 gap-10 mb-12">
       <div class="md:col-span-3">
-        <div class="mono text-xs uppercase tracking-[0.25em]" style="color:#E8B96B">Chapter XI</div>
+        <div class="mono text-xs uppercase tracking-[0.25em]" style="color:#A6C8FF">Chapter XI</div>
         <div class="display text-7xl font-light mt-2 leading-none">11</div>
         <div class="w-12 mt-4 h-1 bg-cream"></div>
-        <p class="marginnote mt-6" style="color:#C4B89F">Where to read deeper. Primary sources only.</p>
+        <p class="marginnote mt-6" style="color:#C6C6C6">Where to read deeper. Primary sources only.</p>
       </div>
 
       <div class="md:col-span-9">
         <h2 class="display text-5xl md:text-6xl leading-[0.95] font-light tracking-tight">
-          References &amp; <em class="display-soft" style="color:#E8B96B">further reading</em>.
+          References &amp; <em class="display-soft" style="color:#A6C8FF">further reading</em>.
         </h2>
       </div>
     </div>
@@ -1740,7 +1739,7 @@ tailwind.config = {
     <div class="grid md:grid-cols-2 gap-x-12 gap-y-2">
       <!-- Temporal -->
       <div class="border-t border-cream/30 py-5">
-        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Temporal</div>
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#A6C8FF">Temporal</div>
         <ul class="space-y-2 text-base">
           <li><a href="https://docs.temporal.io/develop/python/core-application" target="_blank" rel="noopener" class="ref-link">Python SDK · Activities</a></li>
           <li><a href="https://docs.temporal.io/encyclopedia/retry-policies" target="_blank" rel="noopener" class="ref-link">Retry policies</a></li>
@@ -1751,7 +1750,7 @@ tailwind.config = {
 
       <!-- Ollama -->
       <div class="border-t border-cream/30 py-5">
-        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Ollama</div>
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#A6C8FF">Ollama</div>
         <ul class="space-y-2 text-base">
           <li><a href="https://github.com/ollama/ollama/blob/main/docs/api.md" target="_blank" rel="noopener" class="ref-link">REST API reference</a></li>
           <li><a href="https://github.com/ollama/ollama/blob/main/docs/api.md#generate-embeddings" target="_blank" rel="noopener" class="ref-link">/api/embed endpoint</a></li>
@@ -1762,7 +1761,7 @@ tailwind.config = {
 
       <!-- ChromaDB -->
       <div class="border-t border-cream/30 py-5">
-        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">ChromaDB</div>
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#A6C8FF">ChromaDB</div>
         <ul class="space-y-2 text-base">
           <li><a href="https://docs.trychroma.com/" target="_blank" rel="noopener" class="ref-link">Chroma documentation</a></li>
           <li><a href="https://docs.trychroma.com/docs/collections/configure" target="_blank" rel="noopener" class="ref-link">Collection configuration · HNSW</a></li>
@@ -1772,7 +1771,7 @@ tailwind.config = {
 
       <!-- Algorithms -->
       <div class="border-t border-cream/30 py-5">
-        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Algorithms &amp; theory</div>
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#A6C8FF">Algorithms &amp; theory</div>
         <ul class="space-y-2 text-base">
           <li><a href="https://arxiv.org/abs/1603.09320" target="_blank" rel="noopener" class="ref-link">HNSW paper · Malkov &amp; Yashunin (2016)</a></li>
           <li><a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener" class="ref-link">Original RAG paper · Lewis et al. (2020)</a></li>
@@ -1783,7 +1782,7 @@ tailwind.config = {
 
       <!-- Python libs -->
       <div class="border-t border-cream/30 py-5">
-        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Python libraries used</div>
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#A6C8FF">Python libraries used</div>
         <ul class="space-y-2 text-base">
           <li><a href="https://github.com/jsvine/pdfplumber" target="_blank" rel="noopener" class="ref-link">pdfplumber</a> — PDF text extraction</li>
           <li><a href="https://python-docx.readthedocs.io/" target="_blank" rel="noopener" class="ref-link">python-docx</a> — Word documents</li>
@@ -1795,7 +1794,7 @@ tailwind.config = {
 
       <!-- Patterns -->
       <div class="border-t border-cream/30 py-5">
-        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#E8B96B">Patterns referenced</div>
+        <div class="mono text-xs uppercase tracking-widest mb-3" style="color:#A6C8FF">Patterns referenced</div>
         <ul class="space-y-2 text-base">
           <li><a href="https://martinfowler.com/articles/injection.html" target="_blank" rel="noopener" class="ref-link">Dependency Injection · Fowler</a></li>
           <li><a href="https://min.io/" target="_blank" rel="noopener" class="ref-link">MinIO · S3-compatible local storage</a></li>
@@ -1806,7 +1805,7 @@ tailwind.config = {
 
     <div class="mt-20 flex justify-between items-end">
       <div>
-        <div class="mono text-xs uppercase tracking-[0.3em]" style="color:#8B7E6B">End of manual</div>
+        <div class="mono text-xs uppercase tracking-[0.3em]" style="color:#6F6F6F">End of manual</div>
         <p class="display text-3xl mt-3 italic font-light" style="font-variation-settings: 'SOFT' 100;">Happy retrieving.</p>
       </div>
       <a href="#top" class="mono text-xs uppercase tracking-widest border border-cream px-4 py-2 hover:bg-cream hover:text-ink transition">↑ Back to top</a>
@@ -1979,7 +1978,7 @@ tailwind.config = {
       <span class="text-cream2"># sliding window</span><br>
       chunks, i = [], 0<br>
       <span class="text-cream2">while</span> i &lt; len(words):<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;chunks.append(<span style="color:#B8C09A">" "</span>.join(words[i : i + 500]))<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;chunks.append(<span style="color:#D0E2FF">" "</span>.join(words[i : i + 500]))<br>
       &nbsp;&nbsp;&nbsp;&nbsp;i += 500 - 100  <span class="text-cream2"># stride = 400</span>
     </div>
     <p class="text-base leading-relaxed mt-4">
